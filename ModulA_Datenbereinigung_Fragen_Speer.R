@@ -1,6 +1,7 @@
 # aut: Oliver Speer
 # speeroli@students.zhaw.ch
-# https://github.com/oliverspeer/CAS-ASDA.git
+# https://github.com/oliverspeer/CAS-ASDA/blob/main/ModulA_Datenbereinigung_Fragen_Speer.R
+#
 # Septermber 2024, Winterthur
 --------------------------------------------------------------------------------
 
@@ -96,7 +97,7 @@ ugz <- read_csv("ugz_luftqualitaetsmessung_seit-2012.csv", col_names = FALSE) |>
   mutate(standort = str_replace(standort, "strasse", "")) |> 
   
   # Formate wie Datum, Character und Numeric anpassen wo zutreffend, 
-  # einheitliche NAs setzen
+  # einheitlich NAs setzen
   mutate(datum = as.Date(datum),
          
          standort = as.factor(standort),
