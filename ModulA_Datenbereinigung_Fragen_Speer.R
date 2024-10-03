@@ -1,9 +1,10 @@
+# ------------------------------------------------------------------------------
 # aut: Oliver Speer
 # speeroli@students.zhaw.ch
 # https://github.com/oliverspeer/CAS-ASDA/blob/main/ModulA_Datenbereinigung_Fragen_Speer.R
 #
 # Septermber 2024, Winterthur
---------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 #  tidyverse library aktivieren
 library(tidyverse)
