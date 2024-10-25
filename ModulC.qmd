@@ -1,0 +1,19 @@
+# Modul C - Advanced Regression Modeling {.unnumbered}
+
+**Dr. Marcel Dettling**  
+Institute for Data Analysis and Process Design  
+Zurich University of Applied Sciences  
+CH-8401 Winterthur<br><br>
+
+
+
+[**Skript:**]{.underline}
+
+/home/olli/ZHAW/24 Modul C/Skript
+
+
+[Link zum Skript](https://moodle.zhaw.ch/pluginfile.php/1854048/mod_folder/content/0/Skript/Skript_ARM_Part01_GAM.pdf?forcedownload=1)
+
+https://moodle.zhaw.ch/pluginfile.php/1854048/mod_folder/content/0/Skript/Skript_ARM_Part01_GAM.pdf?forcedownload=1
+
+

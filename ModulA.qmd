@@ -1,0 +1,6 @@
+# Modul A - Data Enhancement and Processing {.unnumbered}
+
+<https://raw.githubusercontent.com/rstudio/cheatsheets/main/tidyr.pdf>
+![tidyR cheatsheet](cheatsheet.png)
+
+

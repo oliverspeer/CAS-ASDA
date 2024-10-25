@@ -1,0 +1,66 @@
+project:
+  type: book
+
+book:
+  title: "CAS_ASDA_book"
+  author: "Oliver Speer"
+  date: "06.9.2023"
+  cover-image: zhaw.png
+  repo-url: https://github.com/oliverspeer/CAS-ASDA.git
+  repo-branch: main
+  repo-actions: [edit, issue]
+  
+  chapters:
+    - index.qmd
+    # - intro.qmd
+    - part: ModulA.qmd
+      chapters: 
+        - Arbeitsblatt1.qmd
+        - Arbeitsblatt2.qmd
+        - Arbeitsblatt3.qmd
+        - Arbeitsblatt4.qmd
+        - Arbeitsblatt5.qmd
+        - Arbeitsblatt6.qmd
+    
+    - part: ModulB.qmd
+      chapters: 
+        - EPandML.qmd
+        
+    - part: ModulC.qmd
+      chapters: 
+        - Uebungsblatt01.qmd
+        - Uebungsblatt02.qmd
+         
+        
+        
+        
+        
+        
+    - part: ModulD.qmd
+      # chapters:
+         
+    
+    
+        
+    
+    
+
+        
+
+# bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
+    css: cas.css
+    
+
+    
+    code-link: true
+  pdf:
+    documentclass: scrreprt
+    
+    author-meta: "Oliver Speer"
+    callout-appearance: simple
+
+editor: visual

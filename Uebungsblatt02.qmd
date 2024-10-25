@@ -1,0 +1,229 @@
+# Übungsblatt 2 {.unnumbered}
+
+---
+title:  "Übungsblatt 2"
+author: "Marcel Dettling"
+date:   "`r Sys.Date()`"
+editor: source
+lang: de
+language: 
+  title-block-author-single: "Autor"
+  title-block-published: "Version vom"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 2
+    theme: sandstone
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+## Aufgabe 1 {.justify}
+
+Der Datensatz `no2basel.rda` enthält Angaben über die Menge an Stickstoffdioxid in der Basler Luft. Als Prädiktoren kommen der Tag der Messung, die Temperatur und die Windstärke zum Einsatz.
+
+```{r}
+load("no2basel.rda")
+load("resplot.rda")
+```
+
+### Teilaufgabe a)
+
+Passen sie ein geeignetes, multiples lineares Regressionsmodell an. Erwägen sie durch Analyse von Residuenplots, ob eine Transformation der Zielgrösse notwendig erscheint. Prüfen sie dann die partiellen Residuenplots. Welche Auffälligkeiten bestehen bei den Prädiktoren?
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+pairs(no2basel)
+fit <- lm(NO2 ~ ., data = no2basel)
+summary(fit)
+resplot(fit)
+
+fit1 <- lm(NO2 ~ Temp + log(Wind) + Tag, data = no2basel)
+summary(fit1)
+resplot(fit1)
+
+fit.2 <- lm(log(NO2) ~ ., data = no2basel)
+summary(fit.2)
+resplot(fit.2)
+
+fig.3 <- lm(log(NO2) ~ Temp + log(Wind) + Tag, data = no2basel)
+summary(fig.3)
+resplot(fig.3)
+```
+
+### Teilaufgabe b)
+
+Modellieren sie den NO2-Wert nun mit einem GAM.
+
+i)  Entscheiden sie, ob eine Log-Transformation der Zielgrösse nötig ist.
+
+ii) Prüfen sie die Form der flexiblen Komponenten. Scheint deren Einfluss realistisch, bzw. mit einem physikalischen Verständnis des Problems vereinbar? Greifen sie wo nötig ein und verändern sie die Glättungsparameter.
+
+iii) Führen sie ebenfalls (mit einer Methode nach Wahl) eine Variablenselektion aus, um zu entscheiden, ob gewisse Terme aus dem Modell eliminiert werden können, bzw. eliminiert werden sollen.
+
+iv) Entscheiden sie sich dann für eine bestes GAM.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+library(mgcv)
+fit.gam <- gam(NO2 ~ s(Temp) + s(Wind) + s(Tag), data = no2basel)
+summary(fit.gam)
+
+par(mfrow = c(2, 2))
+plot(fit.gam, residuals = TRUE, shade = TRUE, pch = 20, cex = 0.5)
+
+# par(mfrow = c(2, 2))
+gam.check(fit.gam, pch = 20, rep = 100)
+
+fit.gam1 <- gam(log(NO2) ~ s(Temp) + s(Wind) + s(Tag), data = no2basel)
+summary(fit.gam1)
+plot(fit.gam1, residuals = TRUE, shade = TRUE, pch = 20, cex = 0.5)
+
+# par(mfrow = c(2, 2))
+gam.check(fit.gam1, pch = 20, rep = 100)
+
+AIC(fit.gam, fit.gam1)
+```
+
+[Achtung: die Modellvergleichsparameter GCV, AIC oder auch das Adjusted R-Squared helfen uns hier wegen der Transformation der Zielgrösse nicht weiter (d.h. die Werte sind nicht vergleichbar!). ]{style="color:#FF4500; font-weight:bold"}
+
+[i. Aber die Residuenplots sprechen dafür. Insgesamt ist keine systematischer Fehler erkennbar.]{style="color:#00008B; font-weight:bold"}
+
+[ii. Die gefitteten Kurven, vorallem bei der Temperatur zeigen einige Peaks, sind diese realistisch? oder ist dies overfitting? Im nächsten Schritt wird etwas mehr Glättung angepasst.]{style="color:#00008B; font-weight:bold"}
+
+```{r}
+library(mgcv)
+par(mfrow = c(2, 2))
+fit.gam2 <- gam(NO2 ~ s(Temp) + s(Wind) + s(Tag), data = no2basel, gamma = 1.266)
+plot(fit.gam2, residuals = TRUE, shade = TRUE, pch = 20, cex = 0.5)
+
+par(mfrow = c(2, 2))
+gam.check(fit.gam2, pch = 20, rep = 100)
+
+fit.gam3 <- gam(log(NO2) ~ s(Temp) + s(Wind) + s(Tag), data = no2basel, gamma = 1.266)
+plot(fit.gam3, residuals = TRUE, shade = TRUE, pch = 20, cex = 0.5)
+
+par(mfrow = c(2, 2))
+gam.check(fit.gam3, pch = 20, rep = 100)
+
+```
+[ii. Mit gamma von 1.266 werden die Fits für Temperatur und Wind linear. Die Variable Tag dagegen erhält einen polynom. Das Bild scheint physikalisch realistischer zu sein .]{style="color:#00008B; font-weight:bold"}
+
+[iii. Im nächsten Schritt wird eine Variablenselektion durchgeführt.]{style="color:#00008B; font-weight:bold"}
+
+```{r selection1, echo=T, message=FALSE, warning=FALSE, eval=TRUE}
+fit.gam4 <- gam(log(NO2) ~ s(Temp) + s(Wind) + s(Tag), 
+                data = no2basel, 
+                gamma = 1.266, 
+                select = TRUE)
+
+```
+
+
+```{r diagn1, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+par(mfrow = c(2, 2))
+plot(fit.gam4, residuals = TRUE, shade = TRUE, pch = 20, cex = 0.5)
+
+par(mfrow = c(2, 2))
+gam.check(fit.gam4, 
+          pch = 20, 
+          rep = 100)
+```
+
+
+
+
+
+```{r selection3, echo=T, message=FALSE, warning=FALSE, eval=TRUE}
+fit.gam6 <- gam(NO2 ~ s(Temp) + s(Wind) + s(Tag), data = no2basel, 
+                gamma = 1.266, 
+                select = TRUE)
+```
+
+
+```{r diagn3, echo=F, message=FALSE, warning=FALSE, eval=TRUE}
+par(mfrow = c(2, 2))
+plot(fit.gam6, residuals = TRUE, shade = TRUE, pch = 20, cex = 0.5)
+
+par(mfrow = c(2, 2))
+gam.check(fit.gam6, 
+          pch = 20, 
+          rep = 100)
+```
+
+
+### Teilaufgabe c)
+
+Nutzen sie die Erkenntnisse aus b), aber ziehen sie nun auch noch Interaktionsterme in Erwägung. Ziehen sie ein abschliessendes Fazit, ob Interaktionen nötig sind.
+
+### Teilaufgabe d)
+
+Welches der bisherigen Modelle eignet sich am besten? Verwenden sie Modellvergleichskriterien und statistische Tests, um zu einer Entscheidung zu kommen.
+
+### Teilaufgabe e)
+
+Erzeugen sie eine erwartungstreue Vorhersage mit einem 95%-Vertrauensintervall für Tag=7, Temperatur=3 und Wind=4.
+
+## Aufgabe 2 {.justify}
+
+In dieser Aufgabe kommt der kleine (simulierte) Lohndatensatz in `lohn.rda` zur Anwendung, der auf den Slides bereits vorgestellt wurde. Enthalten ist der Monatslohn von 200 Personen, deren Alter sowie das Geschlecht (m/f). Wir studieren in dieser Aufgabe die unterschiedlichen Fits, die wir von einem flexiblen Modell mit/ohne Interaktionsterm erhalten.
+
+```{r}
+load("lohn.rda")
+```
+
+### Teilaufgabe a)
+
+Passen sie das additive Modell `lohn ~ s(alter) + geschlecht` an. Plotten sie dann die gefitteten Lohn-Kurven für Männer und Frauen in einem Scatterplot mit den Daten ein (**Hinweis:** mit `predict()` arbeiten!). Erzeugen sie auch einen Tukey-Anscombe-Plot um zu prüfen, ob das Modell passt. Welche Aussage ist aus dem Summary über die beiden Kurven möglich?
+
+### Teilaufgabe b)
+
+Verwenden sie nun das Interaktions-Modell `lohn ~ s(alter,by=geschlecht) + geschlecht`. Plotten sie erneut die gefitteten Lohn-Kurven für Männer und Frauen in den Scatterplot ein. Was sagt ihnen das Summary hier?
+
+### Teilaufgabe c)
+
+Prüfen sie nun, was `lohn ~ s(alter, by=geschlecht)` ergibt, sowohl via grafische Darstellung wie durch Studium des Summary-Outputs. Was sind die Erkenntnisse daraus?
+
+### Teilaufgabe d)
+
+Führen sie mit der Funktion `gam.check()` eine Residuenanalyse für das Interaktions-Modell aus b) durch. Was sind ihre Erkenntnisse daraus und wie sollte das Modell modifiziert werden? Rechnen sie dann dieses modifizierte Modell sowohl mit als auch ohne Interaktionsterm und stellen sie die Fits in den Scatterplots auf der Originalskala (d.h. Lohn vs. Alter) dar.
+
+## Aufgabe 3 {.justify}
+
+Wir verwenden in dieser Aufgabe einen Datensatz, wo es um die Modellierung von Herzkrankheiten bzw. Bluthochdruck gibt. Sie finden den Datensatz als `heart.rda`. Er hat 462 Beobachtungen und 10 Variablen.
+
+| Variable    | Beschreibung                                       |
+|-------------|----------------------------------------------------|
+| `sbp`       | Systolic blood pressure.                           |
+| `tobacco`   | Cumulative tobacco (kg).                           |
+| `ldl`       | Low-density lipoprotein cholesterol.               |
+| `adiposity` | Adiposity.                                         |
+| `famhist`   | Family history of heart disease (Present, Absent). |
+| `typea`     | Type-A behavior.                                   |
+| `obesity`   | Obesity.                                           |
+| `alcohol`   | Current alcohol consumption.                       |
+| `age`       | Age at onset.                                      |
+| `chd`       | Response, coronary heart disease.                  |
+
+Die Variable `sbp` ist die Zielgrösse, die anderen Variablen stehen als Prädiktoren zur Verfügung. Folgende Aufgaben sind zu lösen:
+
+```{r, echo=F, eval=T}
+load("heart.rda")
+```
+
+### Teilaufgabe a)
+
+Verwenden sie zuerst nur die beiden Variablen `obesity` und `age` als Prädiktoren. Finden sie ein geeignetes Modell zur Beschreibung der Zielgrösse. Erwägen sie dabei sowohl lineare wie auch additive Modelle, allenfalls mit der Verwendung von Interaktionstermen. Vergleichen sie diese mit den Modellvergleichsparametern sowie auch mit statistischem Testen.
+
+### Teilaufgabe b)
+
+Verwenden sie nun alle zur Verfügung stehenden Prädiktoren, reduzieren sie das Modell jedoch auf die wesentlichen Prädiktoren. Verzichten sie dieses Mal zwecks einfacherer Interpretierbarkeit auf Interaktionsterme, erwägen sie aber immer noch ein lineares Modell und ein GAM.

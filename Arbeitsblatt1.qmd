@@ -1,0 +1,61 @@
+# Arbeitsblatt 1 {.unnumbered}
+
+---
+title:  "Arbeitsblatt 1"
+author: "Christoph Hofer"
+date:   "`r Sys.Date()`"
+editor: 
+  visual:
+    mardown: 
+      wrap: 72
+lang: de
+language: 
+  title-block-author-single: "Autor:"
+  title-block-published: "Version vom:"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    theme: sandstone
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+## Aufgabe 1: Reshaping Data I {.justify}
+
+Transformieren Sie den in R vorhandenen Datensatz iris ins long-Format, so dass die vier At- tribute Sepal.Length Sepal.Width, Petal.Lengthund Petal.Width (Längen der Blüten- und Kelchblätter von Schwertlilien) in einem Faktor type zusammengefasst sind und die Messwerte in der Spalte cm. Ersetzen Sie den Punkt in den Attributnamen durch \_ (underscore) und setzen Sie alles in Kleinschreibung. Verwenden Sie dazu die Funktionen rename_with() mit gsub() sowie pivot_longer(). Falls sie gsub() nicht kennen, können Sie auch einfach rename() verwenden.
+
+```{r, echo=F, eval=T}
+
+
+```
+
+[TEXT EINGABE]{style="color:#3C5AB4"}
+
+## Aufgabe 2: Reshaping Data II {.justify}
+
+Transformieren Sie den im R-Paket tidyr enthalten Datensatz who ins long-Format. Der Datensatz enthält von 1980 − 2013 eine Teilmenge der Daten aus dem Globalen Tuberkulosebericht der WHO und den dazugehörigen globalen Bevölkerungsgruppen. Die Spalten 5 − 60 sollen dabei in die vier Spalten diagnosis, gender, age und count transformiert werden. Eine detailierte Beschreibung der Spalten 5 − 60 finden Sie unter Details auf der Hilfeseite zum Datensatzes (?who). Die Funktionen substr() und gsub() können Ihnen dabei helfen.
+
+```{r, echo=F, eval=T}
+?who
+```
+
+## Aufgabe 3 {.justify}
+
+TEXT
+
+```{r, echo=T, eval=T}
+
+
+```

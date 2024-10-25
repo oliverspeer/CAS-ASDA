@@ -1,0 +1,411 @@
+# Arbeitsblatt 4 {.unnumbered}
+
+---
+title:  "Arbeitsblatt 4"
+author: "Anna Drewek"
+date:   "`r Sys.Date()`"
+editor: 
+  visual:
+    markdown: 
+      wrap: 72
+lang: de
+language: 
+  title-block-author-single: "Autor:"
+  title-block-published: "Version vom:"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    theme: sandstone
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+## Aufgabe 1: Diabetes {.justify}
+
+Verwenden Sie die diabetes Daten des R-Pakets VIM. Die Daten umfassen folgende medizinische Angaben zu 768 Patientinnen. Die Angabe zu Diabetes (Outcome) wird als Zielvariable, und die übrigen Angaben wie Anzahl Schwangerschaften (Pregnancies) werden als erklärende Variablen betrachtet. Die Daten stammen aus einer grösseren Datenbank und es wurden mehrere Einschränkungen gemacht. Insbesondere sind alle Patienten weiblich, mindestens 21 Jahre alt und von Pima-Indianern abstammend.
+
+```{r, echo=T, eval=T}
+library(VIM)
+data("diabetes")
+?diabetes
+
+```
+
+### Teilaufgabe a {.justify}
+
+Wieviel fehlende Werte gibt es pro Variable? Verwenden Sie dafür die Funktion aggr() des R-Pakets VIM um einfache Statistiken und Plots zu erzeugen. Was sehen Sie?
+
+```{r, echo=F, eval=T, warning=F, message=F}
+a <- aggr(diabetes, plot = F)
+
+summary(a)
+
+plot(a, labels = substr(colnames(diabetes), 1, 9))
+
+```
+
+[Rechter Plot: Die meisten fehlenden Werte weist die Variable Insulin auf, gefolgt von SkinThickness. Linker Plot: Skinthickness und Insulin Datenpunkte fehlen häufig zusammen.]{style="color:#00008B; font-weight: bold"}
+
+### Teilaufgabe b {.justify}
+
+Machen Sie einen Matrixplot. Sortieren Sie nach verschiedenen Variablen. Finden Sie eine MAR-Situation?
+
+```{r, echo=F, eval=T, warning=F, message=F}
+library(VIM)
+par(mfrow = c(1, 2))
+matrixplot(diabetes, labels = substr(colnames(diabetes), 1, 5))
+matrixplot(diabetes, sortby = "Age", labels = substr(colnames(diabetes), 1, 5))
+
+```
+
+[Es ist eine leichte Tendenz zu erkennen, dass bei den älteren Patientinnen eher Insulin- und SkinThickness Werte fehlen. Wobei bei den Jüngeren eher die Angaben zu den Schwangerschaften (Pregn) fehlen. Daher schätze ich die fehlenden Werte als "Missing at random" MAR ein.]{style="color:#00008B; font-weight: bold"}
+
+### Teilaufgabe c {.justify}
+
+Stellen Sie das Alter gegen die anderen Variablen mit einem Boxplot ( Funktion pbox()) dar. Gibt es Hinweise auf MAR Situationen?
+
+```{r, echo=F, eval=T}
+par(mar = c(4,4,1,1), cex.axis = 0.5)
+pbox(diabetes, pos = 8, las = 2)
+
+
+
+```
+
+[Der BoxPlot bestätigt die Beobachtung aus dem Matrix-Plot: Es zu erkennen, dass bei den fehlenden Insulin- und SkinThickness Werte der Median für das Alter höher ist als bei den vorhandenen Daten. Bei den fehlendne Angaben zu den Schwangerschaften (Pregn) ist der Alters-Median eher tiefer. Daher schätze ich weiterhin die fehlenden Werte als "Missing at random" MAR ein.]{style="color:#00008B; font-weight: bold"}
+
+\### Teilaufgabe d {.justify} Fokussieren Sie nun auf die Variablen BMI und Insulin. Erzeugen Sie ein Histogramm und einen Spineplot für BMI und färben Sie die Punkte nach fehlenden Werte bei Insulin ein. Welcher Situation entspricht dies: MAR, MCAR oder MNAR?
+
+```{r, echo=F, eval=T, warning=F, message=F}
+par(mfrow = c(1,2))
+histMiss(diabetes[, c("BMI", "Insulin")])
+spineMiss(diabetes[, c("BMI", "Insulin")])
+```
+
+[Fehlende Insulin-Werte sind über die BMI-Werte gleich verteilt, im spine-Plot ein leichter trend zu erkennen, dass bei hohen BMI Werten eher Insulin Werte fehlen. MCAR]{style="color:#00008B; font-weight: bold"}
+
+### Teilaufgabe e {.justify}
+
+Erzeugen Sie einen parallelen Koordinatenplot, bei welchem fehlende Werte bei der Variablen Pregancies (Argument: highlight = Pregnancies") hervorgehoben werden. Was sehen Sie?
+
+```{r, echo=F, eval=T, warning=F, message=F}
+par(mar = c(12,1,1,1))
+parcoordMiss(diabetes, highlight = "Pregnancies",
+plotvars = 2:9, plotNA = FALSE)
+```
+
+[Angaben zu Schwangerschaften fehlen bei jüngeren Patientinnen und zusammen mit Insulin und DiabetesPedigree. MAR Situation. Für die anderen fehlenden Werte zusammen mit der Schwangercshaft MCAR Sitatuation.]{style="color:#00008B; font-weight: bold"}
+
+## Aufgabe 2: Ozon {.justify}
+
+Verwenden Sie den Datensatz airquality aus dem Unterricht.
+
+```{r, echo=F, eval=T}
+library(VIM)
+data(airquality)
+  
+```
+
+### Teilaufgabe a {.justify}
+
+Wieviel fehlende Werte gibt es bei den einzelnen Variablen?
+
+```{r, echo=F, eval=T, warning=F, message=F}
+air <- aggr(airquality, plot = F)
+summary(air)
+plot(air, labels = substr(colnames(airquality), 1, 5))
+```
+
+[Die meisten fehlenden Werte weist die Variable Ozone auf, gefolgt von Solar.R. Beide fehlen selten zusammen. MCAR Situation]{style="color:#00008B; font-weight: bold"}
+
+### Teilaufgabe b {.justify}
+
+Erzeugen Sie einen Matrixplot und sortieren Sie die Daten geeignet. Können Sie eine MAR- Situation erkennen? Welche?
+
+```{r, echo=F, eval=T, warning=F, message=F}
+par(mfrow = c(2, 2))
+matrixplot(airquality, labels = substr(colnames(airquality), 1, 5))
+matrixplot(airquality, sortby = "Wind", labels = substr(colnames(airquality), 1, 5))
+matrixplot(airquality, sortby = "Temp", labels = substr(colnames(airquality), 1, 5))
+matrixplot(airquality, sortby = "Solar.R", labels = substr(colnames(airquality), 1, 5))
+```
+
+[Im Mai uns Juni scheinen etwas häufiger die Ozon-werte zu fehlen. Mit den anderen Variablen ist kein Zusammenhang bzgl fehlender Werte erkennbar. MCAR Situation]{style="color:#00008B; font-weight: bold"}
+
+### Teilaufgabe c
+
+Benutzen Sie die Mittelwert Imputation für die fehlenden Werte bei der Variable Ozone. Vergleichen Sie die Verteilung vor und nach Imputation.
+
+```{r, echo=F, eval=T, warning=F, message=F}
+library(tidyverse)
+m.oz <- mean(airquality$Ozone, na.rm = T)
+m.so <- mean(airquality$Solar.R, na.rm = T)
+airquality$OzoneImp <- airquality$Ozone
+airquality$SolarImp <- airquality$Solar.R
+
+airquality$OzoneImp[is.na(airquality$OzoneImp)] <- mean(airquality$Ozone, na.rm = T)
+airquality$SolarImp[is.na(airquality$SolarImp)] <- mean(airquality$Solar.R, na.rm = T)
+```
+
+```{r, echo = FALSE, eval = TRUE, warning=FALSE, message=FALSE}
+var(airquality$Ozone, na.rm = T)
+var(airquality$OzoneImp, na.rm = T)
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+ggplot(airquality, aes(Ozone, fill = "Original")) +
+  geom_histogram(alpha = 1, binwidth = 1) +
+  geom_histogram(aes(OzoneImp, fill = "Imputed"), alpha = 0.5, binwidth = 1) +
+  labs(title = "Original vs Imputed")
+
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+ggplot(airquality, aes(Solar.R, fill = "Original")) +
+  geom_histogram(alpha = 1, binwidth = 1) +
+  geom_histogram(aes(SolarImp, fill = "Imputed"), alpha = 0.5, binwidth = 1) +
+  labs(title = "Original vs Imputed")
+
+```
+
+### Teilaufgabe c
+
+Passen Sie eine multiple lineare Regression (Ozone \~ Wind + Temp + Solar.R) an die Originaldaten und auch an mit vervollständigten Daten aus c). Vergleichen Sie die Koeffi- zienten, die Fehlervarianz, R2 und Signifikanzen. Warum sollte man dem Modell mit den vervollständigten Daten weniger vertrauen?
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+fit <- lm(Ozone ~ Wind + Temp + Solar.R, data = na.omit(airquality))
+fit.imp <- lm(OzoneImp ~ Wind + Temp + Solar.R, airquality)
+fit.imps <- lm(OzoneImp ~ Wind + Temp + SolarImp, airquality)
+
+library(stargazer)
+stargazer(fit, fit.imp, fit.imps, type = "text")
+```
+
+[Die Imputation hat weder die Signifikanz der Variablen noch das Vorzeichen der Koeffizienten verändert hat. Das adjustierte R2 des imputierten Modells ist etwas niedriger als das des Origi- nalmodells, dafür ist die Fehlervarianz des imputierten Modells minimal besser. Da die fehlenden Werte von Ozone durch deren Mittelwerte (also einem einzigen Wert) ersetzt werden, hat dies zur Folge, dass die Varianz der Variable reduziert wird. Bei einer Reduktion der Varianzen von Variablen werden auch deren Kovarianzen gemindert, was in aller Regel die Stärke der geschätzten Regressionskoeffizienten mindert. Auch verkleinert sich oftmals der Standardfehler, was zu falschen Ergebnissen von Signifikanztests führt. Es ist daher nicht empfehlenswert, eine Regression basierend auf Datensätzen mit Mittelwert Imputationen durchzuführen.]{style="color:#00008B; font-weight: bold"}
+
+### Teilaufgabe e
+
+Führen Sie mit missForest eine Imputation durch und passen Sie eine multiple lineare Regression (Ozone \~ Wind + Temp + Solar.R) auf den vervollständigten Datensatz an. Vergleichen Sie die Koeffizienten.
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+library(missForest)
+data(airquality)
+set.seed(8173)
+airquality.imp <- missForest(airquality)
+fit.imp.mf <- lm(Ozone ~ Wind + Temp + Solar.R, airquality.imp$ximp)
+stargazer(fit, fit.imps, fit.imp.mf, type = "text")
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+ggplot(airquality, aes(Ozone, fill = "Original")) +
+  geom_histogram(alpha = 1, binwidth = 1) +
+  geom_histogram(aes(airquality.imp$ximp$Ozone, fill = "Imputed"), alpha = 0.5, binwidth = 1) +
+  labs(title = "Original vs Imputed")
+
+```
+
+### Teilaufgabe f
+
+Führen Sie eine multiple (m = 5) Imputation mit MICE basierend auf Random Forest durch. Passen Sie wieder eine multiple lineare Regression (Ozone \~ Wind + Temp + Solar.R) auf die vervollständigten Datensätze an und aggregieren die Ergebnisse. Vergleichen Sie die Koeffizienten.
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+library(mice)
+set.seed(8173)
+imp <- mice(airquality, m = 5, method = "rf")
+fit.imp.mice <- with(imp, lm(Ozone ~ Wind + Temp + Solar.R))
+
+summary(pool(fit.imp.mice))
+
+
+stargazer(fit, fit.imps, fit.imp.mf, type = "text")
+```
+
+## Aufgabe 3: Adressen {.justify}
+
+Verwenden Sie die sleep Daten des R-Pakets VIM (siehe Unterricht)
+
+```{r, echo=T, eval=T, warning=F, message=F}
+library(VIM)
+data(sleep)
+
+```
+
+### Teilaufgabe a {.justify}
+
+Imputieren Sie die fehlenden Werte mit der k-Nearest Neighbor Methode. Wählen Sie ein geignetes Vorgehen, damit die imputierten Daten NonD + Dream = Sleep einhalten.
+
+```{r, echo=T, eval=T, warning=F, message=F}
+sleep.imp <- kNN(sleep)
+```
+
+```{r, echo=F, eval=T}
+ 
+
+```
+
+## Aufgabe 4: Analyse fehlender Werte mit Simulation {.justify}
+
+Für die folgende Übung benötigen Sie eine Funktion, welche künstliche Daten als auch MCAR, MAR und MNAR Situationen erzeugt.
+
+```{r, echo=T, eval=T}
+simDat <- function(){
+  
+# generate bivariate normal data
+  require(mvtnorm)
+  x <- rmvnorm(n = 100, mean = c(10, 10),
+  sigma = matrix(3 * c(1, 0.9, 0.9, 1), ncol = 2))
+  x <- as.data.frame(x)
+  colnames(x) <- c("xfull", "yfull")
+  x <- x[order(x$xfull), ]
+  
+  # create artificial missings
+  w <- sample(1:nrow(x), 10)
+  lm1 <- lm(yfull ~ xfull, data = x)
+  w3 <- resid(lm1) > quantile(resid(lm1), 0.9)
+  w2 <- sample(50:nrow(x), 10, prob = (x$xfull[50:nrow(x)])^5)
+  x$ymissMCAR <- x$ymissMAR <- x$ymissMNAR <- x$yfull
+  x$ymissMCAR[w] <- NA
+  x$ymissMAR[w2] <- NA
+  x$ymissMNAR[w3] <- NA
+  x$ymissMCAR_ind <- is.na(x$ymissMCAR)
+  x$ymissMAR_ind <- is.na(x$ymissMAR)
+  x$ymissMNAR_ind <- is.na(x$ymissMNAR)
+  
+  # add additional information
+  x$MCAR <- ifelse(x$ymissMCAR_ind, "replaced by NA", "not modified")
+  x$MAR <- ifelse(x$ymissMAR_ind, "replaced by NA", "not modified")
+  x$MNAR <- ifelse(x$ymissMNAR_ind, "replaced by NA", "not modified")
+  x$group <- factor(ifelse(x$yfull < 10, "low", "high"))
+  
+  return(x)
+}
+
+set.seed(123)
+toyDataMiss <- simDat()
+```
+
+### Teilaufgabe a {.justify}
+
+Erklären Sie was die Funktion simDat() macht.
+
+[Multivariate normale Dichte Simulation der Variablen x un y, mit dreifacher Kopie der Variablen y gefolgt von random Streichung von Werten aus y-Kopie1, gefolgt von streichung von Werten die mir einer linearen REgression ermittelt wurden aus y-Kopi2, und streichung von grossen Werten aus den 50 grössten Werten von y-Kopie3. in den weiteren Spalten wird die Information gespeichert wo WErte gelöscht wurden und welcher MCAR, MAR, MNAR Situation die fehlenden Werte angehören.]{style="color:#00008B; font-weight: bold"}
+
+### Teilaufgabe b {.justify}
+
+In der nachfolgenden Grafik werden die mit simDat() künstlich erzeugten Daten grafisch dargestellt. Beachten Sie, dass diese Untersuchung mit realen Daten nicht möglich ist (fehlende Werte sind dann unbekannt). In rot sind Werte markiert, die durch NA Werte ersetzt wurden. Interpretieren Sie auf Basis der Grafiken die MCAR-, MAR- und MNAR-Mechanismen für fehlende Werte.
+
+```{r, echo=T, eval=T}
+library(ggplot2)
+#toyDataMiss$yfull <- toyDataMiss$yfull + rnorm(nrow(toyDataMiss), 0, 1)
+ggplot(toyDataMiss, aes(x = xfull, y = yfull)) +
+  geom_point(aes(color = MCAR), size = 2) +
+  #geom_point(aes(color = MAR), size = 2) +
+  #geom_point(aes(color = MNAR), size = 1) +
+  theme_minimal()
+
+ggplot(toyDataMiss, aes(x = xfull, y = yfull)) +
+  #geom_point(aes(color = MCAR), size = 3) +
+  geom_point(aes(color = MAR), size = 2) +
+  #geom_point(aes(color = MNAR), size = 1) +
+  theme_minimal()
+
+ggplot(toyDataMiss, aes(x = xfull, y = yfull)) +
+  #geom_point(aes(color = MCAR), size = 3) +
+  #geom_point(aes(color = MAR), size = 2) +
+  geom_point(aes(color = MNAR), size = 2) +
+  theme_minimal()
+```
+
+```{r, echo=T, eval=T}
+imdb_urls <- c(
+"https://www.imdb.com/title/tt6751668/?ref_=hm_fanfav_tt_4_pd_fp1",
+"https://www.imdb.com/title/tt0260991/",
+"www.imdb.com/title/tt7282468/reviews",
+"https://m.imdb.com/title/tt4768776/"
+)
+
+```
+
+```{r, echo=F, eval=T}
+imdb_urls |> 
+  str_extract('tt\\d{7}')
+```
+
+### Teilaufgabe b {.justify}
+
+Die folgenden Dateinamen wurden in einer Studie mit Kamerafallen verwendet.
+
+```{r, echo=T, eval=T}
+filenames <- c( 'S123.P2.C10_20120621_213422.jpg',
+'S10.P1.C1_20120622_050148.jpg',
+'S187.P2.C2_20120702_023501.jpg')
+```
+
+Der Buchstabe S steht für den Standort, P für die Parzelle innerhalb eines Standorts, C für die Kameranummer innerhalb der Parzelle. Die erste Zahlenfolge steht für JahrMonatTag und die zweite Zahlenfolge für StundeMinuteSekunde. Erstellen Sie eine Tabelle mit Spalten, die dem Standort, der Fläche, der Kamera, dem Jahr, dem Monat, dem Tag, der Stunde, der Minute und der Sekunde für diese drei Dateinamen entsprechen. Wir wollen also einen Code erstellen, der den folgenden Tibble erzeugt:
+
+Site Plot Camera Year Month Day Hour Minute Second 1 S123 P2C10 2012 06 21 21 34 22 2 S10 P1C1 2012 06 22 5 01 48 3 S187 P2C2 2012 07 02 2 35 01
+
+Spalten die nur Zahlen enthalten sollten vom Typ Integer sein.
+
+```{r, echo = F, eval = T}
+dat <- filenames |> 
+  str_match('(?<Site>S\\d+)\\.(?<Plot>P\\d+)\\.(?<Camera>C\\d+)_(?<Year>\\d{4})(?<Month>\\d{2})(?<Day>\\d{2})_(?<Hour>\\d{2})(?<Minute>\\d{2})(?<Second>\\d{2})') |> 
+  as.data.frame() |> 
+  select(-1) |> 
+  mutate(across(!1:3, as.integer))
+
+dat
+
+
+```
+
+## Aufgabe 5: Mahalanobis Distanz {.justify}
+
+Laden Sie den 3-dimensionalen Datensatz dat aus dem File ex-outlier.rda in R.
+
+```{r, echo=T, eval=T}
+load('ex-outlier.rda')
+```
+
+### Teilaufgabe a {.justify}
+
+Stellen Sie die 3 Variablen von dat paarweise gegeneinander dar. Gibt es auffällige Datenpunkte?
+
+```{r, echo=F, eval=T}
+pairs(dat)
+
+```
+
+### Teilaufgabe b {.justify}
+
+Berechnen Sie die Mahalanobis-Distanz und identifizieren Sie potentielle Ausreisser.
+
+```{r, echo=F, eval=T}
+md <- mahalanobis(dat, colMeans(dat), cov(dat))
+sort(md, decreasing = T)
+which.max(md)
+
+grenze <- qchisq(0.999, ncol(dat))
+which(md > grenze)
+```
+
+```{r, echo=F, eval=T, warning=F, message=F}
+library(scatterplot3d)
+scatterplot3d(dat, 
+              pch = 19, 
+              color = ifelse(md > grenze, 'red', 'black'), 
+              angle = 20)
+
+```

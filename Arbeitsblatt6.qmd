@@ -1,0 +1,252 @@
+# Arbeitsblatt 6 {.unnumbered}
+
+---
+title:  "Arbeitsblatt 6"
+author: "Anna Drewek"
+date:   "`r Sys.Date()`"
+editor: 
+  visual:
+    markdown: 
+      wrap: 72
+  markdown: 
+    wrap: 72
+lang: de
+language: 
+  title-block-author-single: "Autor:"
+  title-block-published: "Version vom:"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    theme: sandstone
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+## Aufgabe 1: API Gender {.justify}
+
+Auf dem Arbeitsblatt 3 haben Sie nachfolgende Liste aufbereitet und
+dabei das Geschlecht mit Regular Expressions aus der Endung des Berufs
+extrahiert. In dieser Aufgabe sollen Sie das Geschlecht unter Verwendung
+einer API bestimmen.
+
+```{r, echo=T, eval=T, message=F, warning=F}
+library(stringr)
+spitalX <- c("Arzt Stefan", "Pfleger Heinz", "Pflegerin Julia",
+"Ärztin Petra", "Aerztin Patricia", "Praktikantin Mona",
+"Arzt Claude", "Arzt Ciril")
+dat <- data.frame(Orig = spitalX)
+dat$Name <- str_match(spitalX,"[A-Z][a-z]+$")
+dat
+```
+
+Das Geschlecht einer Person kann mit folgender API
+https://api.genderize.io abgefragt werden. Der Abfrageparameter ist
+`r 'name'`.
+
+### Teilaufgabe a {.justify}
+
+Bestimmen Sie das Geschlecht Ihres Namens.
+
+```{r, echo=F, eval=T, warning=F, message=F}
+library(httr)
+library(jsonlite)
+res <- GET("https://api.genderize.io?name=oliver")
+res
+
+(dat.a <- as.data.frame( fromJSON(rawToChar(res$content)) ))
+
+```
+
+### Teilaufgabe b {.justify}
+
+[spitalX Daten]{style="color:#000000; font-weight: bold"} Bestimmen Sie
+das Geschlecht der Personen in den spitalX Daten. Fügen Sie das
+Geschlecht nur dann den Daten hinzu, wenn eine Wahrscheinlichkeit über
+90% angegeben wird.
+
+```{r, echo=F, eval=T, warning=F, message=F}
+dat$Gender <- NA
+dat$probability <- NA
+for (i in 1:nrow(dat)){
+  adress <- modify_url(url = "https://api.genderize.io", 
+                       path = NULL, 
+                       query = list(name =  dat$Name[i]))
+  res <- GET(adress)
+  dataapi <- fromJSON(rawToChar(res$content))
+  dat$probability[i] <- dataapi$probability
+  dat$Gender[i] <- ifelse(dataapi$probability > 0.95, dataapi$gender, NA)
+}
+dat
+  
+
+```
+
+## Aufgabe 2: Länderinformationen {.justify}
+
+Die API https://restcountries.com/ bietet Länderinformationen frei
+zugänglich an. \### Teilaufgabe a {.justify}
+
+Lesen Sie die Dokumentation zur API auf der Webseite durch. Führen Sie
+einen geeig- neten Befehl in R aus, um von der API Informationen zur
+Schweiz zu erhalten. Welche Bevölkerungsgrösse (Population) wird von der
+API für die Schweiz angegeben?
+
+```{r, echo=F, eval=T}
+library(httr)
+library(jsonlite)
+res <- GET("https://restcountries.com/v3.1/name/schweiz")
+res.ch <- as.data.frame(fromJSON(rawToChar(res$content)))
+(res.ch$population)
+
+```
+
+### Teilaufgabe b {.justify}
+
+Fügen Sie mit Hilfe der API nachfolgendem Datensatz eine neue Variable
+hinzu, die beschreibt, ob der Kunde von Europa oder nicht von Europa
+stammt. Variante 1
+
+```{r, echo=T, eval=T, warning=F, message=F}
+library(httr)
+library(jsonlite)
+
+kunden <- data.frame(Name = c("Peter","Pedro","Olaf",
+"Juan","Paul","Luis"),
+Land = c("United States","Mexico","Norway",
+"Spain","Switzerland","Brazil"))
+
+kunden$Europa <- NA
+for(i in 1:nrow(kunden)){
+  country <- URLencode(kunden$Land[i])
+  adress <- modify_url(url = paste0("https://restcountries.com/v3.1/name/", country),
+                       path = NULL)
+  
+  res <- GET(adress)
+  if(status_code(res) == 200){
+  datapi <- as.data.frame(fromJSON(rawToChar(res$content)))
+  kunden$Europa[i] <- ifelse(datapi$region == "Europe", "Europa", datapi$subregion)
+  } else {
+  kunden$Europa[i] <- NA
+  }
+}
+kunden
+
+
+```
+
+Variante 2
+
+```{r, message=FALSE, warning=FALSE, eval=TRUE}
+
+library(httr)
+library(jsonlite)
+
+address <- "https://restcountries.com/v3.1/region/europe"
+res <- GET(url=address) # API-Anfrage
+res
+
+dat <- fromJSON(rawToChar(res$content))
+dat$name$common
+
+kunden$Europa <- ifelse(kunden$Land %in% dat$name$common, "Europe", "elsewhere")
+kunden
+```
+
+## Aufgabe 3: Waffengewalt in Europa {.justify}
+
+Im Auftrag von Scotland Yard sollen die Hotspots von Waffengewalt
+ermittelt werden. Im Datensatz weapons_london.Rdata sind alle Verbrechen
+im Zusammenhang mit Waffenbesitz aus der London Metropolitan Area für
+August 2020 aufgelistet (Quelle: https://data.police.uk/data/).
+
+### Teilaufgabe a {.justify}
+
+Stellen Sie den Längengrad (Longitude) auf der x-Achse und den
+Breitengrad (Latitude) auf der y-Achse in einem gewöhnlichen
+Streudiagramm dar.
+
+```{r, echo=F, eval=T, warning=F, message=F}
+library(osmdata)
+library(OpenStreetMap)
+library(sp)
+load("weapons_london.Rdata")
+london_bbox <- getbb("London")
+bbox.df <- as.data.frame(london_bbox)
+bbox.df <- as.data.frame(t(bbox.df))
+plot(weapons_london$Longitude, weapons_london$Latitude, xlim = range(bbox.df$x), ylim = range(bbox.df$y))
+points(bbox.df$x , bbox.df$y, col = "blue", pch = 16 )
+```
+
+### Teilaufgabe b {.justify}
+
+Erweitern Sie die Darstellung, in dem Sie die Punkte auf einer Karte von
+London einzeichnen. Sie können dazu Google Maps, OpenStreetMap oder
+Stadia verwenden.
+
+
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+# library(OpenStreetMap)
+# library(osmdata)
+# library(tidyverse)
+# library(sp)
+# 
+# Sys.setenv(JAVA_TOOL_OPTIONS = "-Djava.awt.headless=true")
+# 
+# 
+# # Download the map of London using OpenStreetMap
+# london_map <- openmap(c(getbb("London")[2,2], getbb("London")[1,1]),
+#                       c(getbb("London")[2,1], getbb("London")[1,2]),
+#                       type = "osm")
+# 
+# # Transform the map to the Web Mercator projection (EPSG:3857)
+# london_map_projected <- openproj(london_map, projection = "+proj=merc +datum=WGS84")
+# 
+# # Create a SpatialPoints dataframe from weapons_london
+# coordinates(weapons_london) <- ~Longitude + Latitude
+# proj4string(weapons_london) <- CRS("+proj=longlat +datum=WGS84")
+# 
+# # Reproject the weapons_london points to match the map projection (EPSG:3857)
+# weapons_london_projected <- spTransform(weapons_london, CRS("+proj=merc +datum=WGS84"))
+# 
+# # Plot the map and overlay the points
+# autoplot.OpenStreetMap(london_map_projected) + 
+#   theme_void() +
+#   geom_point(data = as.data.frame(weapons_london_projected), aes(x = coords.x1 , y = coords.x2),
+#              colour = "blue")
+# 
+
+```
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+# library(leaflet)
+# leaflet()  |> 
+#   addTiles()  |> 
+#   setView(lng = -0.1276, lat = 51.5074, zoom = 10)  # Coordinates for London
+
+```
+
+```{r, message=FALSE, warning=FALSE, eval=TRUE}
+library(leaflet)
+leaflet()  |> 
+  addTiles()  |> 
+  addCircleMarkers(lng = weapons_london$Longitude, 
+                   lat = weapons_london$Latitude, 
+                   popup = weapons_london$Location,
+                   radius = 3,
+                   color = "blue",
+                   fillOpacity = 0.8,
+                   stroke = FALSE)
+```
+

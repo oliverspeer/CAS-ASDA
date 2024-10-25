@@ -1,0 +1,424 @@
+# Arbeitsblatt 2 {.unnumbered}
+
+---
+title:  "Arbeitsblatt 2"
+author: "Christoph Hofer"
+date:   "`r Sys.Date()`"
+editor: 
+  visual:
+    markdown: 
+      wrap: 72
+lang: de
+language: 
+  title-block-author-single: "Autor:"
+  title-block-published: "Version vom:"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    theme: sandstone
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+## Aufgabe 1: Data processing IV {.justify}
+
+### Teilaufgabe a {.justify}
+
+Importieren Sie die Daten der csv-Datei exercises_fish.csv mit der Funktion read_csv() ins R. Es handelt sich um Fischökologie-Daten. Importieren Sie die Daten ein zweites Mal, wobei Sie bereits beim Einlesen der Daten die Datentypen definieren, d.h. 2 Faktoren, ein Integer und ein Double. Weisen Sie den Datensatz der Variablen fish_df zu. Sie können die Funktion glimpse() (wie str()) verwenden um die Datentypen der Variablen eines Datensatzes anzuzeigen und mit slice_head(fish_df, n = 3) können Sie die ersten 3 Zeilen ausgeben. Es gibt weitere nützliche slice Funktionen. Schauen Sie nach ?slice.
+
+```{r, echo=F, eval=T}
+library(tidyverse)
+col.classes <- c("integer","factor", "factor",  "double")
+fish_dfa <- read.csv("exercises_fish.csv", colClasses = col.classes)
+slice_head(fish_dfa, n = 5)
+
+fish_df <- read_csv("exercises_fish.csv",
+                    col_types = cols(
+                      salmon_id = col_integer(),
+                      'common_name-size' = col_factor(),
+                      variable = col_factor(),
+                      value = col_double()
+                    )
+                  )
+slice_head(fish_df, n = 5)
+glimpse(fish_df)
+```
+
+### Teilaufgabe b {.justify}
+
+Erzeugen Sie aus fish_df einen tidy Datensatz indem Sie die Funktionen seperate und pivot_wider verwenden und bezeichnen Sie diesen neuen Datensatz fish_df.
+
+```{r, echo=F, eval=T}
+fish_df <- fish_df  |> 
+  separate(col = 'common_name-size', into = c('subspecies', 'age'), sep = ' - ') |> 
+  pivot_wider(names_from = variable, values_from = value)
+
+slice_head(fish_df, n = 5)
+
+
+```
+
+### Teilaufgabe c {.justify}
+
+Erstellen Sie aus dem tidy fish_df einen neuen Tibble der nur Steelhead-Fische enthält mit den Variablen Alter und IGF1_ng_ml.
+
+```{r, echo=F, eval=T}
+fish_df_steelhead <- fish_df |> 
+  filter(subspecies == 'Steelhead') |>
+  select(age, IGF1_ng_ml)
+
+
+```
+
+### Teilaufgabe d {.justify}
+
+Erstellen Sie aus dem tidy fish_df einen Datensatz mit allen Variablen ausser den IGF-Werten für alle Fische, die mit dem Buchstaben S beginnen (Tipp:verwenden Sie str_starts(Variablenname mit den Fischnamen,'S') zusammen mit filter()). Sie können es auch selber mit der Funktion substr() oder grepl(), welche Sie allenfalls aus dem CAS DA kennen, versuchen. Bei Anna Drewek werden Sie mehr über die Anwendung von Regular Expression mit dem stringr Paket lernen. Ordnen Sie den Datensatz nach den Namen und der Länge (absteigende Reihenfolge) der Fische.
+
+```{r, echo=F, eval=T}
+fish_df_S <- fish_df |> 
+  filter(str_starts(subspecies, 'S')) |>
+  select(-IGF1_ng_ml) |>
+  arrange(subspecies, desc(length_mm))
+
+```
+
+### Teilaufgabe e {.justify}
+
+Führen Sie für tidy fish_df diese Schritte mit dem Pipe-Operator durch: • Gruppieren Sie nach der Variable Alter. • Filtern Sie, so dass in jeder Gruppe nur die 5 längsten Fische vorkommen. Sie können dazu die Funktion rank() verwenden. • Berechen Sie den Mittelwert und die Stichprobenvarianz der Länge der ausge- wählten Fische.
+
+```{r, echo=F, eval=T}
+
+fish_df |> 
+  group_by(age) |> 
+  filter(rank(desc(length_mm)) <= 5) |> 
+  summarise(mean= mean(length_mm), 
+            var = var(length_mm, na.rm = T), 
+            n=n())
+
+```
+
+### Teilaufgabe f {.justify}
+
+Führen Sie für tidy fish_df diese Schritte mit dem Pipe-Operator durch: • Filtern Sie, so dass nur yearling vorkommen • Gruppieren Sie nach dem Namen. • Erstellen Sie eine neue Variable, welche die standardisierte Länge der Fische pro Gruppen enthält, d.h. von den Längen einer Gruppe muss der Gruppenmittelwert subtrahiert werden und dann durch die Standardabweichung der Gruppe dividiert werden (siehe ExpD).Tipp: Die Funktion scale() kann zur Berechnung der Stan- dardisierung verwendet werden. Sie können die Berechnung der Skalierung auch selber direkt in mutate angeben oder eine eigene Funktion dazu schreiben (gute und wichtige Übung). • Boxplot der gruppierten standardisierten Längen erstellen
+
+```{r, echo=F, eval=T}
+fish_df |> 
+  filter(age == 'yearling') |> 
+  group_by(subspecies) |> 
+  mutate(standardized_length = scale(length_mm)) |> 
+  ggplot(aes(x = subspecies, y = standardized_length)) +
+  geom_boxplot(fill = c('blue', 'orange'))
+
+```
+
+```{r, echo=F, eval=T}
+o.scale <- function(x) {
+  (x-mean(x, na.rm = T)) / sd(x, na.rm = T) 
+}
+
+fish_df |> 
+  filter(age == 'yearling') |> 
+  group_by(subspecies) |> 
+  mutate(standardized_length = o.scale(length_mm)) |> 
+  ggplot(aes(x = subspecies, y = standardized_length)) +
+
+    geom_boxplot(fill = c('blue', 'orange'))
+
+```
+
+[TEXT EINGABE]{style="color:#3C5AB4"}
+
+## Aufgabe 2: Data processing V {.justify}
+
+Verwenden Sie nochmals den mtcars Datensatz.
+
+### Teilaufgabe a {.justify}
+
+Generieren Sie aus der Variablen mpg eine neue Variable liters_100km welche den Kraft- stoffverbrauch in l pro 100km angibt und entfernen Sie anschliessend die Variable mpg aus dem Datensatz.
+
+```{r, echo=F, eval=T}
+
+mtcars.e <- mtcars |> 
+  mutate(liters_100km = 235.2146/mpg) |> 
+  select(-mpg)
+
+```
+
+### Teilaufgabe b {.justify}
+
+Erzeugen Sie eine kategoriale Variable type mit dem Level normal falls qsec ≥ 16 und qsec ≤ 20, fast falls qsec \> 20 und mit dem Level slow falls qsec \< 16 und (Tipp case_when()). Die kategorielle Variable type soll ordinal sein, mit Levels in der korrekten Reihenfolge.
+
+```{r, echo=F, eval=T}
+mtcars.e <- mtcars.e |> 
+  mutate(type = case_when(
+        qsec > 20 ~ 'fast',
+    qsec < 16 ~ 'slow',
+    TRUE ~ 'normal'
+  )) |> 
+  mutate(type = factor(type, levels = c('slow', 'normal', 'fast'), ordered = T))
+
+
+```
+
+### Teilaufgabe c {.justify}
+
+Gruppieren Sie die Daten aufgrund der neuen Variable type und berechnen Sie für die drei Gruppen die folgenden Grössen: • Grösse der Gruppe • Mittlere Leistung in PS (hp) • Mittlerer Verbrauch pro Kilometer (liters_100km) sowie mad des Verbrauchs pro Kilometer
+
+```{r, echo=F, eval=T}
+mtcars.e |> 
+  group_by(type) |> 
+  summarise(n = n(), 
+            mean_hp = mean(hp), 
+            mean_liters_100km = mean(liters_100km), 
+            mad_liters_100km = mad(liters_100km))
+```
+
+## Aufgabe 3: Data processing VI {.justify}
+
+In dieser Aufgabe verwenden wir den Datensatz fligths aus dem R-Paket nycflights13. Sie erhalten den Datensatz mit dem folgenden R-Code :
+
+```{r, echo=T, eval=T}
+install.packages('nycflights13')
+library(nycflights13)
+data('flights')
+```
+
+Es handelt sich um alle von New York (JFK, LGA und EWR) aus gestarteten Inlandflüge im Jahr 2013.
+
+###Teilaufgabe a {.justify} Machen Sie sich mit den Variablen vertraut (?flights).
+
+```{r, echo = F, eval = T}
+library(nycflights13)
+?flights
+```
+
+#### Teilaufgabe b {.justify}
+
+Wie viele Flüge gibt es pro Flughafen?
+
+```{r, echo=F, eval=T}
+flights |> 
+  group_by(origin) |> 
+  summarise(n = n())
+```
+
+### Teilaufgabe c {.justify}
+
+Wie viele Flüge gibt es pro Flughafen und Monat?
+
+```{r, echo=F, eval=T}
+flights |> 
+  group_by(origin, month) |> 
+  summarise(n = n())
+```
+
+### Teilaufgabe d {.justify}
+
+Welche Fluggesellschaft war 2013 am längsten in der Luft?
+
+```{r, echo=F, eval=T}
+flights |> 
+  group_by(carrier) |> 
+  summarise(total_airtime = sum(air_time)) |> 
+  arrange(desc(total_airtime)) |> 
+  head(1)
+```
+
+### Teilaufgabe e {.justify}
+
+Welche Fluggesellschaft fliegt im Mittel am schnellsten?
+
+```{r, echo=F, eval=T}
+flights |> 
+  group_by(carrier) |> 
+  summarise(mean_speed = mean(distance/air_time)) |> 
+  arrange(desc(mean_speed)) |> 
+  head(1)
+```
+
+### Teilaufgabe f {.justify}
+
+Welche Fluggesellschaft hat im Mittel die grössten Ankunftsverspätungen? Gibt es einen Zu- sammenhang zwischen Ankunftsverspätungen und Fluglänge? Erzeugen Sie eine neue Spalte, welche diesen Zusammenhang quantifiziert.
+
+```{r, echo=F, eval=T}
+flights |> 
+  filter(arr_delay > 0) |>
+  group_by(carrier) |> 
+  summarise(mean_arrival_delay = mean(arr_delay, na.rm = T), 
+            mean_delay_per_distance = mean(arr_delay/distance, na.rm = T)
+           # r = cor(arr_delay, air_time, method = 'spearman'),
+           # n = n()
+           ) |> 
+  arrange(desc(mean_arrival_delay)) #|> 
+#  head(1)
+```
+
+```{r, echo=F, eval=T}
+flights |> 
+  filter(arr_delay > 0) |>
+  group_by(carrier) |> 
+  summarise(#mean_arrival_delay = mean(arr_delay, na.rm = T), 
+            mean_delay_per_distance = mean(arr_delay/distance),
+            r = cor(arr_delay, air_time, method = 'spearman'),
+            n = n()) |> 
+  arrange(desc(r)) #|> 
+#  head(1)
+```
+
+### Teilaufgabe g {.justify}
+
+Besteht ein Zusammenhang zwischen Abflugszeit und Abflugsverspätung? Aggregieren Sie dazu die Abflugsverspätung (Mittelwert oder Median) pro Stunde (0-23) mit den Funktionen cut die Sie aus ExpD kennen. Mit der Funktion case_when() ist es etwas mühsam. Stellen Sie anschliessend den zeitlichen Verlauf der aggregierten Abflugsverspätung in einem Scatterplot dar. Was lesen Sie daraus ab?
+
+```{r, echo=F, eval=T}
+flights |> 
+  filter(dep_delay > 0) |>
+  mutate(hour = cut(dep_time, breaks = seq(0, 2400, by = 100), labels = 0:23)) |> 
+  group_by(hour) |> 
+  summarise(mean_dep_delay = mean(dep_delay)) |> 
+  ggplot(aes(x = hour, y = mean_dep_delay)) +
+  geom_point() 
+```
+
+oder
+
+```{r, echo=F, eval=T}
+flights |> 
+  filter(dep_delay > 0) |>
+  mutate(dep_hour = cut(dep_time, breaks = seq(0, 2400, by = 100), labels = 0:23),
+         dep_hour = fct_expand(dep_hour, '4', after = 3)) |> 
+  mutate(dep_hourF = factor(dep_hour, levels = c(5:23, 0:4))) |>
+  add_row(dep_hour = factor('4'), dep_hourF = factor('4')) |>
+  group_by(dep_hourF) |> 
+  summarise(mean_dep_delay = mean(dep_delay)) |> 
+  ggplot(aes(x = dep_hourF, y = mean_dep_delay)) +
+  geom_point() 
+
+```
+
+### Teilaufgabe h {.justify}
+
+Welche Destination ist im Mittel am weitesten von New York entfernt?
+
+```{r, echo=F, eval=T}
+flights |> 
+  group_by(dest) |> 
+  summarise(mean_distance = mean(distance)) |> 
+  arrange(desc(mean_distance)) #|> 
+  #head(1)
+```
+
+## Aufgabe 4: Combine Datasets {.justify}
+
+### Teilaufgabe a {.justify}
+
+Für welchen Zielflughafen (gesucht ist der Name nicht das Kürzel) ist der Anteil der Flüge, die in New York bei Regen starten (precip \> 0), am häufigsten. • Die Namen der Flughäfen finden Sie im Datensatz airport. • Angaben zu Wetter finden Sie im Datensatz weather. Beide Datensätze sind im im R-Paket nycflights13 enthalten. Flüge für die keine Angaben über das Wetter zur Verfügung stehen, werden nicht berücksichtigt.
+
+```{r, echo=F, eval=T}
+library(nycflights13)
+flights |> 
+  left_join(airports, by = c('dest' = 'faa')) |> 
+  left_join(weather, by = c('origin', 'time_hour')) |> 
+  group_by(name) |>
+  summarise(n_flights = n(), 
+            n_rain = sum(precip > 0, na.rm = T)) |>
+  mutate(rain_rate = n_rain/n_flights) |>
+  arrange(desc(rain_rate))
+
+
+```
+
+### Teilaufgabe b {.justify}
+
+Wie lautet ihre Antwort wenn nur Zielflughafen betrachtet werden, welche 2013 mehr als 10’000 Landungen aufwiesen.
+
+```{r, echo = F, eval = T}
+library(nycflights13)
+flights |> 
+  left_join(airports, by = c('dest' = 'faa')) |> 
+  left_join(weather, by = c('origin', 'time_hour')) |>
+  group_by(name) |>
+  summarise(n_flights = n(), 
+            n_rain = sum(precip > 0, na.rm = T)) |>
+  mutate(rain_rate = n_rain/n_flights) |>
+  filter(n_flights > 10000) |>
+  arrange(desc(rain_rate))
+
+
+
+```
+
+## Aufgabe 5: DateTime I {.justify}
+
+Lesen sie das File currencies-wide.csv in R ein. Darin finden Sie die Währungskurse EUR, GBP, JPY und USD in Schweizerfranken.
+
+```{r, echo=F, eval=T}
+currencies <- read.csv('currencies-wide.csv')
+currencies
+```
+
+### Teilaufgabe a {.justify}
+
+Stellen Sie die Daten geeignet dar, um sich einen Überblick über die Wechselkursverläufe zu verschaffen.
+
+```{r, echo=F, eval=T}
+library(tidyverse)
+currencies |> 
+  pivot_longer(cols = -5, names_to = 'currency', values_to = 'rate') |> 
+  mutate(date = ymd(Time)) |> 
+  ggplot(aes(x = date, y = rate, color = currency)) +
+  geom_line()
+
+```
+
+### Teilaufgabe b {.justify}
+
+Zeigt die Streuung der Wechselkurse einen Zusammenhang mit den Wochentagen, d.h. ist die Streuung an unterschiedlichen Wochentagen sehr ähnlich oder unterscheidet sie sich. Wie sieht es aus, wenn die Streuung pro Monat betrachtet wird? Gibt es Interaktion zwischen Wochentag und Monat? Erzeugen Sie geeignete Plots, um die Fragen zu beantworten.
+
+```{r, echo=F, eval=T}
+currencies |> 
+  pivot_longer(cols = -5, names_to = 'currency', values_to = 'rate') |> 
+  mutate(date = ymd(Time),
+         weekday = wday(date, label = T),
+         month = month(date, label = T)) |> 
+  ggplot(aes(x = weekday, y = rate, color = currency)) +
+  geom_boxplot() +
+  facet_wrap(~month)
+```
+
+```{r, echo=F, eval=T}
+currencies |> 
+  pivot_longer(cols = -5, names_to = 'currency', values_to = 'rate') |> 
+  mutate(datum = ymd(Time),
+         #weekday = weekdays(date),
+         month = month.name[month(datum)],
+         month = factor(month, levels = month.name)) |> 
+  ggplot(aes(x = month, y = rate, color = currency)) +
+  geom_boxplot() 
+```
+
+Transformieren Sie den im R-Paket tidyr enthalten Datensatz who ins long-Format. Der Datensatz enthält von 1980 − 2013 eine Teilmenge der Daten aus dem Globalen Tuberkulosebericht der WHO und den dazugehörigen globalen Bevölkerungsgruppen. Die Spalten 5 − 60 sollen dabei in die vier Spalten diagnosis, gender, age und count transformiert werden. Eine detailierte Beschreibung der Spalten 5 − 60 finden Sie unter Details auf der Hilfeseite zum Datensatzes (?who). Die Funktionen substr() und gsub() können Ihnen dabei helfen.
+
+```{r, echo=F, eval=T}
+?who
+```
+
+## Aufgabe 3 {.justify}
+
+TEXT
+
+```{r, echo=T, eval=T}
+
+
+```

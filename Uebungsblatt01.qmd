@@ -1,0 +1,135 @@
+# Übungsblatt 1 {.unnumbered}
+
+---
+title:  "Übungsblatt 1"
+author: "Marcel Dettling"
+date:   "`r Sys.Date()`"
+editor: source
+lang: de
+language: 
+  title-block-author-single: "Autor"
+  title-block-published: "Version vom"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 2
+    theme: sandstone
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+## Aufgabe 1 {.justify}
+
+Im File `autodistanz.rda` finden sie von 82 Männern ihr Alter und die durchschnittlich im Jahr 2014 zurückgelegte Tagesdistanz mit dem Auto. Es handelt sich dabei allesamt um Männer, die selbst ein Auto besitzen und dieses auch fahren.
+
+```{r}
+load("autodistanz.rda")
+```
+
+### Teilaufgabe a)
+
+Stellen sie die Daten geeignet in einem Scatterplot dar, und legen sie einen Loess-Glätter hinein, um den Zusammenhang zwischen der Zielgrösse `distanz` und dem Prädiktor `alter` zu visualisieren.
+
+```{r}
+library(tidyverse)
+ggplot(autodistanz, aes(alter, distanz)) +
+  geom_point() +
+  geom_smooth(method = "loess", span = 0.5)
+```
+
+**Varianz ist heterogen verteilt. daher Log-Transformation ausprobieren.**
+
+### Teilaufgabe b)
+
+Verwenden sie nun anstelle des Loess-Glätters ein geeignetes Polynom, welches ihnen den Zusammenhang zwischen den beiden Grössen schätzt.
+```{r}
+library(tidyverse)
+ggplot(autodistanz, aes(alter, distanz)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ poly(x, 4))
+    
+fit <- lm(distanz ~ poly(alter, 4), data = autodistanz)
+summary(fit)
+
+
+par(mfrow = c(2, 2))
+plot(fit)
+```
+
+
+### Teilaufgabe c)
+
+Anstelle des Polynoms sollen sie nun ein Modell mit kubischen Splines anpassen. Verwenden sie dazu sowohl die Funktion `smooth.spline()` wie auch die Funktion `gam()` aus der `library(mgcv)` und plotten sie die Fits.
+
+```{r, echo=F,eval=TRUE,message=FALSE, warning=FALSE}
+library(mgcv)
+
+smooth.spline(autodistanz$alter, autodistanz$distanz, all.knots = TRUE)
+fit.ss <- smooth.spline(autodistanz$alter, autodistanz$distanz, all.knots = TRUE)
+summary(fit.ss)
+plot(fit.ss, type = "l", col = "red")
+points(autodistanz$alter, autodistanz$distanz, pch = 20, col = "red")
+
+fit.gam <- gam(distanz ~ s(alter), data = autodistanz)
+summary(fit.gam)
+plot(fit.gam, residuals = TRUE, col = "blue", shade = TRUE, pch = 20 )
+
+```
+
+
+### Teilaufgabe d)
+
+*(Advanced)* Lösen sie die Aufgabe mit Regression Splines. Setzen sie 4 Knoten, wobei die x-Werte geeignet nach Gutdünken gesetzt werden sollen. Programmieren sie dann einen stückweise konstanten Fit, einen der stückweise linear und kontinuierlich ist, sowie einen der 2x stetig differenzierbare, kubische Polynome verwendet.
+
+```{r, echo=F,eval=TRUE,message=FALSE, warning=FALSE}
+knots <- c(25, 35, 45, 60)
+fit1 <- lm(distanz ~ cut(alter, knots), data = autodistanz)
+fit2 <- lm(distanz ~ cut(alter, knots) + alter, data = autodistanz)
+fit3 <- lm(distanz ~ cut(alter, knots) + I(alter^2) + I(alter^3), data = autodistanz)
+
+```
+
+## Aufgabe 2 {.justify}
+
+Die Zeitreihe `spt` im File `suhre_phostot.rda` enthält monatlich gemessene Phosphatwerte aus der Suhre im Kanton Luzern. Sie sollen diese Werte als Zielgrösse verwenden. Als Prädiktor wird die Zeit der Beobachtung verwendet, welche man via `time(spt)` extrahieren kann.
+
+```{r, echo=F, eval=T}
+load("suhre_phostot.rda")
+plot(spt, type = "o",pch=20, main = "Phosphatwerte Suhre")
+
+```
+
+### Teilaufgabe a)
+
+Passen sie mit der Funktion `gam()` einen Smoothing-Spline-Fit an, welcher die zeitliche Entwicklung der Phosphatwerte aufzeigt.
+```{r, echo=F, eval=T, message=FALSE, warning=FALSE}
+fit.gam <- gam(spt ~ s(time(spt)), data = spt)
+summary(fit.gam)
+plot(fit.gam, residuals = TRUE, col = "blue", shade = TRUE, pch = 20 )
+```
+
+
+### Teilaufgabe b)
+
+Verwenden sie stattdessen ein Modell, welches geeignete Transformationen der Zeit-Variable verwendet, um ebenfalls die zeitliche Entwicklung der Phosphatwerte anzugeben. **Hinweis:** *die Zeitreihe enthält einen linearen Trend sowie eine zyklische Saison-Komponente, welche mit einer Faktorvariable oder (besser!) mit einer harmonischen Schwingung modelliert wird.*
+
+```{r, echo=F, eval=T, message=FALSE, warning=FALSE}
+fit <- lm(spt ~ time(spt) + sin(2*pi*time(spt)) + cos(2*pi*time(spt)), data = spt)
+summary(fit)
+plot(spt, type = "o",pch=20, main = "Phosphatwerte Suhre")
+lines(fitted(fit), col = "red")
+
+plot(fit)
+
+```

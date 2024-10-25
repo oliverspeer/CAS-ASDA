@@ -1,0 +1,246 @@
+# Arbeitsblatt 3 {.unnumbered}
+
+---
+title:  "Arbeitsblatt 3"
+author: "Anna Drewek"
+date:   "`r Sys.Date()`"
+editor: 
+  visual:
+    markdown: 
+      wrap: 72
+lang: de
+language: 
+  title-block-author-single: "Autor:"
+  title-block-published: "Version vom:"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    theme: sandstone
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+## Aufgabe 1: words {.justify}
+
+In dieser Aufgabe verwenden wir den Zeichenkettenvektor words. Der Vektor ist im R-Paket stringr enthalten.
+
+```{r, echo=T, eval=T}
+library(stringr)
+data(words)
+```
+
+### Teilaufgabe a {.justify}
+
+Finden sie alle Wörter im Vektor words . . . • die mit einem Vokal beginnen und aus 5 Buchstaben bestehen • die nur Konsonanten enthalten • die auf ed, aber nicht auf eed enden. • die auf ing oder ise enden.
+
+```{r, echo=F, eval=T, warning=F, message=F}
+library(tidyverse)
+words |> 
+  str_subset('^[aeiou].{4}$')
+
+words |>
+  str_subset('^[^aeiou]+$')
+```
+
+Finden sie alle Wörter im Vektor words . . . • die auf ed, aber nicht auf eed enden.
+
+```{r, echo=F, eval=T}
+words |> 
+  str_subset('[^e](ed)$') 
+```
+
+```{r, echo=F, eval=T}
+words |> 
+  str_subset('i(ng|se)$')
+
+```
+
+### Teilaufgabe b {.justify}
+
+Von welcher Wortgruppe hat es mehr? • Gruppe A: Worte mit cei oder ie falls kein c davor • Gruppe B: Wörtern mit cie oder ei falls kein c davor
+
+```{r, echo=F, eval=T, warning=F, message=F}
+library(tidyverse)
+library(stringr)
+
+words |> 
+  str_subset('cei|[^c]ie') #|> length()
+
+words |>
+  str_subset('cie|[^c]ei') #|> length()
+
+```
+
+### Teilaufgabe c {.justify}
+
+Alle Worte die ein q enthalten, auf welches kein u folgt?
+
+```{r, echo=F, eval=T}
+words |> 
+  str_subset('q[^u]')
+
+
+
+```
+
+## Aufgabe 2: Aerzte, Ärzte, Aerztinnen, etc {.justify}
+
+Lesen Sie nachfolgenden Vektor aus dem Unterricht in R ein und erstellen Sie daraus einen Datensatz mit 5 Spalten (Arzt (TRUE/FALSE), Pfleger (TRUE/FALSE), Praktikant (TRUE/FALSE), Geschlecht, Name).
+
+```{r, echo=F, eval=T}
+spitalX <- c("Arzt Stefan", "Pfleger Heinz", "Pflegerin Julia",
+"Ärztin Petra", "Aerztin Patricia", "Praktikantin Mona",
+"Arzt Claude", "Arzt Ciril")
+
+dat <- data.frame(orig = spitalX)
+
+dat$Arzt <- str_detect(spitalX, '(A|Ae|\\u00c4)rzt(in)?')
+dat$Pfleger <- str_detect(spitalX, 'Pfleger(in)?')
+dat$Praktikant <- str_detect(spitalX, 'Praktikant(in)?')
+dat$Geschlecht <- ifelse(str_detect(spitalX, '(in)\\s'), 'w', 'm')
+dat$Vorname <- str_match(spitalX, "[A-Z][a-z]+$")[,1]
+dat
+
+data.frame(orig = spitalX) |> 
+  mutate(Arzt = str_detect(spitalX, '(A|Ae|\\u00c4)rzt(in)?'),
+                   Pfleger = str_detect(spitalX, 'Pfleger(in)?'),
+                   Praktikant = str_detect(spitalX, 'Praktikant(in)?'),
+                   Geschlecht = ifelse( str_detect(spitalX, '(in)\\s'),
+                                        'w', 'm'),
+                   Vorname = str_match(spitalX, '[A-Z][a-z]+$')[,1]
+                   ) -> dat
+dat
+  
+```
+
+## Aufgabe 3: Adressen {.justify}
+
+Lesen nachfolgende Adressen in R ein und erstellen daraus einen Datensatz mit 5 Spalten (Stras- senname, Hausnummer, Postleitzahl, Stadt und Land). Sie können den Vektor adressen via copy & paste nach R übernehmen.
+
+```{r, echo=F, eval=T, warning=F, message=F}
+library(tidyverse)
+library(stringr)
+
+adressen <- c("Platz der Republik 1, D-11011 Berlin",
+"Dr.-Karl-Renner-Ring 3, A-1017 Wien",
+"Bundesplatz 3, CH-3005 Bern")
+
+dat <- data.frame(orig = adressen) |> 
+  mutate(Strasse = str_match(adressen, '\\D+')[,1],
+         Hausnummer = str_match(adressen, '\\d+')[,1],
+         Postleitzahl = str_match(adressen, '\\d{4,5}')[,1],
+         Land = str_match(adressen, ',\\s([A-Z]{1,2})')[,2],
+         Stadt = str_match(adressen, '[A-Z][a-z]+$')[,1])
+dat
+```
+
+```{r, echo=F, eval=T}
+suchmuster <- c('(?<Strasse>\\D+)\\s(?<Nr>\\d+),\\s(?<Land>[A-Z]{1,2})-(?<Postleitzahl>\\d{4,5})\\s(?<Stadt>[A-Z][a-z]+$)')
+dat <- str_match(adressen, suchmuster) |> 
+  as.data.frame() |> mutate(
+  Nr = as.integer(Nr),
+  Postleitzahl = as.integer(Postleitzahl)) |>
+  select(-1)
+    
+dat
+```
+
+## Aufgabe 4: IDs {.justify}
+
+### Teilaufgabe a {.justify}
+
+In der Internet Movie Database IMDb verfügt jeder Film über eine eindeutige ID, die nach dem Schema tt\[7 Ziffern\] aufgebaut ist. Extrahieren Sie diese ID aus den folgenden URLS:
+
+```{r, echo=T, eval=T}
+imdb_urls <- c(
+"https://www.imdb.com/title/tt6751668/?ref_=hm_fanfav_tt_4_pd_fp1",
+"https://www.imdb.com/title/tt0260991/",
+"www.imdb.com/title/tt7282468/reviews",
+"https://m.imdb.com/title/tt4768776/"
+)
+
+```
+
+```{r, echo=F, eval=T}
+imdb_urls |> 
+  str_extract('tt\\d{7}')
+```
+
+### Teilaufgabe b {.justify}
+
+Die folgenden Dateinamen wurden in einer Studie mit Kamerafallen verwendet.
+
+```{r, echo=T, eval=T}
+filenames <- c( 'S123.P2.C10_20120621_213422.jpg',
+'S10.P1.C1_20120622_050148.jpg',
+'S187.P2.C2_20120702_023501.jpg')
+```
+
+Der Buchstabe S steht für den Standort, P für die Parzelle innerhalb eines Standorts, C für die Kameranummer innerhalb der Parzelle. Die erste Zahlenfolge steht für JahrMonatTag und die zweite Zahlenfolge für StundeMinuteSekunde. Erstellen Sie eine Tabelle mit Spalten, die dem Standort, der Fläche, der Kamera, dem Jahr, dem Monat, dem Tag, der Stunde, der Minute und der Sekunde für diese drei Dateinamen entsprechen. Wir wollen also einen Code erstellen, der den folgenden Tibble erzeugt:
+
+Site Plot Camera Year Month Day Hour Minute Second 1 S123 P2C10 2012 06 21 21 34 22 2 S10 P1C1 2012 06 22 5 01 48 3 S187 P2C2 2012 07 02 2 35 01
+
+Spalten die nur Zahlen enthalten sollten vom Typ Integer sein.
+
+```{r, echo = F, eval = T}
+dat <- filenames |> 
+  str_match('(?<Site>S\\d+)\\.(?<Plot>P\\d+)\\.(?<Camera>C\\d+)_(?<Year>\\d{4})(?<Month>\\d{2})(?<Day>\\d{2})_(?<Hour>\\d{2})(?<Minute>\\d{2})(?<Second>\\d{2})') |> 
+  as.data.frame() |> 
+  select(-1) |> 
+  mutate(across(!1:3, as.integer))
+
+dat
+
+
+```
+
+## Aufgabe 5: Mahalanobis Distanz {.justify}
+
+Laden Sie den 3-dimensionalen Datensatz dat aus dem File ex-outlier.rda in R.
+
+```{r, echo=T, eval=T}
+load('ex-outlier.rda')
+```
+
+### Teilaufgabe a {.justify}
+
+Stellen Sie die 3 Variablen von dat paarweise gegeneinander dar. Gibt es auffällige Datenpunkte?
+
+```{r, echo=F, eval=T}
+pairs(dat)
+
+```
+
+### Teilaufgabe b {.justify}
+
+Berechnen Sie die Mahalanobis-Distanz und identifizieren Sie potentielle Ausreisser.
+
+```{r, echo=F, eval=T}
+md <- mahalanobis(dat, colMeans(dat), cov(dat))
+sort(md, decreasing = T)
+which.max(md)
+
+grenze <- qchisq(0.999, ncol(dat))
+which(md > grenze)
+```
+
+```{r, echo=F, eval=T, warning=F, message=F}
+library(scatterplot3d)
+scatterplot3d(dat, 
+              pch = 19, 
+              color = ifelse(md > grenze, 'red', 'black'), 
+              angle = 20)
+
+```

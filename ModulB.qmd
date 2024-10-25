@@ -1,0 +1,6 @@
+# Modul B - Data Analysis Concepts {.unnumbered}
+
+<https://en.wikipedia.org/wiki/Cross-industry_standard_process_for_data_mining> 
+![CRISP-DM](1024px-CRISP-DM_Process_Diagram.png)
+
+<https://www.ibm.com/docs/de/spss-modeler/saas?topic=dm-crisp-help-overview>

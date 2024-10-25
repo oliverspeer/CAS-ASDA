@@ -1,0 +1,109 @@
+# Arbeitsblatt 5 {.unnumbered}
+
+---
+title:  "Arbeitsblatt 5"
+author: "Anna Drewek"
+date:   "`r Sys.Date()`"
+editor: 
+  visual:
+    markdown: 
+      wrap: 72
+lang: de
+language: 
+  title-block-author-single: "Autor:"
+  title-block-published: "Version vom:"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    theme: sandstone
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+## Aufgabe 1: Umgang mit Excel Dateien {.justify}
+
+Ein Onlinehändler möchte ein R-Skript, um Excel-Exporte aus einem veraltetem System automati- siert zu bereinigen und auszuwerten. Die Datei purchases.xlsx soll als Prototyp für die Entwicklung dieses R-Skripts verwendet werden. Lösen Sie die folgenden Aufgaben in R mit Hilfe der Pakete dplyr, ggplot2 und openxlsx.
+
+```{r, echo=T, eval=T, message=F, warning=F}
+library(openxlsx)
+library(dplyr)
+library(ggplot2)
+
+```
+
+### Teilaufgabe a {.justify}
+
+[Excel Datei als Workbook einlesen]{style="color:#000000; font-weight: bold"} Öffnen Sie die Datei purchases.xlsx in Excel und verschaffen Sie sich einen Überblick. Laden Sie diese Datei als Workbook in R. Löschen Sie alle Blätter bis auf Sheet1 und Sheet2. R-Befehle:
+
+```{r, echo=F, eval=T, warning=F, message=F}
+wb <- loadWorkbook("purchases.xlsx")
+names(wb)
+removeWorksheet(wb, "Sheet3")
+names(wb)
+```
+
+### Teilaufgabe b {.justify}
+
+[Blatt einer Excel Datei als data.frame einlesen]{style="color:#000000; font-weight: bold"} Lesen Sie die Daten von Sheet2 als data.frame() mit read.xlsx() ein. Achten Sie sich darauf, dass Spalten mit Datumangaben als solche eingelesen werden.
+
+```{r, echo=F, eval=T, warning=F, message=F}
+purchases <- read.xlsx(xlsxFile = "purchases.xlsx", 
+                       sheet = "Sheet2", 
+                       detectDates = TRUE, 
+                       startRow = 2,
+                       sep.names = " ")
+```
+
+### Teilaufgabe c {.justify}
+
+Finden Sie geeignete Prüfregeln (Regeln für Inkonsistenzen) für die Spalten Account Opening, Last Access, Number Items Purchased and Total of Purchases in CHF, wenden sie die- se an und löschen Sie ungültige Werte.
+
+```{r, echo=F, eval=T}
+purchases.filter <- purchases |>  
+  filter(`Number Items Purchased` >= 0,
+         `Total of Purchases in CHF` >= 0,
+         `Account Opening`<=`Last Access`)
+
+
+
+```
+
+\### Teilaufgabe d {.justify} [Anlegen von neuen Blättern in Workbooks, schreiben von Daten, Formatierung]{style="color:#000000; font-weight: bold"} Ergänzen Sie das Workbook aus (a) durch ein neues Blatt Sheet2_corrected und speichern Sie darin das aus (b) korrigierte data.frame. Gelöschte Werte sollen mit roter Hintergrundfarbe markiert werden.
+
+```{r, echo=F, eval=T, warning=F, message=F}
+original_row_numbers <- 1:nrow(purchases)
+filtered_out_rows <- original_row_numbers[!(original_row_numbers %in% which(
+  purchases$`Number Items Purchased` >= 0 &
+  purchases$`Total of Purchases in CHF` >= 0 &
+  purchases$`Account Opening` <= purchases$`Last Access`
+))]
+
+rows.to.mark <- anti_join(purchases, purchases.filter)
+
+rows.to.mark <- which(!(rownames(purchases) %in% rownames(purchases.filter)))
+
+addWorksheet(wb, "Sheet2_corrected")
+
+writeData(wb, sheet = "Sheet2_corrected", x = purchases)
+addStyle(wb, sheet = "Sheet2_corrected", rows = filtered_out_rows+1, cols = 1:ncol(purchases), style = createStyle( fgFill = "red"), gridExpand = TRUE)
+saveWorkbook(wb, "purchases_corrected.xlsx", overwrite = TRUE)
+
+```
+
+### Teilaufgabe e {.justify}
+
+```{r, echo=F, eval=T, warning=F, message=F}
+
+```

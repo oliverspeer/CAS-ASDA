@@ -1,0 +1,467 @@
+[
+  {
+    "objectID": "Arbeitsblatt1.html",
+    "href": "Arbeitsblatt1.html",
+    "title": "Arbeitsblatt 1",
+    "section": "",
+    "text": "Aufgabe 1: Reshaping Data I\nTransformieren Sie den in R vorhandenen Datensatz iris ins long-Format, so dass die vier At- tribute Sepal.Length Sepal.Width, Petal.Lengthund Petal.Width (Längen der Blüten- und Kelchblätter von Schwertlilien) in einem Faktor type zusammengefasst sind und die Messwerte in der Spalte cm. Ersetzen Sie den Punkt in den Attributnamen durch _ (underscore) und setzen Sie alles in Kleinschreibung. Verwenden Sie dazu die Funktionen rename_with() mit gsub() sowie pivot_longer(). Falls sie gsub() nicht kennen, können Sie auch einfach rename() verwenden.\nTEXT EINGABE",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 1"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt1.html#aufgabe-2-reshaping-data-ii",
+    "href": "Arbeitsblatt1.html#aufgabe-2-reshaping-data-ii",
+    "title": "Arbeitsblatt 1",
+    "section": "Aufgabe 2: Reshaping Data II",
+    "text": "Aufgabe 2: Reshaping Data II\nTransformieren Sie den im R-Paket tidyr enthalten Datensatz who ins long-Format. Der Datensatz enthält von 1980 − 2013 eine Teilmenge der Daten aus dem Globalen Tuberkulosebericht der WHO und den dazugehörigen globalen Bevölkerungsgruppen. Die Spalten 5 − 60 sollen dabei in die vier Spalten diagnosis, gender, age und count transformiert werden. Eine detailierte Beschreibung der Spalten 5 − 60 finden Sie unter Details auf der Hilfeseite zum Datensatzes (?who). Die Funktionen substr() und gsub() können Ihnen dabei helfen.\n\n\nKeine Dokumentation für 'who' in angegebenen Paketen und Bibliotheken:\nSie können '??who' versuchen",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 1"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt1.html#aufgabe-3",
+    "href": "Arbeitsblatt1.html#aufgabe-3",
+    "title": "Arbeitsblatt 1",
+    "section": "Aufgabe 3",
+    "text": "Aufgabe 3\nTEXT",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 1"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt6.html",
+    "href": "Arbeitsblatt6.html",
+    "title": "Arbeitsblatt 6",
+    "section": "",
+    "text": "Aufgabe 1: API Gender\nAuf dem Arbeitsblatt 3 haben Sie nachfolgende Liste aufbereitet und dabei das Geschlecht mit Regular Expressions aus der Endung des Berufs extrahiert. In dieser Aufgabe sollen Sie das Geschlecht unter Verwendung einer API bestimmen.\nlibrary(stringr)\nspitalX &lt;- c(\"Arzt Stefan\", \"Pfleger Heinz\", \"Pflegerin Julia\",\n\"Ärztin Petra\", \"Aerztin Patricia\", \"Praktikantin Mona\",\n\"Arzt Claude\", \"Arzt Ciril\")\ndat &lt;- data.frame(Orig = spitalX)\ndat$Name &lt;- str_match(spitalX,\"[A-Z][a-z]+$\")\ndat\n\n\n\n\nOrig\nName\n\n\n\nArzt Stefan\nStefan\n\n\nPfleger Heinz\nHeinz\n\n\nPflegerin Julia\nJulia\n\n\nÄrztin Petra\nPetra\n\n\nAerztin Patricia\nPatricia\n\n\nPraktikantin Mona\nMona\n\n\nArzt Claude\nClaude\n\n\nArzt Ciril\nCiril\nDas Geschlecht einer Person kann mit folgender API https://api.genderize.io abgefragt werden. Der Abfrageparameter ist name.",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 6"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt6.html#aufgabe-1-api-gender",
+    "href": "Arbeitsblatt6.html#aufgabe-1-api-gender",
+    "title": "Arbeitsblatt 6",
+    "section": "",
+    "text": "Teilaufgabe a\nBestimmen Sie das Geschlecht Ihres Namens.\n\n\nResponse [https://api.genderize.io/?name=oliver]\n  Date: 2024-10-24 16:52\n  Status: 200\n  Content-Type: application/json; charset=utf-8\n  Size: 67 B\n\n\n\n\n\ncount\nname\ngender\nprobability\n\n\n218769\noliver\nmale\n0.99\n\n\n\n\n\nTeilaufgabe b\nspitalX Daten Bestimmen Sie das Geschlecht der Personen in den spitalX Daten. Fügen Sie das Geschlecht nur dann den Daten hinzu, wenn eine Wahrscheinlichkeit über 90% angegeben wird.\n\n\n\n\n\nOrig\nName\nGender\nprobability\n\n\n\nArzt Stefan\nStefan\nmale\n0.99\n\n\nPfleger Heinz\nHeinz\nmale\n1.00\n\n\nPflegerin Julia\nJulia\nfemale\n0.99\n\n\nÄrztin Petra\nPetra\nfemale\n0.99\n\n\nAerztin Patricia\nPatricia\nfemale\n1.00\n\n\nPraktikantin Mona\nMona\nfemale\n0.97\n\n\nArzt Claude\nClaude\nNA\n0.93\n\n\nArzt Ciril\nCiril\nmale\n0.97",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 6"
+    ]
+  },
+  {
+    "objectID": "EPandML.html",
+    "href": "EPandML.html",
+    "title": "Machine Learning als Unterstützung in der Labormedizin?",
+    "section": "",
+    "text": "{css, echo = FALSE} .justify {   text-align: justify }\nsiehe https://github.com/oliverspeer/CAS-ASDA-EP-ML.git\noder file:///home/olli/CAS-EP&ML/_book/index.html",
+    "crumbs": [
+      "Modul B - Data Analysis Concepts",
+      "Machine Learning als Unterstützung in der Labormedizin?"
+    ]
+  },
+  {
+    "objectID": "EPandML.html#business-understanding",
+    "href": "EPandML.html#business-understanding",
+    "title": "1  Can machine learning support validation by disrciminating pathological from norm protein electrophoresis in the diagnositc medical laboratory?",
+    "section": "",
+    "text": "1.1.1 Geschäftlicher Hintergrund\nDas ZLM ist der öffentliche & zentrale Versorger von labormedizinischer Dienstleistungen im Kanton St Gallen. Das ZLM beschäftigt ca 220 Mitarbeitende in den 5 klassischen Fachgebieten Genetik, Hämatologie, Immunologie, Mikrobiologie und Klinische Chemie.\nIn der Klinischen Chemie sind 14 Mitarbeitende im hochautomatisierten Core-Labor und in der handarbeitslastigen Spezial-Chemie tätig. Die SPezial-Chemie ist noch relativ wenig automatisiert, ist jedoch mit einer überdurchschnittlichem Wachstum konfrontiert, welcher den schnellen Fortschritt in den diagnostischen und therapeutischen Möglichkeiten in der Medizin, aber auch das zunehmende Alter und somit zunehmende Komplexität der Erkrankungen in der Bevölkerung wiederspiegelt.\nEin wesentlicher Anteil der Spezial-Chemie stellen die Protein-Elektrophoresen dar.\ntext\n\n\n1.1.2 Geschäftsziele definieren\nDie technisch operative Durchführung ist mit dem Capylaris einigermassen automatisiert. Viel Zeit und Know-How bindet die Interpretation und B\ntext\ntext\n\n\n1.1.3 Erfolgskriterien quantifizieren\ntext\n\n\n1.1.4 Erfolgskriterien quantifizieren\ntext\n\n\n1.1.5 Bewertung der Situation\ntext\n\n\n1.1.6 Bestimmung von Data-Mining Zielen\ntext\n\n\n1.1.7 Projektplan\ntext",
+    "crumbs": [
+      "Modul B - Data Analysis Concepts",
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Can machine learning support validation by disrciminating pathological from norm protein electrophoresis in the diagnositc medical laboratory?</span>"
+    ]
+  },
+  {
+    "objectID": "EPandML.html#data-understanding",
+    "href": "EPandML.html#data-understanding",
+    "title": "1  Can machine learning support validation by disrciminating pathological from norm protein electrophoresis in the diagnositc medical laboratory?",
+    "section": "1.2 Data understanding",
+    "text": "1.2 Data understanding\ntext\n\n1.2.1 Sammeln von Anfangsdaten\ntext\n\n\n1.2.2 Beschreiben der Daten: Qualität & Quantität\ntext & code\n\n\n1.2.3 Untersuchen der Daten: Explorative Datenanalyse\ntext & code\n\n\n1.2.4 Überprüfen der Datenqualität",
+    "crumbs": [
+      "Modul B - Data Analysis Concepts",
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Can machine learning support validation by disrciminating pathological from norm protein electrophoresis in the diagnositc medical laboratory?</span>"
+    ]
+  },
+  {
+    "objectID": "EPandML.html#data-preparation",
+    "href": "EPandML.html#data-preparation",
+    "title": "1  Can machine learning support validation by disrciminating pathological from norm protein electrophoresis in the diagnositc medical laboratory?",
+    "section": "1.3 Data preparation",
+    "text": "1.3 Data preparation\n\n1.3.1 Auswahl der Daten: Auswahl der relevanten Elemente und Merkmale\ntext & code\n\n\n1.3.2 Bereinigen der Daten\n\n\n1.3.3 Erstellen neuer Daten\n\n\n1.3.4 Integrieren von Daten\n\n\n1.3.5 Formatieren von Daten",
+    "crumbs": [
+      "Modul B - Data Analysis Concepts",
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Can machine learning support validation by disrciminating pathological from norm protein electrophoresis in the diagnositc medical laboratory?</span>"
+    ]
+  },
+  {
+    "objectID": "EPandML.html#modeling",
+    "href": "EPandML.html#modeling",
+    "title": "1  Can machine learning support validation by disrciminating pathological from norm protein electrophoresis in the diagnositc medical laboratory?",
+    "section": "1.4 Modeling",
+    "text": "1.4 Modeling\n\n1.4.1 Auswählen der Modellierungsverfahren\n\n\n1.4.2 Generieren eines Testdesigns\n\n\n1.4.3 Erstellen der Modelle\n\n\n1.4.4 Bewerten des Modells",
+    "crumbs": [
+      "Modul B - Data Analysis Concepts",
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Can machine learning support validation by disrciminating pathological from norm protein electrophoresis in the diagnositc medical laboratory?</span>"
+    ]
+  },
+  {
+    "objectID": "EPandML.html#evaluation",
+    "href": "EPandML.html#evaluation",
+    "title": "1  Can machine learning support validation by disrciminating pathological from norm protein electrophoresis in the diagnositc medical laboratory?",
+    "section": "1.5 Evaluation",
+    "text": "1.5 Evaluation\n\n1.5.1 Evaluieren der Ergebnisse\n\n\n1.5.2 Überprüfungsprozess",
+    "crumbs": [
+      "Modul B - Data Analysis Concepts",
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Can machine learning support validation by disrciminating pathological from norm protein electrophoresis in the diagnositc medical laboratory?</span>"
+    ]
+  },
+  {
+    "objectID": "EPandML.html#deployment",
+    "href": "EPandML.html#deployment",
+    "title": "1  Can machine learning support validation by disrciminating pathological from norm protein electrophoresis in the diagnositc medical laboratory?",
+    "section": "1.6 Deployment",
+    "text": "1.6 Deployment\n\n1.6.1 Planen der Bereitstellung\n\n\n1.6.2 Planen von Überwachung und Anpassung\n\n\n1.6.3 Erstellen eines Abschlussberichtes\n\n\n1.6.4 Abschliessende Projektbewertung",
+    "crumbs": [
+      "Modul B - Data Analysis Concepts",
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Can machine learning support validation by disrciminating pathological from norm protein electrophoresis in the diagnositc medical laboratory?</span>"
+    ]
+  },
+  {
+    "objectID": "ModulA.html",
+    "href": "ModulA.html",
+    "title": "Modul A - Data Enhancement and Processing",
+    "section": "",
+    "text": "https://raw.githubusercontent.com/rstudio/cheatsheets/main/tidyr.pdf",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing"
+    ]
+  },
+  {
+    "objectID": "ModulB.html",
+    "href": "ModulB.html",
+    "title": "Modul B - Data Analysis Concepts",
+    "section": "",
+    "text": "https://en.wikipedia.org/wiki/Cross-industry_standard_process_for_data_mining \nhttps://www.ibm.com/docs/de/spss-modeler/saas?topic=dm-crisp-help-overview",
+    "crumbs": [
+      "Modul B - Data Analysis Concepts"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "CAS_ASDA_book",
+    "section": "",
+    "text": "ZHAW CAS Advanced Statistical Data Analysis ASDA\nDas CAS Advanced Statistical Data Analysis erweitert und vertieft die im CAS Data Analysis erworbenen Kenntnisse und Fähigkeiten. Im Zentrum stehen neben fortgeschrittenen Datenaufbereitungstechniken und erweiterten Regressionsmodellen, auch Fragen, wie mit fehlenden Werten umzugehen ist und welche kausalen Rückschlüsse aus Modellen zulässig sind.",
+    "crumbs": [
+      "ZHAW CAS Advanced Statistical Data Analysis ASDA"
+    ]
+  },
+  {
+    "objectID": "index.html#kursbeginn",
+    "href": "index.html#kursbeginn",
+    "title": "CAS_ASDA_book",
+    "section": "Kursbeginn:",
+    "text": "Kursbeginn:\n           Donnerstag, 5. September 2024, 9:00 Uhr",
+    "crumbs": [
+      "ZHAW CAS Advanced Statistical Data Analysis ASDA"
+    ]
+  },
+  {
+    "objectID": "index.html#kursort",
+    "href": "index.html#kursort",
+    "title": "CAS_ASDA_book",
+    "section": "Kursort:",
+    "text": "Kursort:\n           ZHAW Campus Lagerplatz\n           Technopark Trakt A (Gebäudebezeichnung MT), Raum MT 1140\n           Technoparkstrasse 2\n           8406 Winterthur",
+    "crumbs": [
+      "ZHAW CAS Advanced Statistical Data Analysis ASDA"
+    ]
+  },
+  {
+    "objectID": "index.html#teamskanal",
+    "href": "index.html#teamskanal",
+    "title": "CAS_ASDA_book",
+    "section": "Teamskanal:",
+    "text": "Teamskanal:\n           CAS ASDA HS 2024",
+    "crumbs": [
+      "ZHAW CAS Advanced Statistical Data Analysis ASDA"
+    ]
+  },
+  {
+    "objectID": "index.html#kursdaten",
+    "href": "index.html#kursdaten",
+    "title": "CAS_ASDA_book",
+    "section": "Kursdaten",
+    "text": "Kursdaten\n\n\n\nProgramm\n\n\nhttps://moodle.zhaw.ch/pluginfile.php/1344144/mod_resource/content/3/CAS-DA2023-18_Kursdaten_HS.pdf\nThis is a Quarto book.\nTo learn more about Quarto books visit https://quarto.org/docs/books.",
+    "crumbs": [
+      "ZHAW CAS Advanced Statistical Data Analysis ASDA"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt5.html",
+    "href": "Arbeitsblatt5.html",
+    "title": "Arbeitsblatt 5",
+    "section": "",
+    "text": "Aufgabe 1: Umgang mit Excel Dateien\nEin Onlinehändler möchte ein R-Skript, um Excel-Exporte aus einem veraltetem System automati- siert zu bereinigen und auszuwerten. Die Datei purchases.xlsx soll als Prototyp für die Entwicklung dieses R-Skripts verwendet werden. Lösen Sie die folgenden Aufgaben in R mit Hilfe der Pakete dplyr, ggplot2 und openxlsx.\nlibrary(openxlsx)\nlibrary(dplyr)\nlibrary(ggplot2)",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 5"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt5.html#aufgabe-1-umgang-mit-excel-dateien",
+    "href": "Arbeitsblatt5.html#aufgabe-1-umgang-mit-excel-dateien",
+    "title": "Arbeitsblatt 5",
+    "section": "",
+    "text": "Teilaufgabe a\nExcel Datei als Workbook einlesen Öffnen Sie die Datei purchases.xlsx in Excel und verschaffen Sie sich einen Überblick. Laden Sie diese Datei als Workbook in R. Löschen Sie alle Blätter bis auf Sheet1 und Sheet2. R-Befehle:\n\n\n[1] \"Sheet1\" \"Sheet2\" \"Sheet3\"\n\n\n[1] \"Sheet1\" \"Sheet2\"\n\n\nTeilaufgabe b\nBlatt einer Excel Datei als data.frame einlesen Lesen Sie die Daten von Sheet2 als data.frame() mit read.xlsx() ein. Achten Sie sich darauf, dass Spalten mit Datumangaben als solche eingelesen werden.\nTeilaufgabe c\nFinden Sie geeignete Prüfregeln (Regeln für Inkonsistenzen) für die Spalten Account Opening, Last Access, Number Items Purchased and Total of Purchases in CHF, wenden sie die- se an und löschen Sie ungültige Werte.\n### Teilaufgabe d {.justify} Anlegen von neuen Blättern in Workbooks, schreiben von Daten, Formatierung Ergänzen Sie das Workbook aus (a) durch ein neues Blatt Sheet2_corrected und speichern Sie darin das aus (b) korrigierte data.frame. Gelöschte Werte sollen mit roter Hintergrundfarbe markiert werden.\nTeilaufgabe e",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 5"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt4.html",
+    "href": "Arbeitsblatt4.html",
+    "title": "Arbeitsblatt 4",
+    "section": "",
+    "text": "Aufgabe 1: Diabetes\nVerwenden Sie die diabetes Daten des R-Pakets VIM. Die Daten umfassen folgende medizinische Angaben zu 768 Patientinnen. Die Angabe zu Diabetes (Outcome) wird als Zielvariable, und die übrigen Angaben wie Anzahl Schwangerschaften (Pregnancies) werden als erklärende Variablen betrachtet. Die Daten stammen aus einer grösseren Datenbank und es wurden mehrere Einschränkungen gemacht. Insbesondere sind alle Patienten weiblich, mindestens 21 Jahre alt und von Pima-Indianern abstammend.\nlibrary(VIM)\n\nLade nötiges Paket: colorspace\n\n\nLade nötiges Paket: grid\n\n\nVIM is ready to use.\n\n\nSuggestions and bug-reports can be submitted at: https://github.com/statistikat/VIM/issues\n\n\n\nAttache Paket: 'VIM'\n\n\nDas folgende Objekt ist maskiert 'package:datasets':\n\n    sleep\n\ndata(\"diabetes\")\n?diabetes",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 4"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt4.html#aufgabe-1-diabetes",
+    "href": "Arbeitsblatt4.html#aufgabe-1-diabetes",
+    "title": "Arbeitsblatt 4",
+    "section": "",
+    "text": "Teilaufgabe a\nWieviel fehlende Werte gibt es pro Variable? Verwenden Sie dafür die Funktion aggr() des R-Pakets VIM um einfache Statistiken und Plots zu erzeugen. Was sehen Sie?\n\n\n\n Missings per variable: \n                 Variable Count\n              Pregnancies   111\n                  Glucose     5\n            BloodPressure    35\n            SkinThickness   227\n                  Insulin   374\n                      BMI    11\n DiabetesPedigreeFunction     0\n                      Age     0\n                  Outcome     0\n\n Missings in combinations of variables: \n      Combinations Count    Percent\n 0:0:0:0:0:0:0:0:0   336 43.7500000\n 0:0:0:0:1:0:0:0:0   119 15.4947917\n 0:0:0:1:1:0:0:0:0   170 22.1354167\n 0:0:0:1:1:1:0:0:0     2  0.2604167\n 0:0:1:0:1:0:0:0:0     2  0.2604167\n 0:0:1:1:1:0:0:0:0    17  2.2135417\n 0:0:1:1:1:1:0:0:0     6  0.7812500\n 0:1:0:0:0:0:0:0:0     1  0.1302083\n 0:1:0:0:1:0:0:0:0     4  0.5208333\n 1:0:0:0:0:0:0:0:0    56  7.2916667\n 1:0:0:0:0:1:0:0:0     1  0.1302083\n 1:0:0:0:1:0:0:0:0    21  2.7343750\n 1:0:0:0:1:1:0:0:0     1  0.1302083\n 1:0:0:1:1:0:0:0:0    22  2.8645833\n 1:0:1:1:1:0:0:0:0     9  1.1718750\n 1:0:1:1:1:1:0:0:0     1  0.1302083\n\n\n\n\n\n\n\n\nRechter Plot: Die meisten fehlenden Werte weist die Variable Insulin auf, gefolgt von SkinThickness. Linker Plot: Skinthickness und Insulin Datenpunkte fehlen häufig zusammen.\nTeilaufgabe b\nMachen Sie einen Matrixplot. Sortieren Sie nach verschiedenen Variablen. Finden Sie eine MAR-Situation?\n\n\n\n\n\n\n\n\nEs ist eine leichte Tendenz zu erkennen, dass bei den älteren Patientinnen eher Insulin- und SkinThickness Werte fehlen. Wobei bei den Jüngeren eher die Angaben zu den Schwangerschaften (Pregn) fehlen. Daher schätze ich die fehlenden Werte als “Missing at random” MAR ein.\nTeilaufgabe c\nStellen Sie das Alter gegen die anderen Variablen mit einem Boxplot ( Funktion pbox()) dar. Gibt es Hinweise auf MAR Situationen?\n\n\n\n\n\n\n\n\nDer BoxPlot bestätigt die Beobachtung aus dem Matrix-Plot: Es zu erkennen, dass bei den fehlenden Insulin- und SkinThickness Werte der Median für das Alter höher ist als bei den vorhandenen Daten. Bei den fehlendne Angaben zu den Schwangerschaften (Pregn) ist der Alters-Median eher tiefer. Daher schätze ich weiterhin die fehlenden Werte als “Missing at random” MAR ein.\n### Teilaufgabe d {.justify} Fokussieren Sie nun auf die Variablen BMI und Insulin. Erzeugen Sie ein Histogramm und einen Spineplot für BMI und färben Sie die Punkte nach fehlenden Werte bei Insulin ein. Welcher Situation entspricht dies: MAR, MCAR oder MNAR?\n\n\n\n\n\n\n\n\nFehlende Insulin-Werte sind über die BMI-Werte gleich verteilt, im spine-Plot ein leichter trend zu erkennen, dass bei hohen BMI Werten eher Insulin Werte fehlen. MCAR\nTeilaufgabe e\nErzeugen Sie einen parallelen Koordinatenplot, bei welchem fehlende Werte bei der Variablen Pregancies (Argument: highlight = Pregnancies”) hervorgehoben werden. Was sehen Sie?\n\n\n\n\n\n\n\n\nAngaben zu Schwangerschaften fehlen bei jüngeren Patientinnen und zusammen mit Insulin und DiabetesPedigree. MAR Situation. Für die anderen fehlenden Werte zusammen mit der Schwangercshaft MCAR Sitatuation.",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 4"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt3.html",
+    "href": "Arbeitsblatt3.html",
+    "title": "Arbeitsblatt 3",
+    "section": "",
+    "text": "Aufgabe 1: words\nIn dieser Aufgabe verwenden wir den Zeichenkettenvektor words. Der Vektor ist im R-Paket stringr enthalten.\nlibrary(stringr)\ndata(words)",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 3"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt3.html#aufgabe-1-words",
+    "href": "Arbeitsblatt3.html#aufgabe-1-words",
+    "title": "Arbeitsblatt 3",
+    "section": "",
+    "text": "Teilaufgabe a\nFinden sie alle Wörter im Vektor words . . . • die mit einem Vokal beginnen und aus 5 Buchstaben bestehen • die nur Konsonanten enthalten • die auf ed, aber nicht auf eed enden. • die auf ing oder ise enden.\n\n\n [1] \"about\" \"admit\" \"after\" \"again\" \"agent\" \"agree\" \"allow\" \"along\" \"apart\"\n[10] \"apply\" \"argue\" \"aware\" \"awful\" \"early\" \"eight\" \"elect\" \"enjoy\" \"enter\"\n[19] \"equal\" \"every\" \"exact\" \"exist\" \"extra\" \"issue\" \"offer\" \"often\" \"order\"\n[28] \"other\" \"ought\" \"under\" \"union\" \"unite\" \"until\" \"usual\"\n\n\n[1] \"by\"  \"dry\" \"fly\" \"mrs\" \"try\" \"why\"\n\n\nFinden sie alle Wörter im Vektor words . . . • die auf ed, aber nicht auf eed enden.\n\n\n[1] \"bed\"     \"hundred\" \"red\"    \n\n\n\n\n [1] \"advertise\" \"bring\"     \"during\"    \"evening\"   \"exercise\"  \"king\"     \n [7] \"meaning\"   \"morning\"   \"otherwise\" \"practise\"  \"raise\"     \"realise\"  \n[13] \"ring\"      \"rise\"      \"sing\"      \"surprise\"  \"thing\"    \n\n\nTeilaufgabe b\nVon welcher Wortgruppe hat es mehr? • Gruppe A: Worte mit cei oder ie falls kein c davor • Gruppe B: Wörtern mit cie oder ei falls kein c davor\n\n\n [1] \"achieve\"    \"believe\"    \"brief\"      \"client\"     \"die\"       \n [6] \"experience\" \"field\"      \"friend\"     \"lie\"        \"piece\"     \n[11] \"quiet\"      \"receive\"    \"tie\"        \"view\"      \n\n\n[1] \"science\" \"society\" \"weigh\"  \n\n\nTeilaufgabe c\nAlle Worte die ein q enthalten, auf welches kein u folgt?\n\n\ncharacter(0)",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 3"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt3.html#aufgabe-2-aerzte-ärzte-aerztinnen-etc",
+    "href": "Arbeitsblatt3.html#aufgabe-2-aerzte-ärzte-aerztinnen-etc",
+    "title": "Arbeitsblatt 3",
+    "section": "Aufgabe 2: Aerzte, Ärzte, Aerztinnen, etc",
+    "text": "Aufgabe 2: Aerzte, Ärzte, Aerztinnen, etc\nLesen Sie nachfolgenden Vektor aus dem Unterricht in R ein und erstellen Sie daraus einen Datensatz mit 5 Spalten (Arzt (TRUE/FALSE), Pfleger (TRUE/FALSE), Praktikant (TRUE/FALSE), Geschlecht, Name).\n\n\n\n\n\norig\nArzt\nPfleger\nPraktikant\nGeschlecht\nVorname\n\n\n\nArzt Stefan\nTRUE\nFALSE\nFALSE\nm\nStefan\n\n\nPfleger Heinz\nFALSE\nTRUE\nFALSE\nm\nHeinz\n\n\nPflegerin Julia\nFALSE\nTRUE\nFALSE\nw\nJulia\n\n\nÄrztin Petra\nTRUE\nFALSE\nFALSE\nw\nPetra\n\n\nAerztin Patricia\nTRUE\nFALSE\nFALSE\nw\nPatricia\n\n\nPraktikantin Mona\nFALSE\nFALSE\nTRUE\nw\nMona\n\n\nArzt Claude\nTRUE\nFALSE\nFALSE\nm\nClaude\n\n\nArzt Ciril\nTRUE\nFALSE\nFALSE\nm\nCiril\n\n\n\n\n\n\n\n\n\norig\nArzt\nPfleger\nPraktikant\nGeschlecht\nVorname\n\n\n\nArzt Stefan\nTRUE\nFALSE\nFALSE\nm\nStefan\n\n\nPfleger Heinz\nFALSE\nTRUE\nFALSE\nm\nHeinz\n\n\nPflegerin Julia\nFALSE\nTRUE\nFALSE\nw\nJulia\n\n\nÄrztin Petra\nTRUE\nFALSE\nFALSE\nw\nPetra\n\n\nAerztin Patricia\nTRUE\nFALSE\nFALSE\nw\nPatricia\n\n\nPraktikantin Mona\nFALSE\nFALSE\nTRUE\nw\nMona\n\n\nArzt Claude\nTRUE\nFALSE\nFALSE\nm\nClaude\n\n\nArzt Ciril\nTRUE\nFALSE\nFALSE\nm\nCiril",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 3"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt3.html#aufgabe-3-adressen",
+    "href": "Arbeitsblatt3.html#aufgabe-3-adressen",
+    "title": "Arbeitsblatt 3",
+    "section": "Aufgabe 3: Adressen",
+    "text": "Aufgabe 3: Adressen\nLesen nachfolgende Adressen in R ein und erstellen daraus einen Datensatz mit 5 Spalten (Stras- senname, Hausnummer, Postleitzahl, Stadt und Land). Sie können den Vektor adressen via copy & paste nach R übernehmen.\n\n\n\n\n\n\n\n\n\n\n\n\n\norig\nStrasse\nHausnummer\nPostleitzahl\nLand\nStadt\n\n\n\nPlatz der Republik 1, D-11011 Berlin\nPlatz der Republik\n1\n11011\nD\nBerlin\n\n\nDr.-Karl-Renner-Ring 3, A-1017 Wien\nDr.-Karl-Renner-Ring\n3\n1017\nA\nWien\n\n\nBundesplatz 3, CH-3005 Bern\nBundesplatz\n3\n3005\nCH\nBern\n\n\n\n\n\n\n\n\n\n\n\nStrasse\nNr\nLand\nPostleitzahl\nStadt\n\n\n\nPlatz der Republik\n1\nD\n11011\nBerlin\n\n\nDr.-Karl-Renner-Ring\n3\nA\n1017\nWien\n\n\nBundesplatz\n3\nCH\n3005\nBern",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 3"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt3.html#aufgabe-4-ids",
+    "href": "Arbeitsblatt3.html#aufgabe-4-ids",
+    "title": "Arbeitsblatt 3",
+    "section": "Aufgabe 4: IDs",
+    "text": "Aufgabe 4: IDs\nTeilaufgabe a\nIn der Internet Movie Database IMDb verfügt jeder Film über eine eindeutige ID, die nach dem Schema tt[7 Ziffern] aufgebaut ist. Extrahieren Sie diese ID aus den folgenden URLS:\n\nimdb_urls &lt;- c(\n\"https://www.imdb.com/title/tt6751668/?ref_=hm_fanfav_tt_4_pd_fp1\",\n\"https://www.imdb.com/title/tt0260991/\",\n\"www.imdb.com/title/tt7282468/reviews\",\n\"https://m.imdb.com/title/tt4768776/\"\n)\n\n\n\n[1] \"tt6751668\" \"tt0260991\" \"tt7282468\" \"tt4768776\"\n\n\nTeilaufgabe b\nDie folgenden Dateinamen wurden in einer Studie mit Kamerafallen verwendet.\n\nfilenames &lt;- c( 'S123.P2.C10_20120621_213422.jpg',\n'S10.P1.C1_20120622_050148.jpg',\n'S187.P2.C2_20120702_023501.jpg')\n\nDer Buchstabe S steht für den Standort, P für die Parzelle innerhalb eines Standorts, C für die Kameranummer innerhalb der Parzelle. Die erste Zahlenfolge steht für JahrMonatTag und die zweite Zahlenfolge für StundeMinuteSekunde. Erstellen Sie eine Tabelle mit Spalten, die dem Standort, der Fläche, der Kamera, dem Jahr, dem Monat, dem Tag, der Stunde, der Minute und der Sekunde für diese drei Dateinamen entsprechen. Wir wollen also einen Code erstellen, der den folgenden Tibble erzeugt:\nSite Plot Camera Year Month Day Hour Minute Second 1 S123 P2C10 2012 06 21 21 34 22 2 S10 P1C1 2012 06 22 5 01 48 3 S187 P2C2 2012 07 02 2 35 01\nSpalten die nur Zahlen enthalten sollten vom Typ Integer sein.\n\n\n\n\n\nSite\nPlot\nCamera\nYear\nMonth\nDay\nHour\nMinute\nSecond\n\n\n\nS123\nP2\nC10\n2012\n6\n21\n21\n34\n22\n\n\nS10\nP1\nC1\n2012\n6\n22\n5\n1\n48\n\n\nS187\nP2\nC2\n2012\n7\n2\n2\n35\n1",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 3"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt3.html#aufgabe-5-mahalanobis-distanz",
+    "href": "Arbeitsblatt3.html#aufgabe-5-mahalanobis-distanz",
+    "title": "Arbeitsblatt 3",
+    "section": "Aufgabe 5: Mahalanobis Distanz",
+    "text": "Aufgabe 5: Mahalanobis Distanz\nLaden Sie den 3-dimensionalen Datensatz dat aus dem File ex-outlier.rda in R.\n\nload('ex-outlier.rda')\n\nTeilaufgabe a\nStellen Sie die 3 Variablen von dat paarweise gegeneinander dar. Gibt es auffällige Datenpunkte?\n\n\n\n\n\n\n\n\nTeilaufgabe b\nBerechnen Sie die Mahalanobis-Distanz und identifizieren Sie potentielle Ausreisser.\n\n\n  [1] 47.52654866 12.22301519 11.50871587 10.86989628 10.84265734 10.82425676\n  [7] 10.50328156 10.33451612 10.29792880 10.02157475  9.70441093  9.15960888\n [13]  8.37859032  7.99648855  7.75834565  7.66300957  7.58496955  7.11953673\n [19]  7.05942764  7.02898084  7.01915502  7.01103115  7.01066050  6.90212839\n [25]  6.34208896  6.24078746  6.18360568  6.11693224  6.11360782  6.11341025\n [31]  6.04272596  5.91808054  5.84857831  5.82257007  5.78453103  5.66539931\n [37]  5.57053872  5.43581310  5.42933877  5.42806493  5.34755296  5.32448404\n [43]  5.31336699  5.30529143  5.23861234  5.17013273  5.09177229  5.05773864\n [49]  5.04824873  4.96836653  4.95450021  4.94587345  4.90773178  4.81770003\n [55]  4.76948379  4.73746604  4.70227832  4.69480088  4.68185260  4.67226564\n [61]  4.65895878  4.58485688  4.57622875  4.55005417  4.54020095  4.52463421\n [67]  4.40884007  4.39151166  4.38816283  4.37427030  4.34955925  4.31007393\n [73]  4.30599591  4.28501712  4.27185267  4.12202359  4.10706045  4.10212333\n [79]  3.98652153  3.87631519  3.87615136  3.86970897  3.79873863  3.70355441\n [85]  3.65050977  3.62638947  3.61721739  3.51246528  3.50382550  3.49111282\n [91]  3.48248160  3.44717467  3.43785402  3.42761132  3.42090393  3.38205676\n [97]  3.35512331  3.33236911  3.32665889  3.31151904  3.25623394  3.25422892\n[103]  3.25174917  3.21916039  3.17646821  3.15168500  3.13407741  3.08291683\n[109]  3.06447947  3.04823756  2.95572381  2.95128005  2.94507015  2.89765695\n[115]  2.81196757  2.79488668  2.77473972  2.77194530  2.74740432  2.72274520\n[121]  2.72169706  2.67629787  2.64652497  2.60352803  2.59883638  2.57173040\n[127]  2.57123451  2.56462739  2.55733152  2.50913279  2.50443392  2.48527146\n[133]  2.47440746  2.46315847  2.43346329  2.41035288  2.40284355  2.39881635\n[139]  2.37724448  2.37723569  2.37702418  2.36434655  2.35037212  2.31877418\n[145]  2.29292793  2.29280942  2.25953990  2.22823957  2.21053980  2.20364464\n[151]  2.20211539  2.19449531  2.18791856  2.15576064  2.12173882  2.10747849\n[157]  2.09945065  2.09673348  2.09319484  2.08949267  2.05674985  2.01878759\n[163]  2.01646347  2.01154821  2.00257940  2.00145147  1.98895359  1.97310202\n[169]  1.94192406  1.92863240  1.91928851  1.91867951  1.91575131  1.90079724\n[175]  1.88312613  1.86838337  1.85179826  1.84694901  1.80367384  1.79401888\n[181]  1.77267700  1.71410917  1.70098694  1.62993221  1.62912871  1.61281808\n[187]  1.58206241  1.53828842  1.52493462  1.50934173  1.48173788  1.47338737\n[193]  1.43437299  1.43260898  1.43239310  1.42291567  1.38320642  1.37461642\n[199]  1.35762479  1.33927638  1.33611090  1.33497326  1.33132094  1.32131518\n[205]  1.30794395  1.27710713  1.27537423  1.26697773  1.25196557  1.25182664\n[211]  1.23844540  1.23726179  1.16729999  1.15155251  1.14584684  1.13632680\n[217]  1.13602836  1.12904913  1.11035241  1.10308897  1.09747146  1.08291480\n[223]  1.07928089  1.07652162  1.07514333  1.07486182  1.05937258  1.05267479\n[229]  1.04814846  1.03962284  1.02698811  1.02179639  1.01833895  1.00384864\n[235]  0.96690517  0.96672691  0.92647769  0.89487368  0.88927829  0.88753350\n[241]  0.88395130  0.87971158  0.87163172  0.86609024  0.85971213  0.83372098\n[247]  0.83007250  0.80999196  0.78072794  0.77678551  0.77356113  0.75804262\n[253]  0.75347637  0.71392178  0.68850825  0.67747474  0.65326613  0.62724056\n[259]  0.61449632  0.58224434  0.57939446  0.56607257  0.56118775  0.50731066\n[265]  0.50544316  0.49985281  0.49626381  0.48915087  0.46748652  0.44742045\n[271]  0.42454046  0.42099205  0.39894501  0.39355159  0.38503586  0.36729783\n[277]  0.32862318  0.32549119  0.32157293  0.31794877  0.31510609  0.31038312\n[283]  0.30996876  0.30801783  0.28557365  0.27601435  0.27005109  0.24492629\n[289]  0.24069707  0.23352405  0.23042294  0.22537811  0.22149381  0.13705710\n[295]  0.11900038  0.11357422  0.07711886  0.07474457  0.06650652  0.03870804\n[301]  0.02606036\n\n\n[1] 301\n\n\n[1] 301",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 3"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt4.html#aufgabe-2-ozon",
+    "href": "Arbeitsblatt4.html#aufgabe-2-ozon",
+    "title": "Arbeitsblatt 4",
+    "section": "Aufgabe 2: Ozon",
+    "text": "Aufgabe 2: Ozon\nVerwenden Sie den Datensatz airquality aus dem Unterricht.\nTeilaufgabe a\nWieviel fehlende Werte gibt es bei den einzelnen Variablen?\n\n\n\n Missings per variable: \n Variable Count\n    Ozone    37\n  Solar.R     7\n     Wind     0\n     Temp     0\n    Month     0\n      Day     0\n\n Missings in combinations of variables: \n Combinations Count   Percent\n  0:0:0:0:0:0   111 72.549020\n  0:1:0:0:0:0     5  3.267974\n  1:0:0:0:0:0    35 22.875817\n  1:1:0:0:0:0     2  1.307190\n\n\n\n\n\n\n\n\nDie meisten fehlenden Werte weist die Variable Ozone auf, gefolgt von Solar.R. Beide fehlen selten zusammen. MCAR Situation\nTeilaufgabe b\nErzeugen Sie einen Matrixplot und sortieren Sie die Daten geeignet. Können Sie eine MAR- Situation erkennen? Welche?\n\n\n\n\n\n\n\n\nIm Mai uns Juni scheinen etwas häufiger die Ozon-werte zu fehlen. Mit den anderen Variablen ist kein Zusammenhang bzgl fehlender Werte erkennbar. MCAR Situation\nTeilaufgabe c\nBenutzen Sie die Mittelwert Imputation für die fehlenden Werte bei der Variable Ozone. Vergleichen Sie die Verteilung vor und nach Imputation.\n\n\n[1] 1088.201\n\n\n[1] 823.3096\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTeilaufgabe c\nPassen Sie eine multiple lineare Regression (Ozone ~ Wind + Temp + Solar.R) an die Originaldaten und auch an mit vervollständigten Daten aus c). Vergleichen Sie die Koeffi- zienten, die Fehlervarianz, R2 und Signifikanzen. Warum sollte man dem Modell mit den vervollständigten Daten weniger vertrauen?\n\n\n\n===========================================================================================\n                                              Dependent variable:                          \n                    -----------------------------------------------------------------------\n                             Ozone                             OzoneImp                    \n                              (1)                     (2)                     (3)          \n-------------------------------------------------------------------------------------------\nWind                       -3.334***               -2.780***               -2.717***       \n                            (0.654)                 (0.550)                 (0.543)        \n                                                                                           \nTemp                       1.652***                1.348***                1.241***        \n                            (0.254)                 (0.217)                 (0.209)        \n                                                                                           \nSolar.R                     0.060**                0.055***                                \n                            (0.023)                 (0.020)                                \n                                                                                           \nSolarImp                                                                   0.058***        \n                                                                            (0.020)        \n                                                                                           \nConstant                  -64.342***               -45.537**               -38.223**       \n                           (23.055)                (19.528)                (18.883)        \n                                                                                           \n-------------------------------------------------------------------------------------------\nObservations                  111                     146                     153          \nR2                           0.606                   0.504                   0.480         \nAdjusted R2                  0.595                   0.493                   0.470         \nResidual Std. Error    21.181 (df = 107)       20.630 (df = 142)       20.898 (df = 149)   \nF Statistic         54.834*** (df = 3; 107) 48.062*** (df = 3; 142) 45.851*** (df = 3; 149)\n===========================================================================================\nNote:                                                           *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01\n\n\nDie Imputation hat weder die Signifikanz der Variablen noch das Vorzeichen der Koeffizienten verändert hat. Das adjustierte R2 des imputierten Modells ist etwas niedriger als das des Origi- nalmodells, dafür ist die Fehlervarianz des imputierten Modells minimal besser. Da die fehlenden Werte von Ozone durch deren Mittelwerte (also einem einzigen Wert) ersetzt werden, hat dies zur Folge, dass die Varianz der Variable reduziert wird. Bei einer Reduktion der Varianzen von Variablen werden auch deren Kovarianzen gemindert, was in aller Regel die Stärke der geschätzten Regressionskoeffizienten mindert. Auch verkleinert sich oftmals der Standardfehler, was zu falschen Ergebnissen von Signifikanztests führt. Es ist daher nicht empfehlenswert, eine Regression basierend auf Datensätzen mit Mittelwert Imputationen durchzuführen.\nTeilaufgabe e\nFühren Sie mit missForest eine Imputation durch und passen Sie eine multiple lineare Regression (Ozone ~ Wind + Temp + Solar.R) auf den vervollständigten Datensatz an. Vergleichen Sie die Koeffizienten.\n\n\n\n===========================================================================================\n                                              Dependent variable:                          \n                    -----------------------------------------------------------------------\n                             Ozone                 OzoneImp                  Ozone         \n                              (1)                     (2)                     (3)          \n-------------------------------------------------------------------------------------------\nWind                       -3.334***               -2.717***               -2.879***       \n                            (0.654)                 (0.543)                 (0.508)        \n                                                                                           \nTemp                       1.652***                1.241***                1.550***        \n                            (0.254)                 (0.209)                 (0.196)        \n                                                                                           \nSolar.R                     0.060**                                        0.065***        \n                            (0.023)                                         (0.019)        \n                                                                                           \nSolarImp                                           0.058***                                \n                                                    (0.020)                                \n                                                                                           \nConstant                  -64.342***               -38.223**              -62.789***       \n                           (23.055)                (18.883)                (17.680)        \n                                                                                           \n-------------------------------------------------------------------------------------------\nObservations                  111                     153                     153          \nR2                           0.606                   0.480                   0.590         \nAdjusted R2                  0.595                   0.470                   0.582         \nResidual Std. Error    21.181 (df = 107)       20.898 (df = 149)       19.543 (df = 149)   \nF Statistic         54.834*** (df = 3; 107) 45.851*** (df = 3; 149) 71.462*** (df = 3; 149)\n===========================================================================================\nNote:                                                           *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01\n\n\n\n\n\n\n\n\n\n\nTeilaufgabe f\nFühren Sie eine multiple (m = 5) Imputation mit MICE basierend auf Random Forest durch. Passen Sie wieder eine multiple lineare Regression (Ozone ~ Wind + Temp + Solar.R) auf die vervollständigten Datensätze an und aggregieren die Ergebnisse. Vergleichen Sie die Koeffizienten.\n\n\n\n iter imp variable\n  1   1  Ozone  Solar.R\n  1   2  Ozone  Solar.R\n  1   3  Ozone  Solar.R\n  1   4  Ozone  Solar.R\n  1   5  Ozone  Solar.R\n  2   1  Ozone  Solar.R\n  2   2  Ozone  Solar.R\n  2   3  Ozone  Solar.R\n  2   4  Ozone  Solar.R\n  2   5  Ozone  Solar.R\n  3   1  Ozone  Solar.R\n  3   2  Ozone  Solar.R\n  3   3  Ozone  Solar.R\n  3   4  Ozone  Solar.R\n  3   5  Ozone  Solar.R\n  4   1  Ozone  Solar.R\n  4   2  Ozone  Solar.R\n  4   3  Ozone  Solar.R\n  4   4  Ozone  Solar.R\n  4   5  Ozone  Solar.R\n  5   1  Ozone  Solar.R\n  5   2  Ozone  Solar.R\n  5   3  Ozone  Solar.R\n  5   4  Ozone  Solar.R\n  5   5  Ozone  Solar.R\n\n\n\n\n\nterm\nestimate\nstd.error\nstatistic\ndf\np.value\n\n\n\n(Intercept)\n-58.2598593\n24.9695340\n-2.333238\n32.06519\n0.0260675\n\n\nWind\n-3.0328089\n0.7174505\n-4.227203\n32.21090\n0.0001824\n\n\nTemp\n1.5243948\n0.2626194\n5.804578\n48.51840\n0.0000005\n\n\nSolar.R\n0.0637172\n0.0264778\n2.406441\n27.02062\n0.0232158\n\n\n\n\n\n\n\n===========================================================================================\n                                              Dependent variable:                          \n                    -----------------------------------------------------------------------\n                             Ozone                 OzoneImp                  Ozone         \n                              (1)                     (2)                     (3)          \n-------------------------------------------------------------------------------------------\nWind                       -3.334***               -2.717***               -2.879***       \n                            (0.654)                 (0.543)                 (0.508)        \n                                                                                           \nTemp                       1.652***                1.241***                1.550***        \n                            (0.254)                 (0.209)                 (0.196)        \n                                                                                           \nSolar.R                     0.060**                                        0.065***        \n                            (0.023)                                         (0.019)        \n                                                                                           \nSolarImp                                           0.058***                                \n                                                    (0.020)                                \n                                                                                           \nConstant                  -64.342***               -38.223**              -62.789***       \n                           (23.055)                (18.883)                (17.680)        \n                                                                                           \n-------------------------------------------------------------------------------------------\nObservations                  111                     153                     153          \nR2                           0.606                   0.480                   0.590         \nAdjusted R2                  0.595                   0.470                   0.582         \nResidual Std. Error    21.181 (df = 107)       20.898 (df = 149)       19.543 (df = 149)   \nF Statistic         54.834*** (df = 3; 107) 45.851*** (df = 3; 149) 71.462*** (df = 3; 149)\n===========================================================================================\nNote:                                                           *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 4"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt4.html#aufgabe-3-adressen",
+    "href": "Arbeitsblatt4.html#aufgabe-3-adressen",
+    "title": "Arbeitsblatt 4",
+    "section": "Aufgabe 3: Adressen",
+    "text": "Aufgabe 3: Adressen\nVerwenden Sie die sleep Daten des R-Pakets VIM (siehe Unterricht)\n\nlibrary(VIM)\ndata(sleep)\n\nTeilaufgabe a\nImputieren Sie die fehlenden Werte mit der k-Nearest Neighbor Methode. Wählen Sie ein geignetes Vorgehen, damit die imputierten Daten NonD + Dream = Sleep einhalten.\n\nsleep.imp &lt;- kNN(sleep)",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 4"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt4.html#aufgabe-4-analyse-fehlender-werte-mit-simulation",
+    "href": "Arbeitsblatt4.html#aufgabe-4-analyse-fehlender-werte-mit-simulation",
+    "title": "Arbeitsblatt 4",
+    "section": "Aufgabe 4: Analyse fehlender Werte mit Simulation",
+    "text": "Aufgabe 4: Analyse fehlender Werte mit Simulation\nFür die folgende Übung benötigen Sie eine Funktion, welche künstliche Daten als auch MCAR, MAR und MNAR Situationen erzeugt.\n\nsimDat &lt;- function(){\n  \n# generate bivariate normal data\n  require(mvtnorm)\n  x &lt;- rmvnorm(n = 100, mean = c(10, 10),\n  sigma = matrix(3 * c(1, 0.9, 0.9, 1), ncol = 2))\n  x &lt;- as.data.frame(x)\n  colnames(x) &lt;- c(\"xfull\", \"yfull\")\n  x &lt;- x[order(x$xfull), ]\n  \n  # create artificial missings\n  w &lt;- sample(1:nrow(x), 10)\n  lm1 &lt;- lm(yfull ~ xfull, data = x)\n  w3 &lt;- resid(lm1) &gt; quantile(resid(lm1), 0.9)\n  w2 &lt;- sample(50:nrow(x), 10, prob = (x$xfull[50:nrow(x)])^5)\n  x$ymissMCAR &lt;- x$ymissMAR &lt;- x$ymissMNAR &lt;- x$yfull\n  x$ymissMCAR[w] &lt;- NA\n  x$ymissMAR[w2] &lt;- NA\n  x$ymissMNAR[w3] &lt;- NA\n  x$ymissMCAR_ind &lt;- is.na(x$ymissMCAR)\n  x$ymissMAR_ind &lt;- is.na(x$ymissMAR)\n  x$ymissMNAR_ind &lt;- is.na(x$ymissMNAR)\n  \n  # add additional information\n  x$MCAR &lt;- ifelse(x$ymissMCAR_ind, \"replaced by NA\", \"not modified\")\n  x$MAR &lt;- ifelse(x$ymissMAR_ind, \"replaced by NA\", \"not modified\")\n  x$MNAR &lt;- ifelse(x$ymissMNAR_ind, \"replaced by NA\", \"not modified\")\n  x$group &lt;- factor(ifelse(x$yfull &lt; 10, \"low\", \"high\"))\n  \n  return(x)\n}\n\nset.seed(123)\ntoyDataMiss &lt;- simDat()\n\nLade nötiges Paket: mvtnorm\n\n\nTeilaufgabe a\nErklären Sie was die Funktion simDat() macht.\nMultivariate normale Dichte Simulation der Variablen x un y, mit dreifacher Kopie der Variablen y gefolgt von random Streichung von Werten aus y-Kopie1, gefolgt von streichung von Werten die mir einer linearen REgression ermittelt wurden aus y-Kopi2, und streichung von grossen Werten aus den 50 grössten Werten von y-Kopie3. in den weiteren Spalten wird die Information gespeichert wo WErte gelöscht wurden und welcher MCAR, MAR, MNAR Situation die fehlenden Werte angehören.\nTeilaufgabe b\nIn der nachfolgenden Grafik werden die mit simDat() künstlich erzeugten Daten grafisch dargestellt. Beachten Sie, dass diese Untersuchung mit realen Daten nicht möglich ist (fehlende Werte sind dann unbekannt). In rot sind Werte markiert, die durch NA Werte ersetzt wurden. Interpretieren Sie auf Basis der Grafiken die MCAR-, MAR- und MNAR-Mechanismen für fehlende Werte.\n\nlibrary(ggplot2)\n#toyDataMiss$yfull &lt;- toyDataMiss$yfull + rnorm(nrow(toyDataMiss), 0, 1)\nggplot(toyDataMiss, aes(x = xfull, y = yfull)) +\n  geom_point(aes(color = MCAR), size = 2) +\n  #geom_point(aes(color = MAR), size = 2) +\n  #geom_point(aes(color = MNAR), size = 1) +\n  theme_minimal()\n\n\n\n\n\n\nggplot(toyDataMiss, aes(x = xfull, y = yfull)) +\n  #geom_point(aes(color = MCAR), size = 3) +\n  geom_point(aes(color = MAR), size = 2) +\n  #geom_point(aes(color = MNAR), size = 1) +\n  theme_minimal()\n\n\n\n\n\n\nggplot(toyDataMiss, aes(x = xfull, y = yfull)) +\n  #geom_point(aes(color = MCAR), size = 3) +\n  #geom_point(aes(color = MAR), size = 2) +\n  geom_point(aes(color = MNAR), size = 2) +\n  theme_minimal()\n\n\n\n\n\n\n\n\nimdb_urls &lt;- c(\n\"https://www.imdb.com/title/tt6751668/?ref_=hm_fanfav_tt_4_pd_fp1\",\n\"https://www.imdb.com/title/tt0260991/\",\n\"www.imdb.com/title/tt7282468/reviews\",\n\"https://m.imdb.com/title/tt4768776/\"\n)\n\n\n\n[1] \"tt6751668\" \"tt0260991\" \"tt7282468\" \"tt4768776\"\n\n\nTeilaufgabe b\nDie folgenden Dateinamen wurden in einer Studie mit Kamerafallen verwendet.\n\nfilenames &lt;- c( 'S123.P2.C10_20120621_213422.jpg',\n'S10.P1.C1_20120622_050148.jpg',\n'S187.P2.C2_20120702_023501.jpg')\n\nDer Buchstabe S steht für den Standort, P für die Parzelle innerhalb eines Standorts, C für die Kameranummer innerhalb der Parzelle. Die erste Zahlenfolge steht für JahrMonatTag und die zweite Zahlenfolge für StundeMinuteSekunde. Erstellen Sie eine Tabelle mit Spalten, die dem Standort, der Fläche, der Kamera, dem Jahr, dem Monat, dem Tag, der Stunde, der Minute und der Sekunde für diese drei Dateinamen entsprechen. Wir wollen also einen Code erstellen, der den folgenden Tibble erzeugt:\nSite Plot Camera Year Month Day Hour Minute Second 1 S123 P2C10 2012 06 21 21 34 22 2 S10 P1C1 2012 06 22 5 01 48 3 S187 P2C2 2012 07 02 2 35 01\nSpalten die nur Zahlen enthalten sollten vom Typ Integer sein.\n\n\n\n\n\nSite\nPlot\nCamera\nYear\nMonth\nDay\nHour\nMinute\nSecond\n\n\n\nS123\nP2\nC10\n2012\n6\n21\n21\n34\n22\n\n\nS10\nP1\nC1\n2012\n6\n22\n5\n1\n48\n\n\nS187\nP2\nC2\n2012\n7\n2\n2\n35\n1",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 4"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt4.html#aufgabe-5-mahalanobis-distanz",
+    "href": "Arbeitsblatt4.html#aufgabe-5-mahalanobis-distanz",
+    "title": "Arbeitsblatt 4",
+    "section": "Aufgabe 5: Mahalanobis Distanz",
+    "text": "Aufgabe 5: Mahalanobis Distanz\nLaden Sie den 3-dimensionalen Datensatz dat aus dem File ex-outlier.rda in R.\n\nload('ex-outlier.rda')\n\nTeilaufgabe a\nStellen Sie die 3 Variablen von dat paarweise gegeneinander dar. Gibt es auffällige Datenpunkte?\n\n\n\n\n\n\n\n\nTeilaufgabe b\nBerechnen Sie die Mahalanobis-Distanz und identifizieren Sie potentielle Ausreisser.\n\n\n  [1] 47.52654866 12.22301519 11.50871587 10.86989628 10.84265734 10.82425676\n  [7] 10.50328156 10.33451612 10.29792880 10.02157475  9.70441093  9.15960888\n [13]  8.37859032  7.99648855  7.75834565  7.66300957  7.58496955  7.11953673\n [19]  7.05942764  7.02898084  7.01915502  7.01103115  7.01066050  6.90212839\n [25]  6.34208896  6.24078746  6.18360568  6.11693224  6.11360782  6.11341025\n [31]  6.04272596  5.91808054  5.84857831  5.82257007  5.78453103  5.66539931\n [37]  5.57053872  5.43581310  5.42933877  5.42806493  5.34755296  5.32448404\n [43]  5.31336699  5.30529143  5.23861234  5.17013273  5.09177229  5.05773864\n [49]  5.04824873  4.96836653  4.95450021  4.94587345  4.90773178  4.81770003\n [55]  4.76948379  4.73746604  4.70227832  4.69480088  4.68185260  4.67226564\n [61]  4.65895878  4.58485688  4.57622875  4.55005417  4.54020095  4.52463421\n [67]  4.40884007  4.39151166  4.38816283  4.37427030  4.34955925  4.31007393\n [73]  4.30599591  4.28501712  4.27185267  4.12202359  4.10706045  4.10212333\n [79]  3.98652153  3.87631519  3.87615136  3.86970897  3.79873863  3.70355441\n [85]  3.65050977  3.62638947  3.61721739  3.51246528  3.50382550  3.49111282\n [91]  3.48248160  3.44717467  3.43785402  3.42761132  3.42090393  3.38205676\n [97]  3.35512331  3.33236911  3.32665889  3.31151904  3.25623394  3.25422892\n[103]  3.25174917  3.21916039  3.17646821  3.15168500  3.13407741  3.08291683\n[109]  3.06447947  3.04823756  2.95572381  2.95128005  2.94507015  2.89765695\n[115]  2.81196757  2.79488668  2.77473972  2.77194530  2.74740432  2.72274520\n[121]  2.72169706  2.67629787  2.64652497  2.60352803  2.59883638  2.57173040\n[127]  2.57123451  2.56462739  2.55733152  2.50913279  2.50443392  2.48527146\n[133]  2.47440746  2.46315847  2.43346329  2.41035288  2.40284355  2.39881635\n[139]  2.37724448  2.37723569  2.37702418  2.36434655  2.35037212  2.31877418\n[145]  2.29292793  2.29280942  2.25953990  2.22823957  2.21053980  2.20364464\n[151]  2.20211539  2.19449531  2.18791856  2.15576064  2.12173882  2.10747849\n[157]  2.09945065  2.09673348  2.09319484  2.08949267  2.05674985  2.01878759\n[163]  2.01646347  2.01154821  2.00257940  2.00145147  1.98895359  1.97310202\n[169]  1.94192406  1.92863240  1.91928851  1.91867951  1.91575131  1.90079724\n[175]  1.88312613  1.86838337  1.85179826  1.84694901  1.80367384  1.79401888\n[181]  1.77267700  1.71410917  1.70098694  1.62993221  1.62912871  1.61281808\n[187]  1.58206241  1.53828842  1.52493462  1.50934173  1.48173788  1.47338737\n[193]  1.43437299  1.43260898  1.43239310  1.42291567  1.38320642  1.37461642\n[199]  1.35762479  1.33927638  1.33611090  1.33497326  1.33132094  1.32131518\n[205]  1.30794395  1.27710713  1.27537423  1.26697773  1.25196557  1.25182664\n[211]  1.23844540  1.23726179  1.16729999  1.15155251  1.14584684  1.13632680\n[217]  1.13602836  1.12904913  1.11035241  1.10308897  1.09747146  1.08291480\n[223]  1.07928089  1.07652162  1.07514333  1.07486182  1.05937258  1.05267479\n[229]  1.04814846  1.03962284  1.02698811  1.02179639  1.01833895  1.00384864\n[235]  0.96690517  0.96672691  0.92647769  0.89487368  0.88927829  0.88753350\n[241]  0.88395130  0.87971158  0.87163172  0.86609024  0.85971213  0.83372098\n[247]  0.83007250  0.80999196  0.78072794  0.77678551  0.77356113  0.75804262\n[253]  0.75347637  0.71392178  0.68850825  0.67747474  0.65326613  0.62724056\n[259]  0.61449632  0.58224434  0.57939446  0.56607257  0.56118775  0.50731066\n[265]  0.50544316  0.49985281  0.49626381  0.48915087  0.46748652  0.44742045\n[271]  0.42454046  0.42099205  0.39894501  0.39355159  0.38503586  0.36729783\n[277]  0.32862318  0.32549119  0.32157293  0.31794877  0.31510609  0.31038312\n[283]  0.30996876  0.30801783  0.28557365  0.27601435  0.27005109  0.24492629\n[289]  0.24069707  0.23352405  0.23042294  0.22537811  0.22149381  0.13705710\n[295]  0.11900038  0.11357422  0.07711886  0.07474457  0.06650652  0.03870804\n[301]  0.02606036\n\n\n[1] 301\n\n\n[1] 301",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 4"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt6.html#aufgabe-2-länderinformationen",
+    "href": "Arbeitsblatt6.html#aufgabe-2-länderinformationen",
+    "title": "Arbeitsblatt 6",
+    "section": "Aufgabe 2: Länderinformationen",
+    "text": "Aufgabe 2: Länderinformationen\nDie API https://restcountries.com/ bietet Länderinformationen frei zugänglich an. ### Teilaufgabe a {.justify}\nLesen Sie die Dokumentation zur API auf der Webseite durch. Führen Sie einen geeig- neten Befehl in R aus, um von der API Informationen zur Schweiz zu erhalten. Welche Bevölkerungsgrösse (Population) wird von der API für die Schweiz angegeben?\n\n\n[1] 8654622\n\n\nTeilaufgabe b\nFügen Sie mit Hilfe der API nachfolgendem Datensatz eine neue Variable hinzu, die beschreibt, ob der Kunde von Europa oder nicht von Europa stammt. Variante 1\n\nlibrary(httr)\nlibrary(jsonlite)\n\nkunden &lt;- data.frame(Name = c(\"Peter\",\"Pedro\",\"Olaf\",\n\"Juan\",\"Paul\",\"Luis\"),\nLand = c(\"United States\",\"Mexico\",\"Norway\",\n\"Spain\",\"Switzerland\",\"Brazil\"))\n\nkunden$Europa &lt;- NA\nfor(i in 1:nrow(kunden)){\n  country &lt;- URLencode(kunden$Land[i])\n  adress &lt;- modify_url(url = paste0(\"https://restcountries.com/v3.1/name/\", country),\n                       path = NULL)\n  \n  res &lt;- GET(adress)\n  if(status_code(res) == 200){\n  datapi &lt;- as.data.frame(fromJSON(rawToChar(res$content)))\n  kunden$Europa[i] &lt;- ifelse(datapi$region == \"Europe\", \"Europa\", datapi$subregion)\n  } else {\n  kunden$Europa[i] &lt;- NA\n  }\n}\nkunden\n\n\n\n\nName\nLand\nEuropa\n\n\n\nPeter\nUnited States\nNorth America\n\n\nPedro\nMexico\nNorth America\n\n\nOlaf\nNorway\nEuropa\n\n\nJuan\nSpain\nEuropa\n\n\nPaul\nSwitzerland\nEuropa\n\n\nLuis\nBrazil\nSouth America\n\n\n\n\n\n\nVariante 2\n\nlibrary(httr)\nlibrary(jsonlite)\n\naddress &lt;- \"https://restcountries.com/v3.1/region/europe\"\nres &lt;- GET(url=address) # API-Anfrage\nres\n\nResponse [https://restcountries.com/v3.1/region/europe]\n  Date: 2024-10-24 16:53\n  Status: 200\n  Content-Type: application/json\n  Size: 170 kB\n\ndat &lt;- fromJSON(rawToChar(res$content))\ndat$name$common\n\n [1] \"Norway\"                 \"Greece\"                 \"Åland Islands\"         \n [4] \"Switzerland\"            \"Croatia\"                \"Iceland\"               \n [7] \"Luxembourg\"             \"Hungary\"                \"Netherlands\"           \n[10] \"Lithuania\"              \"Slovakia\"               \"Liechtenstein\"         \n[13] \"Moldova\"                \"Italy\"                  \"Jersey\"                \n[16] \"Monaco\"                 \"Belarus\"                \"Latvia\"                \n[19] \"Andorra\"                \"France\"                 \"Gibraltar\"             \n[22] \"Denmark\"                \"North Macedonia\"        \"Malta\"                 \n[25] \"Czechia\"                \"Guernsey\"               \"Kosovo\"                \n[28] \"Svalbard and Jan Mayen\" \"Montenegro\"             \"Faroe Islands\"         \n[31] \"Albania\"                \"Serbia\"                 \"Ukraine\"               \n[34] \"Isle of Man\"            \"Estonia\"                \"Romania\"               \n[37] \"Bulgaria\"               \"Germany\"                \"Poland\"                \n[40] \"United Kingdom\"         \"Finland\"                \"Sweden\"                \n[43] \"Vatican City\"           \"Russia\"                 \"Austria\"               \n[46] \"Cyprus\"                 \"Portugal\"               \"Bosnia and Herzegovina\"\n[49] \"Belgium\"                \"Spain\"                  \"Slovenia\"              \n[52] \"San Marino\"             \"Ireland\"               \n\nkunden$Europa &lt;- ifelse(kunden$Land %in% dat$name$common, \"Europe\", \"elsewhere\")\nkunden\n\n\n\n\nName\nLand\nEuropa\n\n\n\nPeter\nUnited States\nelsewhere\n\n\nPedro\nMexico\nelsewhere\n\n\nOlaf\nNorway\nEurope\n\n\nJuan\nSpain\nEurope\n\n\nPaul\nSwitzerland\nEurope\n\n\nLuis\nBrazil\nelsewhere",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 6"
+    ]
+  },
+  {
+    "objectID": "Arbeitsblatt6.html#aufgabe-3-waffengewalt-in-europa",
+    "href": "Arbeitsblatt6.html#aufgabe-3-waffengewalt-in-europa",
+    "title": "Arbeitsblatt 6",
+    "section": "Aufgabe 3: Waffengewalt in Europa",
+    "text": "Aufgabe 3: Waffengewalt in Europa\nIm Auftrag von Scotland Yard sollen die Hotspots von Waffengewalt ermittelt werden. Im Datensatz weapons_london.Rdata sind alle Verbrechen im Zusammenhang mit Waffenbesitz aus der London Metropolitan Area für August 2020 aufgelistet (Quelle: https://data.police.uk/data/).\nTeilaufgabe a\nStellen Sie den Längengrad (Longitude) auf der x-Achse und den Breitengrad (Latitude) auf der y-Achse in einem gewöhnlichen Streudiagramm dar.\n\n\n\n\n\n\n\n\nTeilaufgabe b\nErweitern Sie die Darstellung, in dem Sie die Punkte auf einer Karte von London einzeichnen. Sie können dazu Google Maps, OpenStreetMap oder Stadia verwenden.",
+    "crumbs": [
+      "Modul A - Data Enhancement and Processing",
+      "Arbeitsblatt 6"
+    ]
+  },
+  {
+    "objectID": "ModulC.html",
+    "href": "ModulC.html",
+    "title": "Modul C - Advanced Regression Modeling",
+    "section": "",
+    "text": "Dr. Marcel Dettling\nInstitute for Data Analysis and Process Design\nZurich University of Applied Sciences\nCH-8401 Winterthur\nSkript:\n/home/olli/ZHAW/24 Modul C/Skript\nLink zum Skript\nhttps://moodle.zhaw.ch/pluginfile.php/1854048/mod_folder/content/0/Skript/Skript_ARM_Part01_GAM.pdf?forcedownload=1",
+    "crumbs": [
+      "Modul C - Advanced Regression Modeling"
+    ]
+  },
+  {
+    "objectID": "Uebungsblatt02.html",
+    "href": "Uebungsblatt02.html",
+    "title": "Übungsblatt 2",
+    "section": "",
+    "text": "Aufgabe 1\nDer Datensatz no2basel.rda enthält Angaben über die Menge an Stickstoffdioxid in der Basler Luft. Als Prädiktoren kommen der Tag der Messung, die Temperatur und die Windstärke zum Einsatz.\nload(\"no2basel.rda\")\nload(\"resplot.rda\")",
+    "crumbs": [
+      "Modul C - Advanced Regression Modeling",
+      "Übungsblatt 2"
+    ]
+  },
+  {
+    "objectID": "Uebungsblatt02.html#aufgabe-1",
+    "href": "Uebungsblatt02.html#aufgabe-1",
+    "title": "Übungsblatt 2",
+    "section": "",
+    "text": "Teilaufgabe a)\nPassen sie ein geeignetes, multiples lineares Regressionsmodell an. Erwägen sie durch Analyse von Residuenplots, ob eine Transformation der Zielgrösse notwendig erscheint. Prüfen sie dann die partiellen Residuenplots. Welche Auffälligkeiten bestehen bei den Prädiktoren?\n\n\n\n\n\n\n\n\n\nCall:\nlm(formula = NO2 ~ ., data = no2basel)\n\nResiduals:\n    Min      1Q  Median      3Q     Max \n-27.805 -12.779   2.763   8.251  34.099 \n\nCoefficients:\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)  97.6304    13.4975   7.233 1.79e-07 ***\nTag          -0.1349     0.6742  -0.200  0.84305    \nTemp          3.5446     1.1660   3.040  0.00564 ** \nWind         -9.9637     3.0395  -3.278  0.00318 ** \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 16.05 on 24 degrees of freedom\nMultiple R-squared:  0.6321,    Adjusted R-squared:  0.5861 \nF-statistic: 13.75 on 3 and 24 DF,  p-value: 2.012e-05\n\n\n\n\n\n\n\n\n\nCall:\nlm(formula = NO2 ~ Temp + log(Wind) + Tag, data = no2basel)\n\nResiduals:\n    Min      1Q  Median      3Q     Max \n-26.612 -12.223   1.964   7.313  33.777 \n\nCoefficients:\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)  87.8353    11.6486   7.540 8.85e-08 ***\nTemp          3.5038     1.1584   3.025  0.00585 ** \nlog(Wind)   -18.0835     5.4245  -3.334  0.00277 ** \nTag          -0.1638     0.6723  -0.244  0.80956    \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 15.97 on 24 degrees of freedom\nMultiple R-squared:  0.636, Adjusted R-squared:  0.5905 \nF-statistic: 13.98 on 3 and 24 DF,  p-value: 1.778e-05\n\n\n\n\n\n\n\n\n\nCall:\nlm(formula = log(NO2) ~ ., data = no2basel)\n\nResiduals:\n     Min       1Q   Median       3Q      Max \n-0.38837 -0.13873  0.05543  0.11652  0.46320 \n\nCoefficients:\n             Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)  4.624286   0.192467  24.026  &lt; 2e-16 ***\nTag         -0.003261   0.009614  -0.339  0.73737    \nTemp         0.047775   0.016627   2.873  0.00837 ** \nWind        -0.151553   0.043342  -3.497  0.00186 ** \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.2289 on 24 degrees of freedom\nMultiple R-squared:  0.611, Adjusted R-squared:  0.5624 \nF-statistic: 12.57 on 3 and 24 DF,  p-value: 3.87e-05\n\n\n\n\n\n\n\n\n\nCall:\nlm(formula = log(NO2) ~ Temp + log(Wind) + Tag, data = no2basel)\n\nResiduals:\n     Min       1Q   Median       3Q      Max \n-0.53084 -0.10450  0.05867  0.12760  0.44721 \n\nCoefficients:\n             Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)  4.456994   0.171170  26.038  &lt; 2e-16 ***\nTemp         0.046769   0.017022   2.748  0.01121 *  \nlog(Wind)   -0.257980   0.079711  -3.236  0.00352 ** \nTag         -0.003190   0.009879  -0.323  0.74956    \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.2346 on 24 degrees of freedom\nMultiple R-squared:  0.5913,    Adjusted R-squared:  0.5402 \nF-statistic: 11.57 on 3 and 24 DF,  p-value: 6.914e-05\n\n\n\n\n\n\n\n\nTeilaufgabe b)\nModellieren sie den NO2-Wert nun mit einem GAM.\n\nEntscheiden sie, ob eine Log-Transformation der Zielgrösse nötig ist.\nPrüfen sie die Form der flexiblen Komponenten. Scheint deren Einfluss realistisch, bzw. mit einem physikalischen Verständnis des Problems vereinbar? Greifen sie wo nötig ein und verändern sie die Glättungsparameter.\nFühren sie ebenfalls (mit einer Methode nach Wahl) eine Variablenselektion aus, um zu entscheiden, ob gewisse Terme aus dem Modell eliminiert werden können, bzw. eliminiert werden sollen.\nEntscheiden sie sich dann für eine bestes GAM.\n\n\n\n\nFamily: gaussian \nLink function: identity \n\nFormula:\nNO2 ~ s(Temp) + s(Wind) + s(Tag)\n\nParametric coefficients:\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)   73.357      1.297   56.58   &lt;2e-16 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nApproximate significance of smooth terms:\n          edf Ref.df     F  p-value    \ns(Temp) 8.200  8.763 14.90 1.86e-05 ***\ns(Wind) 4.782  5.732 13.71 7.31e-05 ***\ns(Tag)  1.000  1.000 20.84 0.000534 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nR-sq.(adj) =  0.924   Deviance explained = 96.4%\nGCV = 101.25  Scale est. = 47.073    n = 28\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMethod: GCV   Optimizer: magic\nSmoothing parameter selection converged after 18 iterations.\nThe RMS GCV score gradient at convergence was 7.202671e-06 .\nThe Hessian was positive definite.\nModel rank =  28 / 28 \n\nBasis dimension (k) checking results. Low p-value (k-index&lt;1) may\nindicate that k is too low, especially if edf is close to k'.\n\n          k'  edf k-index p-value\ns(Temp) 9.00 8.20    1.44    0.96\ns(Wind) 9.00 4.78    1.13    0.67\ns(Tag)  9.00 1.00    1.12    0.66\n\n\n\nFamily: gaussian \nLink function: identity \n\nFormula:\nlog(NO2) ~ s(Temp) + s(Wind) + s(Tag)\n\nParametric coefficients:\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)  4.23867    0.02052   206.6   &lt;2e-16 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nApproximate significance of smooth terms:\n          edf Ref.df      F  p-value    \ns(Temp) 8.176  8.784  2.575 0.077769 .  \ns(Wind) 1.000  1.000 18.187 0.000925 ***\ns(Tag)  5.107  6.099  5.369 0.005191 ** \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nR-sq.(adj) =  0.902   Deviance explained = 95.4%\nGCV = 0.025961  Scale est. = 0.011791  n = 28\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMethod: GCV   Optimizer: magic\nSmoothing parameter selection converged after 23 iterations.\nThe RMS GCV score gradient at convergence was 1.277338e-07 .\nThe Hessian was positive definite.\nModel rank =  28 / 28 \n\nBasis dimension (k) checking results. Low p-value (k-index&lt;1) may\nindicate that k is too low, especially if edf is close to k'.\n\n          k'  edf k-index p-value\ns(Temp) 9.00 8.18    1.38    0.98\ns(Wind) 9.00 1.00    1.09    0.60\ns(Tag)  9.00 5.11    1.03    0.47\n\n\n\n\n\n\ndf\nAIC\n\n\n\nfit.gam\n15.98226\n197.82772\n\n\nfit.gam1\n16.28294\n-34.40441\n\n\n\n\n\n\nAchtung: die Modellvergleichsparameter GCV, AIC oder auch das Adjusted R-Squared helfen uns hier wegen der Transformation der Zielgrösse nicht weiter (d.h. die Werte sind nicht vergleichbar!).\ni. Aber die Residuenplots sprechen dafür. Insgesamt ist keine systematischer Fehler erkennbar.\nii. Die gefitteten Kurven, vorallem bei der Temperatur zeigen einige Peaks, sind diese realistisch? oder ist dies overfitting? Im nächsten Schritt wird etwas mehr Glättung angepasst.\n\nlibrary(mgcv)\npar(mfrow = c(2, 2))\nfit.gam2 &lt;- gam(NO2 ~ s(Temp) + s(Wind) + s(Tag), data = no2basel, gamma = 1.266)\nplot(fit.gam2, residuals = TRUE, shade = TRUE, pch = 20, cex = 0.5)\n\npar(mfrow = c(2, 2))\n\n\n\n\n\n\ngam.check(fit.gam2, pch = 20, rep = 100)\n\n\n\n\n\n\n\n\nMethod: GCV   Optimizer: magic\nSmoothing parameter selection converged after 25 iterations.\nThe RMS GCV score gradient at convergence was 1.422634e-05 .\nThe Hessian was positive definite.\nModel rank =  28 / 28 \n\nBasis dimension (k) checking results. Low p-value (k-index&lt;1) may\nindicate that k is too low, especially if edf is close to k'.\n\n          k'  edf k-index p-value  \ns(Temp) 9.00 1.00    0.69    0.03 *\ns(Wind) 9.00 1.38    0.93    0.28  \ns(Tag)  9.00 4.67    0.77    0.07 .\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nfit.gam3 &lt;- gam(log(NO2) ~ s(Temp) + s(Wind) + s(Tag), data = no2basel, gamma = 1.266)\nplot(fit.gam3, residuals = TRUE, shade = TRUE, pch = 20, cex = 0.5)\n\npar(mfrow = c(2, 2))\n\n\n\n\n\n\ngam.check(fit.gam3, pch = 20, rep = 100)\n\n\n\n\n\n\n\n\nMethod: GCV   Optimizer: magic\nSmoothing parameter selection converged after 16 iterations.\nThe RMS GCV score gradient at convergence was 5.03779e-08 .\nThe Hessian was positive definite.\nModel rank =  28 / 28 \n\nBasis dimension (k) checking results. Low p-value (k-index&lt;1) may\nindicate that k is too low, especially if edf is close to k'.\n\n          k'  edf k-index p-value  \ns(Temp) 9.00 1.00    0.66   0.020 *\ns(Wind) 9.00 1.00    0.93   0.250  \ns(Tag)  9.00 4.57    0.80   0.085 .\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nii. Mit gamma von 1.266 werden die Fits für Temperatur und Wind linear. Die Variable Tag dagegen erhält einen polynom. Das Bild scheint physikalisch realistischer zu sein .\niii. Im nächsten Schritt wird eine Variablenselektion durchgeführt.\n\nfit.gam4 &lt;- gam(log(NO2) ~ s(Temp) + s(Wind) + s(Tag), \n                data = no2basel, \n                gamma = 1.266, \n                select = TRUE)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMethod: GCV   Optimizer: magic\nSmoothing parameter selection converged after 109 iterations.\nThe RMS GCV score gradient at convergence was 5.805592e-05 .\nThe Hessian was not positive definite.\nModel rank =  28 / 28 \n\nBasis dimension (k) checking results. Low p-value (k-index&lt;1) may\nindicate that k is too low, especially if edf is close to k'.\n\n              k'      edf k-index p-value  \ns(Temp) 9.00e+00 4.50e-07    0.65    0.03 *\ns(Wind) 9.00e+00 9.47e-01    0.94    0.28  \ns(Tag)  9.00e+00 4.68e+00    0.77    0.09 .\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n\nfit.gam6 &lt;- gam(NO2 ~ s(Temp) + s(Wind) + s(Tag), data = no2basel, \n                gamma = 1.266, \n                select = TRUE)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMethod: GCV   Optimizer: magic\nSmoothing parameter selection converged after 97 iterations.\nThe RMS GCV score gradient at convergence was 4.744154e-06 .\nThe Hessian was positive definite.\nModel rank =  28 / 28 \n\nBasis dimension (k) checking results. Low p-value (k-index&lt;1) may\nindicate that k is too low, especially if edf is close to k'.\n\n              k'      edf k-index p-value  \ns(Temp) 9.00e+00 3.84e-10    0.69   0.045 *\ns(Wind) 9.00e+00 1.39e+00    0.96   0.315  \ns(Tag)  9.00e+00 4.82e+00    0.72   0.025 *\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nTeilaufgabe c)\nNutzen sie die Erkenntnisse aus b), aber ziehen sie nun auch noch Interaktionsterme in Erwägung. Ziehen sie ein abschliessendes Fazit, ob Interaktionen nötig sind.\nTeilaufgabe d)\nWelches der bisherigen Modelle eignet sich am besten? Verwenden sie Modellvergleichskriterien und statistische Tests, um zu einer Entscheidung zu kommen.\nTeilaufgabe e)\nErzeugen sie eine erwartungstreue Vorhersage mit einem 95%-Vertrauensintervall für Tag=7, Temperatur=3 und Wind=4.",
+    "crumbs": [
+      "Modul C - Advanced Regression Modeling",
+      "Übungsblatt 2"
+    ]
+  },
+  {
+    "objectID": "Uebungsblatt02.html#aufgabe-2",
+    "href": "Uebungsblatt02.html#aufgabe-2",
+    "title": "Übungsblatt 2",
+    "section": "Aufgabe 2",
+    "text": "Aufgabe 2\nIn dieser Aufgabe kommt der kleine (simulierte) Lohndatensatz in lohn.rda zur Anwendung, der auf den Slides bereits vorgestellt wurde. Enthalten ist der Monatslohn von 200 Personen, deren Alter sowie das Geschlecht (m/f). Wir studieren in dieser Aufgabe die unterschiedlichen Fits, die wir von einem flexiblen Modell mit/ohne Interaktionsterm erhalten.\n\nload(\"lohn.rda\")\n\nTeilaufgabe a)\nPassen sie das additive Modell lohn ~ s(alter) + geschlecht an. Plotten sie dann die gefitteten Lohn-Kurven für Männer und Frauen in einem Scatterplot mit den Daten ein (Hinweis: mit predict() arbeiten!). Erzeugen sie auch einen Tukey-Anscombe-Plot um zu prüfen, ob das Modell passt. Welche Aussage ist aus dem Summary über die beiden Kurven möglich?\nTeilaufgabe b)\nVerwenden sie nun das Interaktions-Modell lohn ~ s(alter,by=geschlecht) + geschlecht. Plotten sie erneut die gefitteten Lohn-Kurven für Männer und Frauen in den Scatterplot ein. Was sagt ihnen das Summary hier?\nTeilaufgabe c)\nPrüfen sie nun, was lohn ~ s(alter, by=geschlecht) ergibt, sowohl via grafische Darstellung wie durch Studium des Summary-Outputs. Was sind die Erkenntnisse daraus?\nTeilaufgabe d)\nFühren sie mit der Funktion gam.check() eine Residuenanalyse für das Interaktions-Modell aus b) durch. Was sind ihre Erkenntnisse daraus und wie sollte das Modell modifiziert werden? Rechnen sie dann dieses modifizierte Modell sowohl mit als auch ohne Interaktionsterm und stellen sie die Fits in den Scatterplots auf der Originalskala (d.h. Lohn vs. Alter) dar.",
+    "crumbs": [
+      "Modul C - Advanced Regression Modeling",
+      "Übungsblatt 2"
+    ]
+  },
+  {
+    "objectID": "Uebungsblatt02.html#aufgabe-3",
+    "href": "Uebungsblatt02.html#aufgabe-3",
+    "title": "Übungsblatt 2",
+    "section": "Aufgabe 3",
+    "text": "Aufgabe 3\nWir verwenden in dieser Aufgabe einen Datensatz, wo es um die Modellierung von Herzkrankheiten bzw. Bluthochdruck gibt. Sie finden den Datensatz als heart.rda. Er hat 462 Beobachtungen und 10 Variablen.\n\n\nVariable\nBeschreibung\n\n\n\nsbp\nSystolic blood pressure.\n\n\ntobacco\nCumulative tobacco (kg).\n\n\nldl\nLow-density lipoprotein cholesterol.\n\n\nadiposity\nAdiposity.\n\n\nfamhist\nFamily history of heart disease (Present, Absent).\n\n\ntypea\nType-A behavior.\n\n\nobesity\nObesity.\n\n\nalcohol\nCurrent alcohol consumption.\n\n\nage\nAge at onset.\n\n\nchd\nResponse, coronary heart disease.\n\n\n\nDie Variable sbp ist die Zielgrösse, die anderen Variablen stehen als Prädiktoren zur Verfügung. Folgende Aufgaben sind zu lösen:\nTeilaufgabe a)\nVerwenden sie zuerst nur die beiden Variablen obesity und age als Prädiktoren. Finden sie ein geeignetes Modell zur Beschreibung der Zielgrösse. Erwägen sie dabei sowohl lineare wie auch additive Modelle, allenfalls mit der Verwendung von Interaktionstermen. Vergleichen sie diese mit den Modellvergleichsparametern sowie auch mit statistischem Testen.\nTeilaufgabe b)\nVerwenden sie nun alle zur Verfügung stehenden Prädiktoren, reduzieren sie das Modell jedoch auf die wesentlichen Prädiktoren. Verzichten sie dieses Mal zwecks einfacherer Interpretierbarkeit auf Interaktionsterme, erwägen sie aber immer noch ein lineares Modell und ein GAM.",
+    "crumbs": [
+      "Modul C - Advanced Regression Modeling",
+      "Übungsblatt 2"
+    ]
+  },
+  {
+    "objectID": "Uebungsblatt01.html",
+    "href": "Uebungsblatt01.html",
+    "title": "Übungsblatt 1",
+    "section": "",
+    "text": "Aufgabe 1\nIm File autodistanz.rda finden sie von 82 Männern ihr Alter und die durchschnittlich im Jahr 2014 zurückgelegte Tagesdistanz mit dem Auto. Es handelt sich dabei allesamt um Männer, die selbst ein Auto besitzen und dieses auch fahren.\nload(\"autodistanz.rda\")",
+    "crumbs": [
+      "Modul C - Advanced Regression Modeling",
+      "Übungsblatt 1"
+    ]
+  },
+  {
+    "objectID": "Uebungsblatt01.html#aufgabe-1",
+    "href": "Uebungsblatt01.html#aufgabe-1",
+    "title": "Übungsblatt 1",
+    "section": "",
+    "text": "Teilaufgabe a)\nStellen sie die Daten geeignet in einem Scatterplot dar, und legen sie einen Loess-Glätter hinein, um den Zusammenhang zwischen der Zielgrösse distanz und dem Prädiktor alter zu visualisieren.\n\nlibrary(tidyverse)\n\n── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──\n✔ dplyr     1.1.4     ✔ readr     2.1.5\n✔ forcats   1.0.0     ✔ stringr   1.5.1\n✔ ggplot2   3.4.4     ✔ tibble    3.2.1\n✔ lubridate 1.9.3     ✔ tidyr     1.3.1\n✔ purrr     1.0.2     \n── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──\n✖ dplyr::filter() masks stats::filter()\n✖ dplyr::lag()    masks stats::lag()\nℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors\n\nggplot(autodistanz, aes(alter, distanz)) +\n  geom_point() +\n  geom_smooth(method = \"loess\", span = 0.5)\n\n`geom_smooth()` using formula = 'y ~ x'\n\n\n\n\n\n\n\n\nVarianz ist heterogen verteilt. daher Log-Transformation ausprobieren.\nTeilaufgabe b)\nVerwenden sie nun anstelle des Loess-Glätters ein geeignetes Polynom, welches ihnen den Zusammenhang zwischen den beiden Grössen schätzt.\n\nlibrary(tidyverse)\nggplot(autodistanz, aes(alter, distanz)) +\n  geom_point() +\n  geom_smooth(method = \"lm\", formula = y ~ poly(x, 4))\n\n\n\n\n\n\nfit &lt;- lm(distanz ~ poly(alter, 4), data = autodistanz)\nsummary(fit)\n\n\nCall:\nlm(formula = distanz ~ poly(alter, 4), data = autodistanz)\n\nResiduals:\n    Min      1Q  Median      3Q     Max \n-15.722  -4.010  -1.208   2.452  27.505 \n\nCoefficients:\n                Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)      26.8220     0.7726  34.716  &lt; 2e-16 ***\npoly(alter, 4)1 -45.9776     6.9963  -6.572 5.32e-09 ***\npoly(alter, 4)2 -60.2910     6.9963  -8.618 6.55e-13 ***\npoly(alter, 4)3  27.2452     6.9963   3.894 0.000208 ***\npoly(alter, 4)4 -25.4200     6.9963  -3.633 0.000502 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 6.996 on 77 degrees of freedom\nMultiple R-squared:  0.6544,    Adjusted R-squared:  0.6365 \nF-statistic: 36.45 on 4 and 77 DF,  p-value: &lt; 2.2e-16\n\npar(mfrow = c(2, 2))\nplot(fit)\n\n\n\n\n\n\n\nTeilaufgabe c)\nAnstelle des Polynoms sollen sie nun ein Modell mit kubischen Splines anpassen. Verwenden sie dazu sowohl die Funktion smooth.spline() wie auch die Funktion gam() aus der library(mgcv) und plotten sie die Fits.\n\n\nCall:\nsmooth.spline(x = autodistanz$alter, y = autodistanz$distanz, \n    all.knots = TRUE)\n\nSmoothing Parameter  spar= 0.6321765  lambda= 0.0002401789 (12 iterations)\nEquivalent Degrees of Freedom (Df): 9.437413\nPenalized Criterion (RSS): 1684.544\nGCV: 49.69918\n\n\n           Length Class             Mode   \nx          51     -none-            numeric\ny          51     -none-            numeric\nw          51     -none-            numeric\nyin        51     -none-            numeric\ntol         1     -none-            numeric\ndata        3     -none-            list   \nno.weights  1     -none-            logical\nn           1     -none-            numeric\nlev        51     -none-            numeric\ncv          1     -none-            logical\ncv.crit     1     -none-            numeric\npen.crit    1     -none-            numeric\ncrit        1     -none-            numeric\ndf          1     -none-            numeric\nspar        1     -none-            numeric\nratio       1     -none-            numeric\nlambda      1     -none-            numeric\niparms      5     -none-            numeric\nauxM        0     -none-            NULL   \nfit         5     smooth.spline.fit list   \ncall        4     -none-            call   \n\n\n\n\n\n\n\n\n\nFamily: gaussian \nLink function: identity \n\nFormula:\ndistanz ~ s(alter)\n\nParametric coefficients:\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)  26.8220     0.7453   35.99   &lt;2e-16 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nApproximate significance of smooth terms:\n           edf Ref.df     F p-value    \ns(alter) 6.669  7.786 20.55  &lt;2e-16 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nR-sq.(adj) =  0.662   Deviance explained =   69%\nGCV = 50.248  Scale est. = 45.548    n = 82\n\n\n\n\n\n\n\n\nTeilaufgabe d)\n(Advanced) Lösen sie die Aufgabe mit Regression Splines. Setzen sie 4 Knoten, wobei die x-Werte geeignet nach Gutdünken gesetzt werden sollen. Programmieren sie dann einen stückweise konstanten Fit, einen der stückweise linear und kontinuierlich ist, sowie einen der 2x stetig differenzierbare, kubische Polynome verwendet.",
+    "crumbs": [
+      "Modul C - Advanced Regression Modeling",
+      "Übungsblatt 1"
+    ]
+  },
+  {
+    "objectID": "Uebungsblatt01.html#aufgabe-2",
+    "href": "Uebungsblatt01.html#aufgabe-2",
+    "title": "Übungsblatt 1",
+    "section": "Aufgabe 2",
+    "text": "Aufgabe 2\nDie Zeitreihe spt im File suhre_phostot.rda enthält monatlich gemessene Phosphatwerte aus der Suhre im Kanton Luzern. Sie sollen diese Werte als Zielgrösse verwenden. Als Prädiktor wird die Zeit der Beobachtung verwendet, welche man via time(spt) extrahieren kann.\n\n\n\n\n\n\n\n\nTeilaufgabe a)\nPassen sie mit der Funktion gam() einen Smoothing-Spline-Fit an, welcher die zeitliche Entwicklung der Phosphatwerte aufzeigt.\n\n\n\nFamily: gaussian \nLink function: identity \n\nFormula:\nspt ~ s(time(spt))\n\nParametric coefficients:\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)  22.6944     0.5198   43.66   &lt;2e-16 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nApproximate significance of smooth terms:\n               edf Ref.df     F p-value    \ns(time(spt)) 8.361  8.886 20.37  &lt;2e-16 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nR-sq.(adj) =  0.837   Deviance explained = 87.6%\nGCV = 13.144  Scale est. = 9.7259    n = 36\n\n\n\n\n\n\n\n\nTeilaufgabe b)\nVerwenden sie stattdessen ein Modell, welches geeignete Transformationen der Zeit-Variable verwendet, um ebenfalls die zeitliche Entwicklung der Phosphatwerte anzugeben. Hinweis: die Zeitreihe enthält einen linearen Trend sowie eine zyklische Saison-Komponente, welche mit einer Faktorvariable oder (besser!) mit einer harmonischen Schwingung modelliert wird.\n\n\n\nCall:\nlm(formula = spt ~ time(spt) + sin(2 * pi * time(spt)) + cos(2 * \n    pi * time(spt)), data = spt)\n\nResiduals:\n    Min      1Q  Median      3Q     Max \n-8.7044 -2.1660 -0.2529  2.7369  7.7791 \n\nCoefficients:\n                         Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)             2831.2732  1692.7075   1.673  0.10415    \ntime(spt)                 -1.4019     0.8449  -1.659  0.10684    \nsin(2 * pi * time(spt))    7.8420     1.0320   7.599 1.17e-08 ***\ncos(2 * pi * time(spt))    3.4357     1.0004   3.434  0.00166 ** \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 4.234 on 32 degrees of freedom\nMultiple R-squared:  0.7247,    Adjusted R-squared:  0.6989 \nF-statistic: 28.08 on 3 and 32 DF,  p-value: 4.332e-09",
+    "crumbs": [
+      "Modul C - Advanced Regression Modeling",
+      "Übungsblatt 1"
+    ]
+  }
+]
