@@ -45,7 +45,13 @@ Stellen sie die Daten geeignet in einem Scatterplot dar, und legen sie einen Loe
 library(tidyverse)
 ggplot(autodistanz, aes(alter, distanz)) +
   geom_point() +
-  geom_smooth(method = "loess", span = 0.5)
+  geom_smooth(method = "loess", span = 0.55)
+
+ggplot(autodistanz, aes(alter, log(distanz))) +
+  geom_point() +
+  geom_smooth(method = "loess", span = 0.55) 
+
+
 ```
 
 **Varianz ist heterogen verteilt. daher Log-Transformation ausprobieren.**
@@ -65,6 +71,21 @@ summary(fit)
 
 par(mfrow = c(2, 2))
 plot(fit)
+
+fit.log <- lm(log(distanz) ~ poly(alter, 4), data = autodistanz)
+summary(fit.log)
+
+par(mfrow = c(2, 2))
+plot(fit.log)
+
+ggplot(autodistanz, aes(alter, log(distanz))) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ poly(x, 4))
+
+
+ggplot(autodistanz, aes(alter, log(distanz))) +
+  geom_point() +
+  geom_smooth(method = "gam", formula = y ~ s(x))
 ```
 
 
@@ -93,10 +114,7 @@ plot(fit.gam, residuals = TRUE, col = "blue", shade = TRUE, pch = 20 )
 *(Advanced)* Lösen sie die Aufgabe mit Regression Splines. Setzen sie 4 Knoten, wobei die x-Werte geeignet nach Gutdünken gesetzt werden sollen. Programmieren sie dann einen stückweise konstanten Fit, einen der stückweise linear und kontinuierlich ist, sowie einen der 2x stetig differenzierbare, kubische Polynome verwendet.
 
 ```{r, echo=F,eval=TRUE,message=FALSE, warning=FALSE}
-knots <- c(25, 35, 45, 60)
-fit1 <- lm(distanz ~ cut(alter, knots), data = autodistanz)
-fit2 <- lm(distanz ~ cut(alter, knots) + alter, data = autodistanz)
-fit3 <- lm(distanz ~ cut(alter, knots) + I(alter^2) + I(alter^3), data = autodistanz)
+quantile(autodistanz$alter, c(.2, .4, .6, .8))
 
 ```
 
@@ -126,10 +144,12 @@ Verwenden sie stattdessen ein Modell, welches geeignete Transformationen der Zei
 
 ```{r, echo=F, eval=T, message=FALSE, warning=FALSE}
 fit <- lm(spt ~ time(spt) + sin(2*pi*time(spt)) + cos(2*pi*time(spt)), data = spt)
-summary(fit)
+fit.gam <- gam(spt ~ s(time(spt)))
 plot(spt, type = "o",pch=20, main = "Phosphatwerte Suhre")
-lines(fitted(fit), col = "red")
+lines(as.numeric(time(spt)), fitted(fit), col = "red")
+lines(as.numeric(time(spt)), fitted(fit.gam), col = "blue")
 
+par(mfrow = c(2, 2))
 plot(fit)
 
 ```

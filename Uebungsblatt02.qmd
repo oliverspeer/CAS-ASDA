@@ -116,6 +116,26 @@ par(mfrow = c(2, 2))
 gam.check(fit.gam3, pch = 20, rep = 100)
 
 ```
+Mit tidyverse:
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+library(tidyverse)
+library(mgcv)
+no2basel %>% 
+  ggplot(aes(x = Tag, y = NO2)) +
+  geom_point() +
+  geom_smooth(method = "gam", formula = y ~ s(x), se = FALSE) +
+  labs(title = "Tag vs NO2")
+
+
+fit.gam2 <- gam(NO2 ~ s(Temp) + s(Wind) + s(Tag), data = no2basel, gamma = 1.266)
+
+library(gratia)
+draw(fit.gam2, facet_args = list(ncol = 2))
+draw(fit.gam2, residuals = TRUE, rug = TRUE, point_col = "black", point_size = 0.5, ncol = 2)
+appraise(fit.gam2)
+```
+
+
 [ii. Mit gamma von 1.266 werden die Fits für Temperatur und Wind linear. Die Variable Tag dagegen erhält einen polynom. Das Bild scheint physikalisch realistischer zu sein .]{style="color:#00008B; font-weight:bold"}
 
 [iii. Im nächsten Schritt wird eine Variablenselektion durchgeführt.]{style="color:#00008B; font-weight:bold"}

@@ -195,8 +195,6 @@ Erweitern Sie die Darstellung, in dem Sie die Punkte auf einer Karte von
 London einzeichnen. Sie können dazu Google Maps, OpenStreetMap oder
 Stadia verwenden.
 
-
-
 ```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
 # library(OpenStreetMap)
 # library(osmdata)
@@ -229,6 +227,7 @@ Stadia verwenden.
 # 
 
 ```
+
 ```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
 # library(leaflet)
 # leaflet()  |> 
@@ -236,6 +235,8 @@ Stadia verwenden.
 #   setView(lng = -0.1276, lat = 51.5074, zoom = 10)  # Coordinates for London
 
 ```
+
+#### mit leaflet
 
 ```{r, message=FALSE, warning=FALSE, eval=TRUE}
 library(leaflet)
@@ -250,3 +251,113 @@ leaflet()  |>
                    stroke = FALSE)
 ```
 
+
+mit stadia
+```{r, message=FALSE, warning=FALSE, eval=TRUE}
+library(ggmap)
+library(tmaptools)
+
+# bei stadia api anmelden
+register_stadiamaps("abd65448-d1ea-48b6-86d8-e8b3185ef247")
+
+load("weapons_london.Rdata")
+
+# bounding box von london laden
+bbox.london <- rbind(geocode_OSM("London")$bbox)
+
+# map von london laden
+map.london <- get_stadiamap(bbox.london, zoom = 12)
+
+# Karte zeichnen mit Angaben von weapons_london
+ggmap(map.london, extent = "device") +
+  geom_point(data = weapons_london, aes(x = Longitude, y = Latitude))
+
+
+```
+
+## Aufgabe 4: Bäume in der Stadt Zürich {.justify}
+
+Das File trees.Rdata enthält die Position (lon/lat) und die Art von ca. 45’000 Bäume in der
+Stadt Zürich.
+
+### Teilaufgabe a {.justify}
+Datenaufbereitung: Laden Sie die Daten ins R und reduzieren Sie den Datensatz auf die
+zehn häufigsten Baumarten in der Stadt. Zeichnen Sie ein Balkendiagramm der absoluten
+Häufigkeiten dieser zehn Baumarten.
+
+```{r, echo=F, eval=T, warning=F, message=F}
+library(tidyverse)
+load("trees.Rdata")
+
+# Häufigkeit der Baumarten
+tree.subset <- trees |> 
+  group_by(type) |> 
+  summarise(n = n()) |>
+  arrange(desc(n)) |>
+  select(type, n) |>
+  slice(1:10)
+
+tree.names <- tree.subset$type
+someTrees <- trees |> filter(type %in% tree.names)
+library(ggplot2)
+ggplot(someTrees) +
+geom_bar(aes(x=type)) +
+xlab("") + theme(axis.text.x=element_text(angle=90))
+
+```
+
+### Teilaufgabe b {.justify}
+Erzeugen Sie mit OpenStreetMap eine Karte, in der die Verteilung der 10 häufigsten Bäume
+dargestellt ist. Zeichnen Sie zudem die Isolinien der Baumdichte in der Stadt Zürich ein
+(geom_density2d).
+
+```{r, echo=F, eval=T, warning=F, message=F}
+library(OpenStreetMap)
+lat1 <- max(someTrees$lat); lat2 <- min(someTrees$lat)
+lon1 <- max(someTrees$long); lon2 <- min(someTrees$long)
+dc <- openmap(c(lat2, lon1), c(lat1, lon2), # Kartenausschnitt
+zoom = NULL, type = "osm")
+dc2 <- openproj(dc) # reproject onto WGS84
+autoplot.OpenStreetMap(dc2) +
+geom_point(data=someTrees, aes(x=long, y=lat, color=type),
+color = "red", size = 1) +
+geom_density2d(data=someTrees, aes(x=long, y=lat))
+``` 
+
+### Teilaufgabe c {.justify}
+Zeichnen Sie mit facetting die räumliche Verteilung jeder einzelnen Baumart in einer eigenen
+Karte.
+
+```{r, echo=F, eval=T, warning=F, message=F}
+autoplot.OpenStreetMap(dc2) +
+geom_point(data=someTrees, aes(x=long, y=lat, color=type),
+color = "red", size = 1) +
+  geom_density2d(data=someTrees, aes(x=long, y=lat)) +
+  facet_wrap(vars(type)) +
+  theme(legend.position = "none")
+
+```
+  
+### Teilaufgabe d {.justify}
+Visualisieren Sie die Buchen (pendula) auf einer interaktiven Karte. Verwenden Sie dazu das
+R-Paket leaflet. Die Standorte der Bäume können Sie mit addCircels(...) in die Karte
+einzeichnen.
+
+```{r, echo=F, eval=T, warning=F, message=F}
+library(leaflet)
+
+
+pendula = trees[trees$type == 'pendula',]
+hippocastanum = trees[trees$type == 'hippocastanum',]
+label.pendula <- '<a href="https://de.wikipedia.org/wiki/H%C3%A4nge-Birke">Betula pendula</a>'
+label.hippocastanum <- '<a href="https://de.wikipedia.org/wiki/Gew%C3%B6hnliche_Rosskastanie">Aesculus hippocsatanum</a>'
+leaflet.trees <- leaflet() |> 
+  addTiles(
+'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}') |>
+addCircleMarkers(lat = pendula$lat, lng = pendula$long, popup = label.pendula, color = 'red') |>
+addCircleMarkers(lat = hippocastanum$lat, lng = hippocastanum$long, popup = label.hippocastanum ,color = 'blue')
+leaflet.trees
+
+
+```
+  
