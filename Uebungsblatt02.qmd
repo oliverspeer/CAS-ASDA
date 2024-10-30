@@ -47,15 +47,24 @@ pairs(no2basel)
 fit <- lm(NO2 ~ ., data = no2basel)
 summary(fit)
 resplot(fit)
+```
 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
 fit1 <- lm(NO2 ~ Temp + log(Wind) + Tag, data = no2basel)
 summary(fit1)
 resplot(fit1)
+```
 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
 fit.2 <- lm(log(NO2) ~ ., data = no2basel)
 summary(fit.2)
 resplot(fit.2)
+```
 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
 fig.3 <- lm(log(NO2) ~ Temp + log(Wind) + Tag, data = no2basel)
 summary(fig.3)
 resplot(fig.3)
@@ -81,14 +90,14 @@ summary(fit.gam)
 par(mfrow = c(2, 2))
 plot(fit.gam, residuals = TRUE, shade = TRUE, pch = 20, cex = 0.5)
 
-# par(mfrow = c(2, 2))
+par(mfrow = c(2, 2))
 gam.check(fit.gam, pch = 20, rep = 100)
 
 fit.gam1 <- gam(log(NO2) ~ s(Temp) + s(Wind) + s(Tag), data = no2basel)
 summary(fit.gam1)
 plot(fit.gam1, residuals = TRUE, shade = TRUE, pch = 20, cex = 0.5)
 
-# par(mfrow = c(2, 2))
+par(mfrow = c(2, 2))
 gam.check(fit.gam1, pch = 20, rep = 100)
 
 AIC(fit.gam, fit.gam1)
@@ -109,6 +118,7 @@ plot(fit.gam2, residuals = TRUE, shade = TRUE, pch = 20, cex = 0.5)
 par(mfrow = c(2, 2))
 gam.check(fit.gam2, pch = 20, rep = 100)
 
+par(mfrow = c(2, 2))
 fit.gam3 <- gam(log(NO2) ~ s(Temp) + s(Wind) + s(Tag), data = no2basel, gamma = 1.266)
 plot(fit.gam3, residuals = TRUE, shade = TRUE, pch = 20, cex = 0.5)
 
@@ -205,17 +215,186 @@ load("lohn.rda")
 
 Passen sie das additive Modell `lohn ~ s(alter) + geschlecht` an. Plotten sie dann die gefitteten Lohn-Kurven für Männer und Frauen in einem Scatterplot mit den Daten ein (**Hinweis:** mit `predict()` arbeiten!). Erzeugen sie auch einen Tukey-Anscombe-Plot um zu prüfen, ob das Modell passt. Welche Aussage ist aus dem Summary über die beiden Kurven möglich?
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+library(mgcv)
+fit.gam1 <- gam(lohn ~ s(alter) + geschlecht, data = lohn)
+summary(fit.gam1)
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+plot(fit.gam1, residuals = TRUE, shade = TRUE, pch = 20, cex = 0.5)
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+# gefittete Werte für die Daten berechnen
+lohn$fit.gam1 <- predict(fit.gam1, newdata = lohn)
+lohn$fitted <- fitted(fit.gam1)
+lohn$residuals <- resid(fit.gam1)
+
+# Scatterplot mit den Daten und den gefitteten Kurven für Männer und Frauen
+library(tidyverse)
+ggplot(lohn, aes(x = alter, y = lohn, color = geschlecht)) +
+  geom_point() +
+  geom_line(aes(y = fit.gam1), size = 1) +
+  labs(title = "Lohn vs Alter mit GAM ohne Interaktion",
+       x = "Alter",
+       y = "Lohn [CHF]") +
+  scale_color_manual(values = c("m" = "blue", "f" = "red")) +
+  theme_minimal()
+
+
+
+```
+[Tuskey-Anscombe-Plot]{style="color:#00008B; font-weight:bold"}
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+ggplot(lohn, aes(x = fitted, y = residuals, color = geschlecht)) +
+  geom_point() +
+  labs(title = "Tukey-Anscombe-Plot",
+       x = "Fitted",
+       y = "Residuals") +
+  scale_color_manual(values = c("m" = "blue", "f" = "red")) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  theme_minimal()
+
+
+```
+
+[es sind für beide Geschlechter über den ganzen Alterbereich systematische Fehler zu beobachten. Ausserdem ist zu beobachten, dass die Streuung der Resiuden mit zunehmendem Lohn grössser wird.]{style="color:#00008B; font-weight:bold"}
+
 ### Teilaufgabe b)
 
 Verwenden sie nun das Interaktions-Modell `lohn ~ s(alter,by=geschlecht) + geschlecht`. Plotten sie erneut die gefitteten Lohn-Kurven für Männer und Frauen in den Scatterplot ein. Was sagt ihnen das Summary hier?
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+fit.gam2 <- gam(lohn ~ s(alter, by = geschlecht) + geschlecht, data = lohn)
+summary(fit.gam2)
+
+# gefittete Werte für die Daten berechnen
+lohn$fit.gam2 <- predict(fit.gam2, newdata = lohn) # predict eigentlich für Vorhersage mit neuen Daten
+lohn$fitted2 <- fitted(fit.gam2) # gefittete Werte für die "Trainingsdaten"
+lohn$residuals2 <- resid(fit.gam2) # Residuen
+
+# Scatterplot mit den Daten und den gefitteten Kurven für Männer und Frauen
+
+ggplot(lohn, aes(x = alter, y = lohn, color = geschlecht)) +
+  geom_point() +
+  geom_line(aes(y = fitted2), size = 1) +
+  labs(title = "Lohn vs Alter mit GAM mit Interaktion",
+       x = "Alter",
+       y = "Lohn [CHF]") +
+  scale_color_manual(values = c("m" = "blue", "f" = "red")) +
+  theme_minimal()
+```
 
 ### Teilaufgabe c)
 
 Prüfen sie nun, was `lohn ~ s(alter, by=geschlecht)` ergibt, sowohl via grafische Darstellung wie durch Studium des Summary-Outputs. Was sind die Erkenntnisse daraus?
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+
+
+fit.gam3 <- gam(lohn ~ s(alter, by = geschlecht), data = lohn)
+summary(fit.gam3)
+
+# gefittete Werte für die Daten berechnen
+lohn$fitted3 <- fitted(fit.gam3)
+lohn$residuals3 <- resid(fit.gam3)
+
+# Scatterplot mit den Daten und den gefitteten Kurven für Männer und Frauen
+ggplot(lohn, aes(x = alter, y = lohn, color = geschlecht)) +
+  geom_point() +
+  geom_line(aes(y = fitted3), size = 1) +
+  labs(title = "Lohn vs Alter mit GAM mit Interaktion ohne Geschlecht als Faktor",
+       x = "Alter",
+       y = "Lohn [CHF]") +
+  scale_color_manual(values = c("m" = "blue", "f" = "red")) +
+  theme_minimal()
+```
+
 ### Teilaufgabe d)
 
 Führen sie mit der Funktion `gam.check()` eine Residuenanalyse für das Interaktions-Modell aus b) durch. Was sind ihre Erkenntnisse daraus und wie sollte das Modell modifiziert werden? Rechnen sie dann dieses modifizierte Modell sowohl mit als auch ohne Interaktionsterm und stellen sie die Fits in den Scatterplots auf der Originalskala (d.h. Lohn vs. Alter) dar.
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+par(mfrow = c(2, 2))
+gam.check(fit.gam2, pch = 20, rep = 100)
+
+```
+
+[Scale-Location Plot]{style="color:#00008B; font-weight:bold"}
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+lohn$scaled2 <- sqrt(abs(lohn$residuals2))
+ggplot(lohn, aes(x = fitted2, y = scaled2, color = geschlecht)) +
+  geom_point() +
+  geom_smooth(method = "loess", 
+              aes(x = fitted2, y = scaled2), 
+              inherit.aes = F) +
+  labs(title = "Scale-Location Plot",
+       x = "Fitted",
+       y = "sqrt(|Residuals|)") +
+  scale_color_manual(values = c("m" = "blue", "f" = "red")) +
+  theme_minimal()
+```
+
+[Der Scale-Location Plot zeigt, dass die Varianz der Residuen mit dem Lohn zunimmt, es ist also eine  Heteroskedaszitiät erkennbar. Massnahme: log-Transformation des Lohns.]{style="color:#00008B; font-weight:bold"}
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}  
+fit.gam4 <- gam(log(lohn) ~ s(alter, by = geschlecht) + geschlecht, data = lohn)
+fit.gam5 <- gam(log(lohn) ~ s(alter, by = geschlecht), data = lohn)
+
+lohn$fitted4 <- exp(fitted(fit.gam4))
+lohn$fitted5 <- exp(fitted(fit.gam5))
+
+lohn$residuals4 <- resid(fit.gam4)
+lohn$residuals5 <- resid(fit.gam5)
+
+ggplot(lohn, aes(x = alter, y = lohn, color = geschlecht)) +
+  geom_point() +
+  geom_line(aes(y = fitted4), size = 1) +
+  labs(title = "Lohn vs Alter mit GAM mit Interaktion und log-Transformation",
+       x = "Alter",
+       y = "Lohn [CHF]") +
+  scale_color_manual(values = c("m" = "blue", "f" = "red")) +
+  theme_minimal()
+
+ggplot(lohn, aes(x = alter, y = lohn, color = geschlecht)) +
+  geom_point() +
+  geom_line(aes(y = fitted5), size = 1) +
+  labs(title = "Lohn vs Alter mit GAM mit log-Transformation, OHNE Interaktion",
+       x = "Alter",
+       y = "Lohn [CHF]") +
+  scale_color_manual(values = c("m" = "blue", "f" = "red")) +
+  theme_minimal()
+
+ggplot(lohn, aes(x = alter, y = lohn, color = geschlecht)) +
+  geom_point() +
+  geom_line(aes(y = fitted2), size = 1) +
+  labs(title = "Lohn vs Alter mit GAM mit Interaktion, OHNE log-Transformation",
+       x = "Alter",
+       y = "Lohn [CHF]") +
+  scale_color_manual(values = c("m" = "blue", "f" = "red")) +
+  theme_minimal()
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+lohn$squared4 <- sqrt(abs(lohn$residuals4))
+ggplot(lohn, aes(x = fitted4, y = squared4, color = geschlecht)) +
+  geom_point() +
+  geom_smooth(method = "loess", 
+              aes(x = fitted4, y = squared4), 
+              inherit.aes = F) +
+  labs(title = "Scale-Location Plot mit log-Transformation und Interaktion",
+       x = "Fitted",
+       y = "sqrt(|Residuals|)") +
+  scale_color_manual(values = c("m" = "blue", "f" = "red")) +
+  theme_minimal()
+```
+
 
 ## Aufgabe 3 {.justify}
 
@@ -244,6 +423,75 @@ load("heart.rda")
 
 Verwenden sie zuerst nur die beiden Variablen `obesity` und `age` als Prädiktoren. Finden sie ein geeignetes Modell zur Beschreibung der Zielgrösse. Erwägen sie dabei sowohl lineare wie auch additive Modelle, allenfalls mit der Verwendung von Interaktionstermen. Vergleichen sie diese mit den Modellvergleichsparametern sowie auch mit statistischem Testen.
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+pairs(heart)
+
+fit.lm1 <- lm(sbp ~ obesity + age, data = heart)
+fit.gam1 <- gam(sbp ~ s(obesity) + s(age), data = heart)
+fit.gam2 <- gam(sbp ~ te(obesity, age), data = heart)
+
+par(mfrow = c(1, 2))
+plot(fit.gam1, shade = T,  se = TRUE, col = "blue", residuals = T, pch = 20)
+par(mfrow = c(1, 1))
+plot(fit.gam2, shade = T,  se = TRUE, col = "blue", residuals = T, pch = 20)
+
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+summary(fit.lm1)
+summary(fit.gam1)
+summary(fit.gam2)
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+anova(fit.lm1, fit.gam1, fit.gam2)
+AIC(fit.lm1, fit.gam1, fit.gam2)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+par(mfrow = c(2, 2))
+gam.check(fit.gam1, pch = 20, rep = 100)
+
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+fit.gam3 <- gam(log(sbp) ~ s(obesity) + s(age), data = heart)
+plot(fit.gam3, shade = T,  se = TRUE, col = "blue", residuals = T, pch = 20)
+summary(fit.gam3)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+par(mfrow = c(2, 2))
+gam.check(fit.gam3, pch = 20, rep = 100)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+AIC(fit.lm1, fit.gam1, fit.gam2, fit.gam3)
+```
+
 ### Teilaufgabe b)
 
 Verwenden sie nun alle zur Verfügung stehenden Prädiktoren, reduzieren sie das Modell jedoch auf die wesentlichen Prädiktoren. Verzichten sie dieses Mal zwecks einfacherer Interpretierbarkeit auf Interaktionsterme, erwägen sie aber immer noch ein lineares Modell und ein GAM.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+heart$chd <- as.factor(heart$chd)
+fit.lm2 <- lm(log(sbp) ~ ., data = heart)
+fit.gam4 <- gam(log(sbp) ~ s(obesity) + s(age) + s(tobacco) + s(ldl) + s(adiposity) + s(typea) + s(alcohol) + famhist + chd, data = heart, select = TRUE)
+fit.gam5 <- gam(log(sbp) ~ s(obesity) + s(age) + s(tobacco) + s(ldl) + s(adiposity) + s(typea) + s(alcohol) + famhist + chd, data = heart, select = TRUE, method = "REML")
+                  
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+summary(fit.lm2)
+summary(fit.gam4)
+summary(fit.gam5)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
+par(mfrow = c(2, 2))
+gam.check(fit.gam4, pch = 20, rep = 100)
+```

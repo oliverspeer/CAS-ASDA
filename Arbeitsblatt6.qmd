@@ -251,8 +251,8 @@ leaflet()  |>
                    stroke = FALSE)
 ```
 
-
 mit stadia
+
 ```{r, message=FALSE, warning=FALSE, eval=TRUE}
 library(ggmap)
 library(tmaptools)
@@ -277,13 +277,14 @@ ggmap(map.london, extent = "device") +
 
 ## Aufgabe 4: Bäume in der Stadt Zürich {.justify}
 
-Das File trees.Rdata enthält die Position (lon/lat) und die Art von ca. 45’000 Bäume in der
-Stadt Zürich.
+Das File trees.Rdata enthält die Position (lon/lat) und die Art von ca.
+45’000 Bäume in der Stadt Zürich.
 
 ### Teilaufgabe a {.justify}
-Datenaufbereitung: Laden Sie die Daten ins R und reduzieren Sie den Datensatz auf die
-zehn häufigsten Baumarten in der Stadt. Zeichnen Sie ein Balkendiagramm der absoluten
-Häufigkeiten dieser zehn Baumarten.
+
+Datenaufbereitung: Laden Sie die Daten ins R und reduzieren Sie den
+Datensatz auf die zehn häufigsten Baumarten in der Stadt. Zeichnen Sie
+ein Balkendiagramm der absoluten Häufigkeiten dieser zehn Baumarten.
 
 ```{r, echo=F, eval=T, warning=F, message=F}
 library(tidyverse)
@@ -307,41 +308,44 @@ xlab("") + theme(axis.text.x=element_text(angle=90))
 ```
 
 ### Teilaufgabe b {.justify}
-Erzeugen Sie mit OpenStreetMap eine Karte, in der die Verteilung der 10 häufigsten Bäume
-dargestellt ist. Zeichnen Sie zudem die Isolinien der Baumdichte in der Stadt Zürich ein
-(geom_density2d).
+
+Erzeugen Sie mit OpenStreetMap eine Karte, in der die Verteilung der 10
+häufigsten Bäume dargestellt ist. Zeichnen Sie zudem die Isolinien der
+Baumdichte in der Stadt Zürich ein (geom_density2d).
 
 ```{r, echo=F, eval=T, warning=F, message=F}
-library(OpenStreetMap)
-lat1 <- max(someTrees$lat); lat2 <- min(someTrees$lat)
-lon1 <- max(someTrees$long); lon2 <- min(someTrees$long)
-dc <- openmap(c(lat2, lon1), c(lat1, lon2), # Kartenausschnitt
-zoom = NULL, type = "osm")
-dc2 <- openproj(dc) # reproject onto WGS84
-autoplot.OpenStreetMap(dc2) +
-geom_point(data=someTrees, aes(x=long, y=lat, color=type),
-color = "red", size = 1) +
-geom_density2d(data=someTrees, aes(x=long, y=lat))
-``` 
+# library(OpenStreetMap)
+# lat1 <- max(someTrees$lat); lat2 <- min(someTrees$lat)
+# lon1 <- max(someTrees$long); lon2 <- min(someTrees$long)
+# dc <- openmap(c(lat2, lon1), c(lat1, lon2), # Kartenausschnitt
+# zoom = NULL, type = "osm")
+# dc2 <- openproj(dc) # reproject onto WGS84
+# autoplot.OpenStreetMap(dc2) +
+# geom_point(data=someTrees, aes(x=long, y=lat, color=type),
+# color = "red", size = 1) +
+# geom_density2d(data=someTrees, aes(x=long, y=lat))
+```
 
 ### Teilaufgabe c {.justify}
-Zeichnen Sie mit facetting die räumliche Verteilung jeder einzelnen Baumart in einer eigenen
-Karte.
+
+Zeichnen Sie mit facetting die räumliche Verteilung jeder einzelnen
+Baumart in einer eigenen Karte.
 
 ```{r, echo=F, eval=T, warning=F, message=F}
-autoplot.OpenStreetMap(dc2) +
-geom_point(data=someTrees, aes(x=long, y=lat, color=type),
-color = "red", size = 1) +
-  geom_density2d(data=someTrees, aes(x=long, y=lat)) +
-  facet_wrap(vars(type)) +
-  theme(legend.position = "none")
+# autoplot.OpenStreetMap(dc2) +
+# geom_point(data=someTrees, aes(x=long, y=lat, color=type),
+# color = "red", size = 1) +
+#   geom_density2d(data=someTrees, aes(x=long, y=lat)) +
+#   facet_wrap(vars(type)) +
+#   theme(legend.position = "none")
 
 ```
-  
+
 ### Teilaufgabe d {.justify}
-Visualisieren Sie die Buchen (pendula) auf einer interaktiven Karte. Verwenden Sie dazu das
-R-Paket leaflet. Die Standorte der Bäume können Sie mit addCircels(...) in die Karte
-einzeichnen.
+
+Visualisieren Sie die Buchen (pendula) auf einer interaktiven Karte.
+Verwenden Sie dazu das R-Paket leaflet. Die Standorte der Bäume können
+Sie mit addCircels(...) in die Karte einzeichnen.
 
 ```{r, echo=F, eval=T, warning=F, message=F}
 library(leaflet)
@@ -360,4 +364,3 @@ leaflet.trees
 
 
 ```
-  

@@ -54,7 +54,7 @@ ggplot(autodistanz, aes(alter, log(distanz))) +
 
 ```
 
-**Varianz ist heterogen verteilt. daher Log-Transformation ausprobieren.**
+[Varianz ist heterogen verteilt. daher Log-Transformation ausprobieren.]{style="color:#00008B; font-weight:bold"}
 
 ### Teilaufgabe b)
 
@@ -96,17 +96,51 @@ Anstelle des Polynoms sollen sie nun ein Modell mit kubischen Splines anpassen. 
 ```{r, echo=F,eval=TRUE,message=FALSE, warning=FALSE}
 library(mgcv)
 
-smooth.spline(autodistanz$alter, autodistanz$distanz, all.knots = TRUE)
+
 fit.ss <- smooth.spline(autodistanz$alter, autodistanz$distanz, all.knots = TRUE)
 summary(fit.ss)
-plot(fit.ss, type = "l", col = "red")
-points(autodistanz$alter, autodistanz$distanz, pch = 20, col = "red")
+fit.log.ss <- smooth.spline(autodistanz$alter, log(autodistanz$distanz), all.knots = TRUE)
+summary(fit.log.ss)
 
+plot(distanz ~ alter, data = autodistanz, pch = 20, main = "Distanz über Alter mit >>smoth.spline<< ")
+lines(sort(autodistanz$alter), fitted(fit.ss)[order(autodistanz$alter)], col = "blue")
+lines(sort(autodistanz$alter), exp(fitted(fit.log.ss))[order(autodistanz$alter)], col = "red")
+legend("topright", c("norm", "log-Trans"), col = c("blue", "red"), cex = 0.8, lty = 1)
+
+par(mfrow = c(2, 2))
+plot(fit.ss)
+
+par(mfrow = c(2, 2))
+plot(fit.log.ss)
+```
+
+[nach log-Transformation wird der fit eher unruhig.]{style="color:#00008B; font-weight:bold"}
+
+```{r, echo=F,eval=TRUE,message=FALSE, warning=FALSE}
 fit.gam <- gam(distanz ~ s(alter), data = autodistanz)
 summary(fit.gam)
 plot(fit.gam, residuals = TRUE, col = "blue", shade = TRUE, pch = 20 )
+par(mfrow = c(2, 2))
+gam.check(fit.gam, rep = 100, pch = 20)
+```
+[In den Diagnose-Plots zeigt sich, dass die Varianz nicht konstant ist, daher zeigt sich im qq-plot eine Abweichung. auch werden die Residuen mit zunehmendem fitted value grösser. Eine log-Transformation ist angezeigt.]{style="color:#00008B; font-weight:bold"} 
+
+```{r, echo=F,eval=TRUE,message=FALSE, warning=FALSE}
+fit.gam.log <- gam(log(distanz) ~ s(alter), data = autodistanz)
+summary(fit.gam.log)
+plot(fit.gam.log, residuals = TRUE, col = "blue", shade = TRUE, pch = 20 )
+par(mfrow = c(2, 2))
+gam.check(fit.gam.log, rep = 100, pch = 20)
+
+
+plot(distanz ~ alter, data = autodistanz, pch = 20, main = "Distanz über Alter mit <<gam>>")
+lines(sort(autodistanz$alter), fitted(fit.gam)[order(autodistanz$alter)], col = "blue")
+lines(sort(autodistanz$alter), exp(fitted(fit.gam.log))[order(autodistanz$alter)], col = "red")
+legend("topright", c("norm", "log-Trans"), col = c("blue", "red"), cex = 0.8, lty = 1)
 
 ```
+
+[Nach log-Transformation sieht der Fit und die Residuen vernünftig aus]{style="color:#00008B; font-weight:bold"}
 
 
 ### Teilaufgabe d)
