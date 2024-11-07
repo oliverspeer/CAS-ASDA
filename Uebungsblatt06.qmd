@@ -1,0 +1,116 @@
+# Übungsblatt 6 – Poisson-Regression {.unnumbered}
+
+---
+title:  "Übungsblatt 06 – Poisson-Regression "
+author: "Marcel Dettling"
+date:   "`r Sys.Date()`"
+editor: source
+lang: de
+language: 
+  title-block-author-single: "Autor:"
+  title-block-published: "Version vom:"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    theme: sandstone
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+## Aufgabe 1 {.justify}
+
+Die Schweizerische Sicherheitsuntersuchungsstelle (SUST) untersucht die zeitliche Entwicklung der Sicherheit in der Schweizer Zivilluftfahrt. Dafür stehen für verschiedene Motorflugzeuge bis 5.7t maximalen Abfluggewichts Zeitreihen mit jährlichen Werten im Intervall von 2007 bis 2020 zur Verfügung. Bei diesen Reihen handelt es sich um:
+
+-   die Anzahl Unfälle mit erheblich Verletzte oder Toten.
+
+-   die Anzahl Bewegungen für Flugabschnitte von der CH in die CH.
+
+Die Daten finden sie im File `sust.rda`. Sie sollen hier zuerst die Unfallzahl in Abhängigkeit der Zeit modellieren. Wir gehen von einer exponentiellen Zu-/Abnahme des Erwartungswerts aus, d.h. $log(\lambda_i) = \beta_0+\beta_1 \cdot t$
+
+```{r, echo=F, eval=T}
+load("sust.rda")
+```
+
+### Teilaufgabe a)
+
+Passen sie das Poisson-Regressionsmodell gemäss obiger Vorgabe an, um den zeitlichen Verlauf des Erwartungswerts der Anzahl Unfälle zu bestimmen.
+
+### Teilaufgabe b)
+
+Charakterisieren sie den Verlauf bzw. die Entwicklung des Erwartungswerts. Welche Aussage kann man zur Änderung des Erwartungswerts treffen? Versuchen sie auch, Daten und Erwartungswert grafisch darzustellen.
+
+### Teilaufgabe c)
+
+Wie gut passt das Modell zu den Daten? Prüfen sie die Residuen und werten sie den Goodness-of-Fit-Test aus. Falls Overdispersion vorliegt, sollten sie dies für das Beantworten der nächsten Frage berücksichtigen.
+
+### Teilaufgabe d)
+
+Gibt es eine signifikante Änderung im Erwartungswert der Unfallzahl? Ist es für die Angabe des p-Wert zu diesem Test sinnvoll, einen Dispersionsparameter zu schätzen oder nicht?
+
+### Teilaufgabe e)
+
+Bestimmen sie ein 95%-Vertrauensintervall für den Erwartungswert zur Zeit $t$ und tragen sie diesen in der grafischen Darstellung ein.
+
+## Aufgabe 2 {.justify}
+
+Berücksichtigen sie nun die Anzahl Flugbewegungen in der Analyse. Passen sie ein Poisson Rate Model für die Unfallrate bei den Motorflugzeugen an. Wiederum gehen wir von einer exponentiellen Zu-/Abnahme des Erwartungswerts aus. R-Hinweis:
+
+```{r, echo=T, eval=F}
+fit2 <- glm(unf ~ offset(log(bew)) + time, fam=poisson)
+```
+
+### Teilaufgabe a)
+
+Passen sie das Modell an und stellen sie die Unfallrate und den Erwartungswert grafisch dar. Eine interessante Option besteht auch darin, Unfallzahl und Unfallrate in einem Plot gemeinsam abzubilden.
+
+### Teilaufgabe b)
+
+Lösen sie die obigen Teilaufgaben b)-e) für die Unfallrate mit dem Poisson Rate Model und vergleichen sie die Resultate mit jenen von Aufgabe 1.
+
+### Teilaufgabe c)
+
+Eine Alternative zum Poisson Rate Model besteht in der Binomial-Regression. Die «Gruppengrösse» ist die jeweilige Anzahl Flugbewegungen pro Jahr. Passen sie das Modell an und vergleichen sie die Resultate mit dem Poisson Rate Model.
+
+### Teilaufgabe d)
+
+Ziehen sie ein Schlussfazit zum Vergleich von Binomial-Regression und Poisson Rate Model. Dies insbesondere, wenn es um die Kommunikation der Änderung der Unfallrate geht. Welche Aussage können wir mit den Modellresultaten genau machen?
+
+## Aufgabe 3 {.justify}
+
+In einem Experiment wird die Nematoden-Konzentration in einer Flüssigkeit untersucht. Drei Samples à 20 µl wurden produziert und danach verdünnt. Von jeder der verdünnten Proben generierten die Forscher 15 Subsamples mit einem Volumen von 40 µl , 20 µl und 20 µl . Die folgende Tabelle zeigt die Anzahl Nematoden in jedem der 45 Subsamples.
+
+| Sample | Volumen | Anzahl                                                     |
+|------------|------------|------------------------------------------------|
+| 1      | 40 µl   | 31, 28, 33, 38, 28, 32, 39, 27, 28, 39, 21, 39, 45, 37, 41 |
+| 2      | 20 µl   | 14, 16, 18, 9, 21, 21, 14, 12, 13, 13, 14, 20, 24, 15, 24  |
+| 3      | 20 µl   | 18, 13, 19, 14, 15, 16, 14, 19, 25, 16, 16, 18, 9, 10, 9   |
+
+Sie finden die Daten auch bereits eingetippt im File `nematoden.rda`.
+
+```{r, echo=F, eval=T}
+load("nematoden.rda")
+```
+
+### Teilaufgabe a)
+
+Passen sie ein geeignetes Modell für die Zielgrösse Anzahl Nematoden an, wobei der Prädiktor die Faktorvariable `sample` sein soll. Warum muss in diesem Modell der Unterschied im Volumen nicht berücksichtigt werden? Wie gut passt das Modell an die Daten? Gibt es einen Unterschied zwischen den Samples?
+
+### Teilaufgabe b)
+
+Verwenden sie nun `log(volumen)` als numerischen Prädiktor. Passen sie das Modell an und prüfen sie den Fit mit geeigneten Mitteln. Schreiben sie auf, was das angepasste Modell als Formel bedeutet. Wäre `λ = c*volumen` auch ein denkbares Modell?
+
+### Teilaufgabe c)
+
+Fixieren sie nun den Koeffizienten für das Volumen auf den Wert 1. Passt das Modell? Wie interpretiert man das Resultat, was ist dessen Aussage?

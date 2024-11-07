@@ -1,0 +1,91 @@
+# Übungsblatt 3 - Logistische Regression {.unnumbered}
+
+---
+title:  "Übungsblatt 3 - Logistische Regression"
+author: "Marcel Dettling"
+date:   "`r Sys.Date()`"
+editor: visual
+lang: de
+language: 
+  title-block-author-single: "Autor:"
+  title-block-published: "Version vom:"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 2
+    theme: sandstone
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+## Aufgabe 1 {.justify}
+
+Ein Autohersteller führte eine Marktstudie durch, um zu analysieren wer sich im nächsten Jahr ein neues Auto kauft. Im Datensatz `car.rda` finden sie eine Data Frame, welches die Information von 33 Personen enthält. Angegeben ist das jeweilige jährliche Haushalteinkommen (in 1000 US\$) und das Alter des ältesten Autos im Haushalt. Nach einer Frist von 12 Monaten wurde erhoben, ob sich die Personen in der Zwischenzeit ein neues Auto angeschafft hatten.
+
+```{r, echo=T, eval=T}
+load("car.rda")
+```
+
+### Teilaufgabe a)
+
+Passen sie ein logistisches Regressionsmodell auf diesen Datensatz an. Geben sie danach die Modellgleichung auf Papier explizit an.
+
+```{r}
+pairs(car)
+
+fit <- glm(purchase ~ log(income) + age, family = binomial, data = car)
+  summary(fit)
+
+par(mfrow = c(2, 2))
+plot(fit)
+```
+
+purchase = exp(beta0 + beta1xincome + beta2 x age)/1+exp(beta0 + beta1xincome + beta2 x age)
+
+g(P(purchase =1|log(income), age)) = -10.39 + 2.39 log(income) + 0.54 age
+### Teilaufgabe b)
+
+Wie verändert sich das Kaufverhalten für ein neues Auto, wenn man entweder über 1000\$ mehr Jahreseinkommen verfügt, resp. das älteste Auto schon ein zusätzliches Jahr auf dem Buckel hat?
+
+[1000 mehr Einkommen: Wahrscheinlichkeit steigt um 0.07, Auto 1 Jahr älter: p steigt um 0.6]
+
+### Teilaufgabe c)
+
+Wie gross ist die geschätzte Wahrscheinlichkeit, dass jemand mit einem Haushalteinkommen von 50'000 US\$ und einem ältesten Auto von 3 Jahren sich im nächsten Jahr ein neues Auto anschaffen wird?
+
+```{r}
+dat <- data.frame(income = 50, age = 3)
+this.year <- predict(fit, newdata = dat, type = "response")
+
+dat1 <- data.frame(income = 50, age = 4)
+next.year <- predict(fit, newdata = dat1, type = "response")
+
+(this.year); (next.year)
+```
+
+
+### Teilaufgabe d)
+
+Verwenden sie nun ein GAM anstelle von einem logistischen Regressionsmodell. Beantworten sie die Frage, ob sich die Flexibilisierung auf der Prädiktorseite lohnt. Versuchen sie, die gefundene Lösung möglichst informativ darzustellen, d.h. beantworten sie die Frage, wie die Variablen auf die Kauf-Wahrscheinlichkeit auswirken.
+
+```{r}
+# library(mgcv)
+# fit.gam <- gam(purchase ~ s(income) + s(age), family = binomial, data = car)
+
+```
+
+
+### Teilaufgabe e)
+
+*(Advanced)* Versuchen sie die Lösung vom logistischen Regressionsmodell und in einem zweidimensionalen Scatterplot als eingefärbte Flächen darzustellen, so wie auf Folie 85 in den Theorie-Unterlagen.

@@ -49,20 +49,17 @@ summary(fit)
 resplot(fit)
 ```
 
-
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
 fit1 <- lm(NO2 ~ Temp + log(Wind) + Tag, data = no2basel)
 summary(fit1)
 resplot(fit1)
 ```
 
-
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
 fit.2 <- lm(log(NO2) ~ ., data = no2basel)
 summary(fit.2)
 resplot(fit.2)
 ```
-
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
 fig.3 <- lm(log(NO2) ~ Temp + log(Wind) + Tag, data = no2basel)
@@ -103,7 +100,7 @@ gam.check(fit.gam1, pch = 20, rep = 100)
 AIC(fit.gam, fit.gam1)
 ```
 
-[Achtung: die Modellvergleichsparameter GCV, AIC oder auch das Adjusted R-Squared helfen uns hier wegen der Transformation der Zielgrösse nicht weiter (d.h. die Werte sind nicht vergleichbar!). ]{style="color:#FF4500; font-weight:bold"}
+[Achtung: die Modellvergleichsparameter GCV, AIC oder auch das Adjusted R-Squared helfen uns hier wegen der Transformation der Zielgrösse nicht weiter (d.h. die Werte sind nicht vergleichbar!).]{style="color:#FF4500; font-weight:bold"}
 
 [i. Aber die Residuenplots sprechen dafür. Insgesamt ist keine systematischer Fehler erkennbar.]{style="color:#00008B; font-weight:bold"}
 
@@ -126,7 +123,9 @@ par(mfrow = c(2, 2))
 gam.check(fit.gam3, pch = 20, rep = 100)
 
 ```
+
 Mit tidyverse:
+
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
 library(tidyverse)
 library(mgcv)
@@ -145,7 +144,6 @@ draw(fit.gam2, residuals = TRUE, rug = TRUE, point_col = "black", point_size = 0
 appraise(fit.gam2)
 ```
 
-
 [ii. Mit gamma von 1.266 werden die Fits für Temperatur und Wind linear. Die Variable Tag dagegen erhält einen polynom. Das Bild scheint physikalisch realistischer zu sein .]{style="color:#00008B; font-weight:bold"}
 
 [iii. Im nächsten Schritt wird eine Variablenselektion durchgeführt.]{style="color:#00008B; font-weight:bold"}
@@ -158,7 +156,6 @@ fit.gam4 <- gam(log(NO2) ~ s(Temp) + s(Wind) + s(Tag),
 
 ```
 
-
 ```{r diagn1, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
 par(mfrow = c(2, 2))
 plot(fit.gam4, residuals = TRUE, shade = TRUE, pch = 20, cex = 0.5)
@@ -169,16 +166,11 @@ gam.check(fit.gam4,
           rep = 100)
 ```
 
-
-
-
-
 ```{r selection3, echo=T, message=FALSE, warning=FALSE, eval=TRUE}
 fit.gam6 <- gam(NO2 ~ s(Temp) + s(Wind) + s(Tag), data = no2basel, 
                 gamma = 1.266, 
                 select = TRUE)
 ```
-
 
 ```{r diagn3, echo=F, message=FALSE, warning=FALSE, eval=TRUE}
 par(mfrow = c(2, 2))
@@ -189,7 +181,6 @@ gam.check(fit.gam6,
           pch = 20, 
           rep = 100)
 ```
-
 
 ### Teilaufgabe c)
 
@@ -221,17 +212,19 @@ fit.gam1 <- gam(lohn ~ s(alter) + geschlecht, data = lohn)
 summary(fit.gam1)
 ```
 
-
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
 plot(fit.gam1, residuals = TRUE, shade = TRUE, pch = 20, cex = 0.5)
 ```
-
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
 # gefittete Werte für die Daten berechnen
 lohn$fit.gam1 <- predict(fit.gam1, newdata = lohn)
 lohn$fitted <- fitted(fit.gam1)
 lohn$residuals <- resid(fit.gam1)
+
+dat.pred.m <- data.frame(alter = 20:70, geschlecht = rep("m", 51))
+
+
 
 # Scatterplot mit den Daten und den gefitteten Kurven für Männer und Frauen
 library(tidyverse)
@@ -247,6 +240,7 @@ ggplot(lohn, aes(x = alter, y = lohn, color = geschlecht)) +
 
 
 ```
+
 [Tuskey-Anscombe-Plot]{style="color:#00008B; font-weight:bold"}
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
@@ -318,7 +312,6 @@ ggplot(lohn, aes(x = alter, y = lohn, color = geschlecht)) +
 
 Führen sie mit der Funktion `gam.check()` eine Residuenanalyse für das Interaktions-Modell aus b) durch. Was sind ihre Erkenntnisse daraus und wie sollte das Modell modifiziert werden? Rechnen sie dann dieses modifizierte Modell sowohl mit als auch ohne Interaktionsterm und stellen sie die Fits in den Scatterplots auf der Originalskala (d.h. Lohn vs. Alter) dar.
 
-
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
 par(mfrow = c(2, 2))
 gam.check(fit.gam2, pch = 20, rep = 100)
@@ -341,9 +334,9 @@ ggplot(lohn, aes(x = fitted2, y = scaled2, color = geschlecht)) +
   theme_minimal()
 ```
 
-[Der Scale-Location Plot zeigt, dass die Varianz der Residuen mit dem Lohn zunimmt, es ist also eine  Heteroskedaszitiät erkennbar. Massnahme: log-Transformation des Lohns.]{style="color:#00008B; font-weight:bold"}
+[Der Scale-Location Plot zeigt, dass die Varianz der Residuen mit dem Lohn zunimmt, es ist also eine Heteroskedaszitiät erkennbar. Massnahme: log-Transformation des Lohns.]{style="color:#00008B; font-weight:bold"}
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}  
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
 fit.gam4 <- gam(log(lohn) ~ s(alter, by = geschlecht) + geschlecht, data = lohn)
 fit.gam5 <- gam(log(lohn) ~ s(alter, by = geschlecht), data = lohn)
 
@@ -353,7 +346,7 @@ lohn$fitted5 <- exp(fitted(fit.gam5))
 lohn$residuals4 <- resid(fit.gam4)
 lohn$residuals5 <- resid(fit.gam5)
 
-ggplot(lohn, aes(x = alter, y = lohn, color = geschlecht)) +
+ggplot(lohn, aes(x = alter, y = lohn, color = geschlecht)) +  # wie wäre das mit duan korrektur?
   geom_point() +
   geom_line(aes(y = fitted4), size = 1) +
   labs(title = "Lohn vs Alter mit GAM mit Interaktion und log-Transformation",
@@ -395,7 +388,6 @@ ggplot(lohn, aes(x = fitted4, y = squared4, color = geschlecht)) +
   theme_minimal()
 ```
 
-
 ## Aufgabe 3 {.justify}
 
 Wir verwenden in dieser Aufgabe einen Datensatz, wo es um die Modellierung von Herzkrankheiten bzw. Bluthochdruck gibt. Sie finden den Datensatz als `heart.rda`. Er hat 462 Beobachtungen und 10 Variablen.
@@ -431,19 +423,20 @@ fit.gam1 <- gam(sbp ~ s(obesity) + s(age), data = heart)
 fit.gam2 <- gam(sbp ~ te(obesity, age), data = heart)
 
 par(mfrow = c(1, 2))
+termplot(fit.lm1, partial.resid = TRUE, se = TRUE, pch = 20, col.res = "black", smooth = panel.smooth)
+
+par(mfrow = c(1, 2))
 plot(fit.gam1, shade = T,  se = TRUE, col = "blue", residuals = T, pch = 20)
 par(mfrow = c(1, 1))
 plot(fit.gam2, shade = T,  se = TRUE, col = "blue", residuals = T, pch = 20)
 
 ```
 
-
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
 summary(fit.lm1)
 summary(fit.gam1)
 summary(fit.gam2)
 ```
-
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE}
 anova(fit.lm1, fit.gam1, fit.gam2)
@@ -495,3 +488,9 @@ summary(fit.gam5)
 par(mfrow = c(2, 2))
 gam.check(fit.gam4, pch = 20, rep = 100)
 ```
+
+[Fragen an Marcel:]{style="color:#00008B; font-weight:bold"} [warum "predic()" und nicht "fitted()" line 276]{style="color:#00008B; font-weight:bold"}
+
+Antwort: in Marcels Ansatz hat es neue Daten:"dat \<- data.frame(alter=20:70, geschlecht=rep("f",51))"{style="color:#00008B; font-weight:bold"} [Wie geht das mit ggplot2?]{style="color:#00008B; font-weight:bold"} [Es scheint, dass die ggplot kurven mit den fitted data gleich aussehen wie Marcels kurven mit predicted data. Ist es möglich da einen Unterschied zu sehen?]{style="color:#00008B; font-weight:bold"}
+
+[?gam zeigt bei formula s, te, ti, t2 was sind die 3 letzten?]{style="color:#00008B; font-weight:bold"}
