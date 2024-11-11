@@ -1,0 +1,191 @@
+---
+title: "sharing_speeroli"
+author: "Oliver Speer"
+editor: source
+lang: de
+language: 
+  title-block-author-single: "Autor:"
+  title-block-published: "Version vom:"
+date: "`r Sys.Date()`"
+format:
+  html:
+    embeded-resources: true
+    theme: cosmo
+    
+---
+
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(GGally)
+load("sharing_2024.rda")
+
+```
+
+
+# Einführung
+
+# Problemstellung und Lösungsansatz
+
+# Deskriptive Datenanalyse
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+glimpse(sharing)
+
+sharing |> 
+  select(user, temp, regen, feiertag) |>
+  summary()
+
+sharing |> 
+  select(user, temp, regen, feiertag) |>
+  ggpairs( aes(color = feiertag),
+           lower = list(continuous = "cor"),
+           upper = list(continuous = "points")#,
+#           diag = list(continuous = "barDiag")
+  )
+
+sharing |> 
+  # mutate(stunde = as.factor(stunde)) |>
+  # group_by(wochentag) |>
+  select(user, temp, regen, stunde, wochentag) |>
+  ggpairs( aes(color = wochentag),
+           #lower = list(continuous = "cor"),
+           upper = list(continuous = "points")#,
+#           diag = list(continuous = "barDiag")
+  )
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+sharing |> 
+  select(user, temp) |> 
+  ggplot(aes(x = user)) +
+  geom_histogram(fill = "lightblue", color = "black", binwidth = 1) +
+  labs(title = "Verteilung der Nutzerzahlen",
+       x = "Nutzer",
+       y = "Häufigkeit")+
+  theme_minimal()
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+p <- sharing |> 
+  group_by(wochentag) |>
+  na.omit() |>
+  ggplot(aes(x = wochentag)) +
+  geom_boxplot(aes(y = user, colour = feiertag)) +
+  labs(title = "Nutzerzahlen nach Wochentag",
+       x = "Wochentag",
+       y = "Nutzer")+
+  theme_minimal()
+p
+```
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+sharing |> 
+  mutate(stunde = as.factor(stunde)) |>
+  group_by(wochentag) |>
+  na.omit() |>
+  ggplot(aes(x = wochentag)) +
+  geom_boxplot(aes(y = user, colour = stunde)) +
+  labs(title = "Nutzerzahlen nach Wochentag",
+       x = " ",
+       y = "Nutzer")+
+  theme_minimal()
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+sharing |> 
+  mutate(stunde = as.factor(stunde)) |>
+  group_by(stunde) |>
+  na.omit() |>
+  ggplot(aes(x = stunde)) +
+  geom_boxplot(aes(y = user, colour = wochentag)) +
+  labs(title = "Nutzerzahlen nach Tageszeit",
+       x = "Uhrzeit",
+       y = "Nutzer")+
+  theme_minimal()
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# ggplot user over temp coloured by wochentag
+p <- sharing |> 
+  ggplot(aes(x = temp, y = user)) +
+  geom_point() +
+  labs(title = "Nutzerzahlen über Temperatur",
+       x = "Temperatur",
+       y = "Nutzer")+
+  theme_minimal()
+p
+
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# ggplot user over regen coloured by wochentag
+p <- sharing |> 
+  ggplot(aes(x = regen, y = user)) +
+  geom_point() +
+  labs(title = "Nutzerzahlen über Regen",
+       x = "Regen [mm/h]",
+       y = "Nutzer")+
+  theme_minimal()
+p
+
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# ggplot user over regen coloured by wochentag
+p <- sharing |> 
+  #group_by(tag) |>
+  #summarise(user = sum(user)) |>
+  ggplot(aes(x = tag, y = user)) +
+  geom_point() +
+  labs(title = "Nutzerzahlen über tag",
+       x = "tag",
+       y = "Nutzer")+
+  theme_minimal()
+p
+
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+p <- sharing |> 
+  #group_by(tag) |>
+  #summarise(regen = sum(regen)) |>
+  ggplot(aes(x = tag, y = regen)) +
+  geom_point() +
+  labs(title = "regen über tag",
+       x = "tag",
+       y = "regen")+
+  theme_minimal()
+p
+
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+p <- sharing |> 
+  ggplot(aes(x = tag, y = temp)) +
+  geom_point() +
+  labs(title = "temp über tag",
+       x = "tag",
+       y = "temp")+
+  theme_minimal()
+p
+
+
+```
+
+```{r, echo=F, message=F, warning=F}
+sharing |> 
+  ggplot(aes(x = temp, y = user)) +
+  geom_point() +
+  geom_smooth(method = "gam") +
+  labs(title = "Nutzerzahlen über temp",
+       x = "temp",
+       y = "Nutzer")+
+  theme_minimal()
+```
+# Modellierung
