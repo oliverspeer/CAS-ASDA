@@ -189,3 +189,77 @@ sharing |>
   theme_minimal()
 ```
 # Modellierung
+
+```{r, echo=F, message=F, warning=F}
+fit <- glm(user ~ temp + regen + feiertag + wochentag + stunde, data = sharing, family = poisson)
+summary(fit)
+
+par(mfrow=c(2,2))
+plot(fit)
+
+drop1(fit, test = "F")
+
+```
+
+```{r, echo=F, message=F, warning=F}
+fit <- glm(user ~ temp + regen + feiertag + wochentag + stunde, data = sharing, family = quasipoisson)
+summary(fit)
+
+par(mfrow=c(2,2))
+plot(fit)
+
+drop1(fit, test = "F")
+
+```
+
+
+```{r, echo=F, message=F, warning=F}
+fit <- 
+  sharing %>% 
+  na.omit() %>% 
+  glm(user ~ temp + log(regen + 1) + feiertag + wochentag + stunde, data = ., family = poisson)
+
+summary(fit)
+
+par(mfrow=c(2,2))
+plot(fit)
+
+drop1(fit, test = "F")
+
+```
+
+```{r, echo=F, message=F, warning=F}
+library(MASS)
+fit <- 
+  sharing %>% 
+  na.omit() %>% 
+  glm.nb(user ~ temp + regen + feiertag + wochentag + stunde, data = .)
+
+summary(fit)
+
+par(mfrow=c(2,2))
+plot(fit)
+
+drop1(fit, test = "F")
+
+```
+
+
+```{r, echo=F, message=F, warning=F}
+library(MASS)
+sharing.f <- 
+  sharing |>  
+  na.omit()  |> 
+  filter(row_number() != c(1512, 1320)) #|>
+  # mutate(stunde = as.factor(stunde))
+ 
+fit <- glm.nb(user ~ temp + regen + feiertag + wochentag + stunde, data = sharing.f)
+
+summary(fit)
+
+par(mfrow=c(2,2))
+plot(fit)
+
+drop1(fit, test = "Chisq")
+
+```
