@@ -240,8 +240,71 @@ summary(fit)
 par(mfrow=c(2,2))
 plot(fit)
 
+drop1(fit, test = "Chisq")
+
+```
+
+
+```{r, echo=F, message=F, warning=F}
+library(MASS)
+fit.i <- 
+  sharing %>% 
+  na.omit() %>% 
+  glm.nb(user ~ temp + regen + feiertag + wochentag * stunde, data = .)
+
+summary(fit.i)
+
+par(mfrow=c(2,2))
+plot(fit.i)
+
+drop1(fit.i, test = "Chisq")
+```
+
+
+```{r, echo=F, message=F, warning=F}
+anova(fit, fit.i, test = "LRT")
+```
+
+
+
+```{r, echo=F, message=F, warning=F}
+library(MASS)
+fit <- 
+  sharing %>% 
+  na.omit() %>% 
+  glm.nb(user ~ temp * stunde + regen + feiertag + wochentag + stunde, data = .)
+
+summary(fit)
+
+par(mfrow=c(2,2))
+plot(fit)
+
 drop1(fit, test = "F")
 
+```
+```{r, echo=F, message=F, warning=F}
+library(MASS)
+fit.ii <- 
+  sharing %>% 
+  na.omit() %>% 
+  glm.nb(user ~ temp * stunde + regen + feiertag + wochentag * stunde, data = .)
+
+summary(fit)
+
+par(mfrow=c(2,2))
+plot(fit)
+
+drop1(fit, test = "F")
+```
+
+
+```{r, echo=F, message=F, warning=F}
+anova(fit, fit.i, fit.ii, fit.f, test = "LRT")
+```
+
+
+```{r, echo=F, message=F, warning=F}
+anova(fit.f, fit.ii, fit.i, fit, test = "LRT")
 ```
 
 
@@ -250,16 +313,68 @@ library(MASS)
 sharing.f <- 
   sharing |>  
   na.omit()  |> 
-  filter(row_number() != c(1512, 1320)) #|>
+  filter(row_number() != c(1512)) |>
+  filter(row_number() != c(1320))
   # mutate(stunde = as.factor(stunde))
  
-fit <- glm.nb(user ~ temp + regen + feiertag + wochentag + stunde, data = sharing.f)
+fit.f <- glm.nb(user ~ temp * stunde + regen + feiertag + wochentag * stunde, data = sharing.f)
 
-summary(fit)
+summary(fit.f)
 
 par(mfrow=c(2,2))
-plot(fit)
+plot(fit.f)
 
-drop1(fit, test = "Chisq")
+drop1(fit.f, test = "Chisq")
 
 ```
+
+```{r, echo=F, message=F, warning=F}
+library(MASS)
+fit.ff <- glm.nb(user ~ (temp + regen + feiertag + wochentag + stunde)^2, data = sharing.f)
+
+summary(fit.ff)
+
+par(mfrow=c(2,2))
+plot(fit.ff)
+
+drop1(fit.ff, test = "Chisq")
+
+```
+
+```{r, echo=F, message=F, warning=F}
+library(MASS)
+fit.fff <- glm.nb(user ~ temp * regen + feiertag * stunde + wochentag * stunde, data = sharing.f)
+
+summary(fit.fff)
+
+par(mfrow=c(2,2))
+plot(fit.fff)
+
+drop1(fit.fff, test = "Chisq")
+
+```
+
+```{r, echo=F, message=F, warning=F}
+library(MASS)
+sharing.ff <- 
+  sharing |>  
+  na.omit()  |> 
+  filter(row_number() != c(1512)) |>
+  filter(row_number() != c(1320)) |> 
+  mutate(sin_stunde = sin(2 * pi * stunde / 24),
+         cos_stunde = cos(2 * pi * stunde / 24),
+         sin_wochentag = sin(2 * pi * wochentag / 7),
+         cos_wochentag = cos(2 * pi * wochentag / 7))
+  
+ 
+fit.ffff <- glm.nb(user ~ temp * regen + feiertag * (sin_stunde + cos_stunde) + wochentag * (sin_stunde + cos_stunde), data = sharing.ff)
+
+summary(fit.ffff)
+
+par(mfrow=c(2,2))
+plot(fit.ffff)
+
+drop1(fit.ffff, test = "Chisq")
+
+```
+
