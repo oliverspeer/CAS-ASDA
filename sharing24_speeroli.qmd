@@ -202,6 +202,17 @@ drop1(fit, test = "F")
 ```
 
 ```{r, echo=F, message=F, warning=F}
+fit1 <- glm(user ~ temp + regen + feiertag + wochentag + stunde + tag, data = sharing, family = poisson)
+summary(fit1)
+
+par(mfrow=c(2,2))
+plot(fit1)
+
+drop1(fit1, test = "F")
+
+```
+
+```{r, echo=F, message=F, warning=F}
 fit <- glm(user ~ temp + regen + feiertag + wochentag + stunde, data = sharing, family = quasipoisson)
 summary(fit)
 
@@ -217,7 +228,7 @@ drop1(fit, test = "F")
 fit <- 
   sharing %>% 
   na.omit() %>% 
-  glm(user ~ temp + log(regen + 1) + feiertag + wochentag + stunde, data = ., family = poisson)
+  glm(user ~ temp:stunde + log(regen + 1) + feiertag:stunde + wochentag:stunde, data = ., family = poisson)
 
 summary(fit)
 
@@ -364,17 +375,88 @@ sharing.ff <-
   mutate(sin_stunde = sin(2 * pi * stunde / 24),
          cos_stunde = cos(2 * pi * stunde / 24),
          sin_wochentag = sin(2 * pi * wochentag / 7),
-         cos_wochentag = cos(2 * pi * wochentag / 7))
+         cos_wochentag = cos(2 * pi * wochentag / 7),
+         regen_binary = ifelse(regen > 0, 1, 0))
   
  
-fit.ffff <- glm.nb(user ~ temp * regen + feiertag * (sin_stunde + cos_stunde) + wochentag * (sin_stunde + cos_stunde), data = sharing.ff)
+fit.fffft <- glm(user ~ temp * cos_stunde + feiertag * cos_stunde + wochentag * (sin_stunde + cos_stunde) + regen + cos(2*pi*tag/163), data = sharing.ff)
 
-summary(fit.ffff)
+s <- summary(fit.fffft)
+s
+1-s$deviance/s$null.deviance
 
 par(mfrow=c(2,2))
-plot(fit.ffff)
+plot(fit.fffft)
 
-drop1(fit.ffff, test = "Chisq")
+drop1(fit.fffft, test = "Chisq")
+
+
+fit.fffftr <- glm(user ~ temp * cos_stunde + feiertag * cos_stunde + wochentag * (sin_stunde + cos_stunde) + regen_binary + cos(2*pi*tag/163), data = sharing.ff)
+
+s <- summary(fit.fffftr)
+s
+1-s$deviance/s$null.deviance
+
+par(mfrow=c(2,2))
+plot(fit.fffftr)
+
+drop1(fit.fffftr, test = "Chisq")
+
+fit.fffftr <- glm(user ~ temp * (cos_stunde + sin_stunde) + feiertag * (cos_stunde + sin_stunde) + wochentag * (sin_stunde + cos_stunde) + regen_binary + cos(2*pi*tag/365), data = sharing.ff, family = poisson)
+
+s <- summary(fit.fffftr)
+s
+1-s$deviance/s$null.deviance
+
+par(mfrow=c(2,2))
+plot(fit.fffftr)
+
+drop1(fit.fffftr, test = "Chisq")
+
+fit.fffftrd <- glm(user ~ temp * (cos_stunde + sin_stunde) + feiertag * (cos_stunde + sin_stunde) + wochentag * (sin_stunde + cos_stunde) + regen_binary + cos(2*pi*tag/163), data = sharing.ff, family = poisson)
+
+s <- summary(fit.fffftrd)
+s
+1-s$deviance/s$null.deviance
+
+par(mfrow=c(2,2))
+plot(fit.fffftrd)
+
+drop1(fit.fffftrd, test = "Chisq")
+
+fit.ffffnb <- glm.nb(user ~ temp * (cos_stunde + sin_stunde) + feiertag * (cos_stunde + sin_stunde) + wochentag * (sin_stunde + cos_stunde) + regen_binary + cos(2*pi*tag/180), data = sharing.ff)
+
+s <- summary(fit.ffffnb)
+s
+1-s$deviance/s$null.deviance
+
+par(mfrow=c(2,2))
+plot(fit.ffffnb)
+
+drop1(fit.ffffnb, test = "Chisq")
+```
+```{r}
+# Vorhersagen berechnen
+sharing.ff$predicted_user <- predict(fit.fffftrd, type = "response")
+
+# Streudiagramm: Beobachtete vs. Vorhergesagte Werte
+ggplot(sharing.ff, aes(x = predicted_user, y = user)) +
+  geom_point(alpha = 0.3) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
+  labs(x = "Vorhergesagte Werte", y = "Beobachtete Werte", title = "Vorhergesagte vs. Beobachtete Werte")
+
+```
+
+
+```{r}
+# Residuen berechnen
+sharing.ff$residuals <- residuals(fit.fffft, type = "pearson")
+
+# Residuenplot gegen die Vorhersagen
+ggplot(sharing.ff, aes(x = predicted_user, y = residuals)) +
+  geom_point(alpha = 0.3) +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(x = "Vorhergesagte Werte", y = "Residuen", title = "Residuen vs. Vorhergesagte Werte")
 
 ```
 
