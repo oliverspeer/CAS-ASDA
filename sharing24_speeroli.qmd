@@ -237,10 +237,7 @@ sharing |>
 -   Nicht-lineare Beziehungen: `stunde`, `tag` als Sinus- und Cosinusfunktion modellieren
 -   Prädiktor `regen` als kategorische Variable modellieren
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
 
-
-```
 
 # Modellierung {.justify}
 
@@ -301,10 +298,10 @@ fit.pois <- glm(user ~ temp * (sin(2 * pi * stunde / 24) + cos(2 * pi * stunde /
 
 s1 <- summary(fit.pois)
 #fit.1$formula
-fit.pois$family
+s1
 
 ```
-
+                   *   *   *   *   *   *   *
 ```{r, echo=F, message=F, warning=F}
 drop1(fit.pois, test = "Chisq")
 ```
@@ -331,7 +328,11 @@ fit.nb <- glm.nb(user ~ temp * (sin(2 * pi * stunde / 24) + cos(2 * pi * stunde 
 s.nb <- summary(fit.nb)
 #s.nb
 #1-s.nb$deviance/s.nb$null.deviance
-fit.nb$family
+s.nb
+```
+
+                   *   *   *   *   *   *   *
+```{r, echo=F, message=F, warning=F}
 drop1(fit.nb, test = "Chisq")
 par(mfrow=c(2,2))
 plot(fit.nb)
@@ -348,7 +349,7 @@ Und der AIC-Vergleich zeigt:
 df <- AIC(fit, fit.rb, fit.pois, fit.nb)
 df
 ```
-
+## Punktvorhersagen berechnen
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Vorhersagen berechnen
 
@@ -362,10 +363,113 @@ sharing.p <- sharing |>
 na.index <- which(is.na(sharing.p$user))
 sharing.p$user.pred <- NA
 sharing.p$user.pred[na.index] <- predict(fit.nb, newdata = sharing.p[na.index,], type = "response")
+```
+
+```{r}
+# vorhersage und 95% Konfidenzintervall
+sharing_na.p <- sharing_na |>
+  mutate(regen.bin = as.factor(ifelse(regen == 0, 0, 1)))
+
+sharing.p <- sharing |> 
+  mutate(regen.bin = as.factor(ifelse(regen == 0, 0, 1)))
+
+na.index <- which(is.na(sharing.p$user))
+  
+p <- predict(fit.nb, newdata = sharing_na.p, type = "link", se.fit = TRUE)
+#mu <- exp(rnorm(n = length(p$fit), mean = p$fit, sd = p$se.fit))
+#beob <- rnegbin(n = length(p$fit), mu = mu, theta = summary(fit.nb$theta))
+
+# Anzahl der Simulationen pro Vorhersage
+nsim <- 10000
+
+# Matrix zur Speicherung der simulierten mu-Werte
+mu <- matrix(nrow = length(p$fit), ncol = nsim)
+
+# Simulation der mu-Werte
+for (i in 1:length(p$fit)) {
+  mu[i, ] <- exp(rnorm(n = nsim, mean = p$fit[i], sd = p$se.fit[i]))
+}
+
+# Dispersionsparameter theta aus dem Modell
+theta <- fit.nb$theta
+
+# Matrix zur Speicherung der simulierten Beobachtungen
+beob <- matrix(nrow = length(p$fit), ncol = nsim)
+
+# Simulation der Beobachtungen
+for (i in 1:length(p$fit)) {
+  beob[i, ] <- rnegbin(n = nsim, mu = mu[i, ], theta = theta)
+}
+
+# Dataframe zur Speicherung der Ergebnisse
+sharing_na.p <- sharing_na.p |> 
+  mutate(
+    user = exp(p$fit),
+    unterer_PI = apply(beob, 1, quantile, probs = 0.025, type = 1),
+    oberer_PI = apply(beob, 1, quantile, probs = 0.975, type = 1)
+)
+sharing.p$unterer_PI <- NA
+sharing.p$oberer_PI <- NA
+sharing.p <- sharing.p |> 
+  mutate(na.user = ifelse(is.na(user), "prog", "beob"))
+
+sharing.p[na.index,] <- sharing.p[na.index,] |> 
+  mutate(
+    user = round(exp(p$fit), 0),
+    unterer_PI = apply(beob, 1, quantile, probs = 0.025, type = 1),
+    oberer_PI = apply(beob, 1, quantile, probs = 0.975, type = 1)
+)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+sharing.p |> 
+  mutate(ID = row_number()) |>
+  ggplot(aes(x = ID, y = user, color = na.user, group = 1)) +
+  geom_line() +
+  scale_color_manual(values = c("beob" = "grey", "prog" = "navy")) +
+  labs(title = "User Values with Imputed Data Highlighted",
+       x = "Zeit [h]",
+       y = "Nutzerzahlen",
+       color = "Data Type") +
+  theme_minimal()
+  
+
+sharing.p.p <- sharing.p  |> 
+  mutate(
+    ID = row_number(),
+    unterer_PI = if_else(is.na(unterer_PI), user, unterer_PI),
+    oberer_PI = if_else(is.na(oberer_PI), user, oberer_PI)
+  )
+
+
+ggplot(data = sharing.p.p, aes(x = ID)) +
+  # geom_ribbon(aes(ymin = unterer_PI, ymax = oberer_PI#, fill = na.user
+  #                 ),  alpha = 0.5, fill = "red") +
+  geom_line(aes(y = user, color = na.user, group = 1, linetype = "user")) +
+  geom_line(aes(y = unterer_PI, 
+                #color = na.user, group = 1, 
+                linetype = "PI"), color = "grey", alpha=0.5) +
+  geom_line(aes(y = oberer_PI, 
+                #color = na.user, group = 1, 
+                linetype = "PI"), color = "grey", alpha=0.5) +
+  scale_color_manual(values = c("beob" = "darkgrey", "prog" = "blue")) +
+  scale_linetype_manual(
+    values = c("user" = "solid", "PI" = "dashed"),
+    name = "Linientyp",
+    labels = c("user" = "Nutzerzahlen", "PI" = "Prognoseintervall")
+  ) +
+  labs(title = "Nutzerzahl-Prognosen mit 95% Prognoseintervall, ",
+       x = "Zeit [h]",
+       y = "Nutzerzahlen",
+       fill = "na.user",
+       color = NULL) +
+  theme_minimal()
 
 
 
+```
 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 sharing.p |> 
   mutate(ID = row_number()) |>
   pivot_longer(cols = c(user, user.pred), names_to = "Type", values_to = "Count") |> 
@@ -406,72 +510,14 @@ sharing.p |>
 
 ```
 
-```{r}
-# vorhersage und 95% Konfidenzintervall
-sharing_na.p <- sharing_na |>
-  mutate(regen.bin = as.factor(ifelse(regen == 0, 0, 1)))
-  
-p <- predict(fit.nb, newdata = sharing_na.p, type = "link", se.fit = TRUE)
-#mu <- exp(rnorm(n = length(p$fit), mean = p$fit, sd = p$se.fit))
-#beob <- rnegbin(n = length(p$fit), mu = mu, theta = summary(fit.nb$theta))
 
-# Anzahl der Simulationen pro Vorhersage
-nsim <- 10000
 
-# Matrix zur Speicherung der simulierten mu-Werte
-mu <- matrix(nrow = length(p$fit), ncol = nsim)
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+s <- sharing.p[,-c(8,11)] 
+save(s, file = "sharing_speeroli.rda")
 
-# Simulation der mu-Werte
-for (i in 1:length(p$fit)) {
-  mu[i, ] <- exp(rnorm(n = nsim, mean = p$fit[i], sd = p$se.fit[i]))
-}
 
-# Dispersionsparameter theta aus dem Modell
-theta <- fit.nb$theta
-
-# Matrix zur Speicherung der simulierten Beobachtungen
-beob <- matrix(nrow = length(p$fit), ncol = nsim)
-
-# Simulation der Beobachtungen
-for (i in 1:length(p$fit)) {
-  beob[i, ] <- rnegbin(n = nsim, mu = mu[i, ], theta = theta)
-}
-
-# Dataframe zur Speicherung der Ergebnisse
-sharing_na.p <- sharing_na.p |> 
-  mutate(
-    user = exp(p$fit),
-    lower_PI = apply(beob, 1, quantile, probs = 0.025, type = 1),
-    upper_PI = apply(beob, 1, quantile, probs = 0.975, type = 1)
-)
 
 
 ```
-
-```{r}
-# # Vorhersagen berechnen
-# sharing.p <- sharing
-# sharing.t$predicted_user_nb <- predict(fit.nb, newdata = sharing.t, type = "response")
-# 
-# 
-# # Streudiagramm: Beobachtete vs. Vorhergesagte Werte
-# ggplot(sharing.t, aes(x = predicted_user_nb, y = user)) +
-#   geom_point(alpha = 0.3) +
-#   geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
-#   labs(x = "Vorhergesagte Werte nb", y = "Beobachtete Werte", title = "Vorhergesagte vs. Beobachtete Werte nb")
-
-```
-
-```{r}
-# # Residuen berechnen
-# sharing.t$residuals.nb <- residuals(fit.nb, type = "pearson")
-# 
-# # Residuenplot gegen die Vorhersagen
-# ggplot(sharing.t, aes(x = predicted_user_nb, y = residuals.nb)) +
-#   geom_point(alpha = 0.3) +
-#   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-#   labs(x = "Vorhergesagte Werte", y = "Residuen", title = "Residuen vs. Vorhergesagte Werte")
-
-```
-
 
