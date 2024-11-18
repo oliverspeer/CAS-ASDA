@@ -11,7 +11,6 @@ format:
   html:
     embeded-resources: true
     theme: cosmo
-    
 ---
 
 ```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
@@ -19,44 +18,52 @@ library(tidyverse)
 library(GGally)
 load("sharing_2024.rda")
 
+# sort rows with NA into a new dataframe
+sharing_na <- sharing[!complete.cases(sharing),]
+sharing.t <- sharing[complete.cases(sharing),]
+
 ```
 
+# Einführung {.justify}
 
-# Einführung
+# Problemstellung und Lösungsansatz {.justify}
 
-# Problemstellung und Lösungsansatz
+# Explorative Datenanalyse {.justify}
 
-# Deskriptive Datenanalyse
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 glimpse(sharing)
+```
 
-sharing |> 
-  select(user, temp, regen, feiertag) |>
-  summary()
+Folgenden Spalten enthalten fehlende Werte:
 
-sharing |> 
-  select(user, temp, regen, feiertag) |>
-  ggpairs( aes(color = feiertag),
-           lower = list(continuous = "cor"),
-           upper = list(continuous = "points")#,
-#           diag = list(continuous = "barDiag")
-  )
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+df <- sharing |> summarise(across(everything(), ~sum(is.na(.))))
+df
+```
 
+Ausser den 456 fehlenden Nutzerzahlen, die nach der Modellierung vorhergesagt werden, sind keine weiteren fehlenden Werte vorhanden
+
+In der Variable `user` sind `r sum(sharing$user == 0, na.rm = TRUE)` Nullen und `r sum(sharing$user == !floor(sharing$user), na.rm = TRUE)` Kommazahlen enthalten. D.h. die Zielgrösse `user` ist eine Zähldatenvariable und könnte als Poisson- oder Negativ-Binomial-Verteilung modelliert werden. Da der Anteil der Nullen sehr gering ist, ist ein zero-inflated Modell nicht notwendig.
+
+## Graphische Darstellungen
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 sharing |> 
   # mutate(stunde = as.factor(stunde)) |>
   # group_by(wochentag) |>
-  select(user, temp, regen, stunde, wochentag) |>
+  dplyr::select(user, temp, regen, stunde, tag, wochentag, feiertag) |>
   ggpairs( aes(color = wochentag),
-           #lower = list(continuous = "cor"),
+           lower = list(continuous = "autopoint"),
            upper = list(continuous = "points")#,
 #           diag = list(continuous = "barDiag")
   )
 ```
 
+Es werden im folgenden einzelne Variablen und deren Zusammenhänge individuell betrachtet.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 sharing |> 
-  select(user, temp) |> 
+  dplyr::select(user, temp) |> 
   ggplot(aes(x = user)) +
   geom_histogram(fill = "lightblue", color = "black", binwidth = 1) +
   labs(title = "Verteilung der Nutzerzahlen",
@@ -65,9 +72,12 @@ sharing |>
   theme_minimal()
 ```
 
+Die Verteilung der Nutzerzahlen ist deutlich rechtsschief. Der Erwarungswert $\lambda$ beträgt rund `r round(mean(sharing$user, na.rm = TRUE),0)` und die Varianz beträgt rund `r format(var(sharing$user, na.rm = TRUE), big.mark = "'", scientific = FALSE, digits = 1)`. Zusammen mit der Rechtsschiefe und der Überdispersion ist es sinnvoll Poisson- und Negativ-Binomial-Modelle miteinander zu vergleichen.
+
+### Nutzerzahlen nach Wochentag, Feiertag und Tageszeit
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-p <- sharing |> 
+sharing |> 
   group_by(wochentag) |>
   na.omit() |>
   ggplot(aes(x = wochentag)) +
@@ -76,8 +86,11 @@ p <- sharing |>
        x = "Wochentag",
        y = "Nutzer")+
   theme_minimal()
-p
+
 ```
+
+Die Nutzerzahlen an Feiertagen unterscheiden sich zum Teil von den Nutzerzahlen an Werktagen. Beide Prädiktoren sollten also bei den Modellen berücksichtigt werden.
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 sharing |> 
   mutate(stunde = as.factor(stunde)) |>
@@ -106,357 +119,359 @@ sharing |>
 
 ```
 
+Wie zu erwarten variieren die Nutzerzahlen in Abhängigkeit von der Tageszeit, als auch in Abhängigkeit vom Wochentag. Beide Prädiktoren sollten also bei den Modellen als Interaktion berücksichtigt werden. Beide Prädiktoren scheinen eine nicht-lineare Beziehung zu den Nutzerzahlen zu haben. Die Schwingung bestätigt sich auch, wenn die Nutzerzahlen über die Zeit aufgetragen werden.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+sharing |> 
+  mutate(ID = row_number()) |>
+  ggplot(aes(x = ID, y = user)) +
+  #geom_point() +
+  geom_line() +
+  #geom_line(aes(y = predicted_user), color = "blue") +
+  labs(title = "Nutzerzahlen über die Zeit",
+       x = "Zeit [h]",
+       y = "Anzahl Nutzer")+
+  theme_minimal()
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE} 
+ts <- ts(sharing.t$user, frequency = 24)
+stl_user <- stl(ts, s.window = "periodic")
+plot(stl_user)
+decomp <- decompose(ts)
+u.trend <- decomp$trend
+u.sais <- decomp$seasonal
+```
+
+### Zusammenhang zwischen Nutzerzahlen, Temperatur und Regen
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # ggplot user over temp coloured by wochentag
-p <- sharing |> 
+sharing |> 
   ggplot(aes(x = temp, y = user)) +
   geom_point() +
+  geom_smooth(method = "gam") +
   labs(title = "Nutzerzahlen über Temperatur",
-       x = "Temperatur",
-       y = "Nutzer")+
+       x = "Temperatur [°C]",
+       y = "Anzahl Nutzer")+
   theme_minimal()
-p
 
 
 ```
 
+Es zeigt isch ein gewisser gewisser Trend, dass die Nutzerzahlen mit steigender Temperatur zunehmen.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+sharing |> 
+  mutate(ID = row_number()) |>
+  ggplot(aes(x = ID, y = temp)) +
+  geom_line() +
+  labs(title = "Temperatur über die Zeit",
+       x = "Zeit [h]",
+       y = "Temperatur [°C]")+
+  theme_minimal()
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+sharing |> 
+  mutate(ID = row_number()) |>
+  ggplot(aes(x = stunde, y = temp)) +
+  geom_point() +
+  labs(title = "Temperatur über die Tageszeit",
+       x = "Tageszeit [h]",
+       y = "Temperatur [°C]")+
+  theme_minimal()
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+temp.ts <- ts(sharing.t$temp, frequency = 24)
+# acf(temp.ts, lag.max = 24*7, main = "Autokorrelation der Temperatur")
+stl_temp <- stl(temp.ts, s.window = "periodic")
+plot(stl_temp)
+#decomp <- decompose(temp.ts)
+#plot(decomp)
+#t.trend <- decomp$trend
+```
+
+Die Temperatur ist wie zu erwarten deutlich abhängig von der Tageszeit (saisonaler Anteil). Die Temperatur zeigt zusätzlich einen Trend-Anteil = Wetter.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+sharing |> 
+  mutate(ID = row_number()) |>
+  ggplot(aes(x = ID, y = regen)) +
+  geom_line() +
+  geom_point()+
+  labs(title = "Regenmenge über die Zeit",
+       x = "Zeit [h]",
+       y = "Regen [mm]")+
+  theme_minimal()
+
+
+```
+
+Bei der Mehrheit der Zeitpunkte, `r sum(sharing$regen == 0)` wird kein Niederschlag nachgewiessen. An `r sum(sharing$regen > 0 & sharing$regen < 5, na.rm = TRUE)` Zeitpunkten ist die Regenmenge kleiner als 5mm/h und an `r sum(sharing$regen > 5, na.rm = TRUE)` Zeitpunkten ist die Regenmenge grösser als 5mm/h. 
+
+Es ist fraglich ob die Regenmenge als kontinuierliche Variable oder besser als kategorische Variable modelliert werden soll. Eine Möglichkeit wäre die Regenmenge in 2 Kategorien zu unterteilen:\
+kein Regen = 0 und Regen = 1.
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # ggplot user over regen coloured by wochentag
-p <- sharing |> 
+sharing |> 
   ggplot(aes(x = regen, y = user)) +
   geom_point() +
   labs(title = "Nutzerzahlen über Regen",
        x = "Regen [mm/h]",
        y = "Nutzer")+
   theme_minimal()
-p
 
 
+
+```
+
+
+### Zusammenfassung der deskriptiven Datenanalyse
+
+-   Zielgrösse `user` in Poisson- oder Negativ-Binomial-Verteilung
+-   Prädiktoren: `temp`, `regen`, `feiertag`, `wochentag`, `stunde`, `tag`
+-   Interaktionen: `temp:stunde`, `temp:tag`, `feiertag:stunde`, `wochentag:stunde`
+-   Nicht-lineare Beziehungen: `stunde`, `tag` als Sinus- und Cosinusfunktion modellieren
+-   Prädiktor `regen` als kategorische Variable modellieren
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+
+```
+
+# Modellierung {.justify}
+
+### Einfaches Poisson-Modell ohne Interaktionen & Schwingungen
+
+```{r, echo=F, message=F, warning=F}
+sharing.t <-sharing.t |> 
+  mutate(regen.bin = as.factor(ifelse(regen == 0, 0, 1)))
+fit <- glm(user ~ temp + regen + feiertag + wochentag + stunde + tag, data = sharing.t, family = poisson)
+fit.rb <- glm(user ~ temp + regen.bin + feiertag + wochentag + stunde + tag, data = sharing.t, family = poisson)
+```
+
+```{r, echo=F, message=F, warning=F}
+summary(fit)
+```
+
+```{r, echo=F, message=F, warning=F}
+drop1(fit, test = "F")
+```
+
+```{r, echo=F, message=F, warning=F}
+par(mfrow=c(2,2))
+plot(fit)
+
+```
+
+### Model mit Regen als kategorische Variable
+
+```{r, echo=F, message=F, warning=F}
+summary(fit.rb)
+```
+
+```{r, echo=F, message=F, warning=F}
+drop1(fit.rb, test = "F")
+```
+
+```{r, echo=F, message=F, warning=F}
+par(mfrow=c(2,2))
+plot(fit.rb)
+
+```
+
+Durch die Modellierung von `regen` als binäre kategorische Variable konnte die Devianz etwas reduziert werden. Vor allem ist die Verbesserung im Leverage Plot sichtbar. Der Hebel des Datenpunkts #1512 (mit fast 25mm/h) wurde durch die Modellierung von `regen` als binäre Variable reduziert.
+
+### Modell mit Interaktionen und Schwingungen
+
+```{r, echo=F, message=F, warning=F}
+
+
+fit.pois <- glm(user ~ temp * (sin(2 * pi * stunde / 24) + cos(2 * pi * stunde / 24)) + 
+               feiertag * cos(2 * pi * stunde / 24) + 
+               wochentag * cos(2 * pi * stunde / 24) + 
+               regen.bin + 
+               tag*cos(2*pi*tag/3912),
+               data = sharing.t, 
+             family = poisson)
+
+
+s1 <- summary(fit.pois)
+#fit.1$formula
+fit.pois$family
+
+```
+
+```{r, echo=F, message=F, warning=F}
+drop1(fit.pois, test = "Chisq")
+```
+
+```{r, echo=F, message=F, warning=F}
+par(mfrow=c(2,2))
+plot(fit.pois)
+
+
+```
+
+Das Model `fit.1` erklärt `r round(1-s1$deviance/s1$null.deviance, 2)*100`% der Varianz der Nutzerzahlen. Die Devianz konnte im Vergleich zum einfachen Modell deutlich reduziert werden. Die als Schwingungen modellierten Interaktionen zwischen Temperatur und Tageszeiten, als auch zwischen Wochen- & Feiertage und Stunden haben einen signifikanten Einfluss auf die Nutzerzahlen.
+
+```{r, echo=F, message=F, warning=F}
+#negbin
+library(MASS)
+fit.nb <- glm.nb(user ~ temp * (sin(2 * pi * stunde / 24) + cos(2 * pi * stunde / 24)) + 
+               feiertag * cos(2 * pi * stunde / 24) + 
+               wochentag * cos(2 * pi * stunde / 24) + 
+               regen.bin + 
+               tag*cos(2*pi*tag/3912), data = sharing.t)
+
+
+s.nb <- summary(fit.nb)
+#s.nb
+#1-s.nb$deviance/s.nb$null.deviance
+fit.nb$family
+drop1(fit.nb, test = "Chisq")
+par(mfrow=c(2,2))
+plot(fit.nb)
+
+
+
+```
+
+Das Modell `fit.nb` erklärt `r round(1-s.nb$deviance/s.nb$null.deviance,1)*100`% der Varianz der Nutzerzahlen. Die Devianz konnte im Vergleich zum Poisson Modell deutlich reduziert werden. 
+Der Scale-Location-Plot und der Residuenplot zeigen beide eine Stabilisierung gegenüber dem Poisson-Modell.
+Und der AIC-Vergleich zeigt:
+.
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+df <- AIC(fit, fit.rb, fit.pois, fit.nb)
+df
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-# ggplot user over regen coloured by wochentag
-p <- sharing |> 
-  #group_by(tag) |>
-  #summarise(user = sum(user)) |>
-  ggplot(aes(x = tag, y = user)) +
-  geom_point() +
-  labs(title = "Nutzerzahlen über tag",
-       x = "tag",
-       y = "Nutzer")+
-  theme_minimal()
-p
-
-
-```
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-p <- sharing |> 
-  #group_by(tag) |>
-  #summarise(regen = sum(regen)) |>
-  ggplot(aes(x = tag, y = regen)) +
-  geom_point() +
-  labs(title = "regen über tag",
-       x = "tag",
-       y = "regen")+
-  theme_minimal()
-p
-
-
-```
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-p <- sharing |> 
-  ggplot(aes(x = tag, y = temp)) +
-  geom_point() +
-  labs(title = "temp über tag",
-       x = "tag",
-       y = "temp")+
-  theme_minimal()
-p
-
-
-```
-
-```{r, echo=F, message=F, warning=F}
-sharing |> 
-  ggplot(aes(x = temp, y = user)) +
-  geom_point() +
-  geom_smooth(method = "gam") +
-  labs(title = "Nutzerzahlen über temp",
-       x = "temp",
-       y = "Nutzer")+
-  theme_minimal()
-```
-# Modellierung
-
-```{r, echo=F, message=F, warning=F}
-fit <- glm(user ~ temp + regen + feiertag + wochentag + stunde, data = sharing, family = poisson)
-summary(fit)
-
-par(mfrow=c(2,2))
-plot(fit)
-
-drop1(fit, test = "F")
-
-```
-
-```{r, echo=F, message=F, warning=F}
-fit1 <- glm(user ~ temp + regen + feiertag + wochentag + stunde + tag, data = sharing, family = poisson)
-summary(fit1)
-
-par(mfrow=c(2,2))
-plot(fit1)
-
-drop1(fit1, test = "F")
-
-```
-
-```{r, echo=F, message=F, warning=F}
-fit <- glm(user ~ temp + regen + feiertag + wochentag + stunde, data = sharing, family = quasipoisson)
-summary(fit)
-
-par(mfrow=c(2,2))
-plot(fit)
-
-drop1(fit, test = "F")
-
-```
-
-
-```{r, echo=F, message=F, warning=F}
-fit <- 
-  sharing %>% 
-  na.omit() %>% 
-  glm(user ~ temp:stunde + log(regen + 1) + feiertag:stunde + wochentag:stunde, data = ., family = poisson)
-
-summary(fit)
-
-par(mfrow=c(2,2))
-plot(fit)
-
-drop1(fit, test = "F")
-
-```
-
-```{r, echo=F, message=F, warning=F}
-library(MASS)
-fit <- 
-  sharing %>% 
-  na.omit() %>% 
-  glm.nb(user ~ temp + regen + feiertag + wochentag + stunde, data = .)
-
-summary(fit)
-
-par(mfrow=c(2,2))
-plot(fit)
-
-drop1(fit, test = "Chisq")
-
-```
-
-
-```{r, echo=F, message=F, warning=F}
-library(MASS)
-fit.i <- 
-  sharing %>% 
-  na.omit() %>% 
-  glm.nb(user ~ temp + regen + feiertag + wochentag * stunde, data = .)
-
-summary(fit.i)
-
-par(mfrow=c(2,2))
-plot(fit.i)
-
-drop1(fit.i, test = "Chisq")
-```
-
-
-```{r, echo=F, message=F, warning=F}
-anova(fit, fit.i, test = "LRT")
-```
-
-
-
-```{r, echo=F, message=F, warning=F}
-library(MASS)
-fit <- 
-  sharing %>% 
-  na.omit() %>% 
-  glm.nb(user ~ temp * stunde + regen + feiertag + wochentag + stunde, data = .)
-
-summary(fit)
-
-par(mfrow=c(2,2))
-plot(fit)
-
-drop1(fit, test = "F")
-
-```
-```{r, echo=F, message=F, warning=F}
-library(MASS)
-fit.ii <- 
-  sharing %>% 
-  na.omit() %>% 
-  glm.nb(user ~ temp * stunde + regen + feiertag + wochentag * stunde, data = .)
-
-summary(fit)
-
-par(mfrow=c(2,2))
-plot(fit)
-
-drop1(fit, test = "F")
-```
-
-
-```{r, echo=F, message=F, warning=F}
-anova(fit, fit.i, fit.ii, fit.f, test = "LRT")
-```
-
-
-```{r, echo=F, message=F, warning=F}
-anova(fit.f, fit.ii, fit.i, fit, test = "LRT")
-```
-
-
-```{r, echo=F, message=F, warning=F}
-library(MASS)
-sharing.f <- 
-  sharing |>  
-  na.omit()  |> 
-  filter(row_number() != c(1512)) |>
-  filter(row_number() != c(1320))
-  # mutate(stunde = as.factor(stunde))
- 
-fit.f <- glm.nb(user ~ temp * stunde + regen + feiertag + wochentag * stunde, data = sharing.f)
-
-summary(fit.f)
-
-par(mfrow=c(2,2))
-plot(fit.f)
-
-drop1(fit.f, test = "Chisq")
-
-```
-
-```{r, echo=F, message=F, warning=F}
-library(MASS)
-fit.ff <- glm.nb(user ~ (temp + regen + feiertag + wochentag + stunde)^2, data = sharing.f)
-
-summary(fit.ff)
-
-par(mfrow=c(2,2))
-plot(fit.ff)
-
-drop1(fit.ff, test = "Chisq")
-
-```
-
-```{r, echo=F, message=F, warning=F}
-library(MASS)
-fit.fff <- glm.nb(user ~ temp * regen + feiertag * stunde + wochentag * stunde, data = sharing.f)
-
-summary(fit.fff)
-
-par(mfrow=c(2,2))
-plot(fit.fff)
-
-drop1(fit.fff, test = "Chisq")
-
-```
-
-```{r, echo=F, message=F, warning=F}
-library(MASS)
-sharing.ff <- 
-  sharing |>  
-  na.omit()  |> 
-  filter(row_number() != c(1512)) |>
-  filter(row_number() != c(1320)) |> 
-  mutate(sin_stunde = sin(2 * pi * stunde / 24),
-         cos_stunde = cos(2 * pi * stunde / 24),
-         sin_wochentag = sin(2 * pi * wochentag / 7),
-         cos_wochentag = cos(2 * pi * wochentag / 7),
-         regen_binary = ifelse(regen > 0, 1, 0))
-  
- 
-fit.fffft <- glm(user ~ temp * cos_stunde + feiertag * cos_stunde + wochentag * (sin_stunde + cos_stunde) + regen + cos(2*pi*tag/163), data = sharing.ff)
-
-s <- summary(fit.fffft)
-s
-1-s$deviance/s$null.deviance
-
-par(mfrow=c(2,2))
-plot(fit.fffft)
-
-drop1(fit.fffft, test = "Chisq")
-
-
-fit.fffftr <- glm(user ~ temp * cos_stunde + feiertag * cos_stunde + wochentag * (sin_stunde + cos_stunde) + regen_binary + cos(2*pi*tag/163), data = sharing.ff)
-
-s <- summary(fit.fffftr)
-s
-1-s$deviance/s$null.deviance
-
-par(mfrow=c(2,2))
-plot(fit.fffftr)
-
-drop1(fit.fffftr, test = "Chisq")
-
-fit.fffftr <- glm(user ~ temp * (cos_stunde + sin_stunde) + feiertag * (cos_stunde + sin_stunde) + wochentag * (sin_stunde + cos_stunde) + regen_binary + cos(2*pi*tag/365), data = sharing.ff, family = poisson)
-
-s <- summary(fit.fffftr)
-s
-1-s$deviance/s$null.deviance
-
-par(mfrow=c(2,2))
-plot(fit.fffftr)
-
-drop1(fit.fffftr, test = "Chisq")
-
-fit.fffftrd <- glm(user ~ temp * (cos_stunde + sin_stunde) + feiertag * (cos_stunde + sin_stunde) + wochentag * (sin_stunde + cos_stunde) + regen_binary + cos(2*pi*tag/163), data = sharing.ff, family = poisson)
-
-s <- summary(fit.fffftrd)
-s
-1-s$deviance/s$null.deviance
-
-par(mfrow=c(2,2))
-plot(fit.fffftrd)
-
-drop1(fit.fffftrd, test = "Chisq")
-
-fit.ffffnb <- glm.nb(user ~ temp * (cos_stunde + sin_stunde) + feiertag * (cos_stunde + sin_stunde) + wochentag * (sin_stunde + cos_stunde) + regen_binary + cos(2*pi*tag/180), data = sharing.ff)
-
-s <- summary(fit.ffffnb)
-s
-1-s$deviance/s$null.deviance
-
-par(mfrow=c(2,2))
-plot(fit.ffffnb)
-
-drop1(fit.ffffnb, test = "Chisq")
-```
-```{r}
 # Vorhersagen berechnen
-sharing.ff$predicted_user <- predict(fit.fffftrd, type = "response")
 
-# Streudiagramm: Beobachtete vs. Vorhergesagte Werte
-ggplot(sharing.ff, aes(x = predicted_user, y = user)) +
-  geom_point(alpha = 0.3) +
-  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
-  labs(x = "Vorhergesagte Werte", y = "Beobachtete Werte", title = "Vorhergesagte vs. Beobachtete Werte")
+
+sharing.p <- sharing |> 
+  mutate(regen.bin = as.factor(ifelse(regen == 0, 0, 1)))
+
+
+#sharing.p$predicted_user <- predict(fit.pois, newdata = sharing.p, type = "response")
+
+na.index <- which(is.na(sharing.p$user))
+sharing.p$user.pred <- NA
+sharing.p$user.pred[na.index] <- predict(fit.nb, newdata = sharing.p[na.index,], type = "response")
+
+
+
+
+sharing.p |> 
+  mutate(ID = row_number()) |>
+  pivot_longer(cols = c(user, user.pred), names_to = "Type", values_to = "Count") |> 
+  ggplot(aes(x = ID, y = Count, color = Type)) +
+  geom_line() +
+  scale_y_continuous(limits = c(0, 620)) +
+  labs(
+    title = "Nutzerzahlen über die Zeit mit negativ-binomial-Modell",
+    x = "Zeit [h]",
+    y = "Anzahl Nutzer"
+  ) +
+  scale_color_manual(
+    values = c("user" = "lightblue", "user.pred" = "navy"),
+    labels = c("Beobachtete Nutzerzahlen", "Vorhergesagte Nutzerzahlen"),
+    name = "Datenquelle"
+  ) +
+  theme_minimal()
+  
 
 ```
 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+sharing.p$predicted_user_nb <- predict(fit.nb, newdata = sharing.p, type = "response")
+sharing.p |> 
+  mutate(ID = row_number()) |>
+  ggplot(aes(x = ID, y = predicted_user_nb)) +
+  #geom_point() +
+  #geom_line() +
+  geom_line(color = "navy") +
+  #geom_line(aes(y = predicted_user), color = "orange") +
+  #geom_line(aes(y = user), color = "red") +
+  scale_y_continuous(limits = c(0, 620))+
+  labs(title = "modellierte Nutzerzahlen über die Zeit mit negativ-binomial-Modell",
+       x = "Zeit [h]",
+       y = "Anzahl Nutzer")+
+  theme_minimal()
+
+```
 
 ```{r}
-# Residuen berechnen
-sharing.ff$residuals <- residuals(fit.fffft, type = "pearson")
+# vorhersage und 95% Konfidenzintervall
+sharing_na.p <- sharing_na |>
+  mutate(regen.bin = as.factor(ifelse(regen == 0, 0, 1)))
+  
+p <- predict(fit.nb, newdata = sharing_na.p, type = "link", se.fit = TRUE)
+#mu <- exp(rnorm(n = length(p$fit), mean = p$fit, sd = p$se.fit))
+#beob <- rnegbin(n = length(p$fit), mu = mu, theta = summary(fit.nb$theta))
 
-# Residuenplot gegen die Vorhersagen
-ggplot(sharing.ff, aes(x = predicted_user, y = residuals)) +
-  geom_point(alpha = 0.3) +
-  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
-  labs(x = "Vorhergesagte Werte", y = "Residuen", title = "Residuen vs. Vorhergesagte Werte")
+# Anzahl der Simulationen pro Vorhersage
+nsim <- 10000
+
+# Matrix zur Speicherung der simulierten mu-Werte
+mu <- matrix(nrow = length(p$fit), ncol = nsim)
+
+# Simulation der mu-Werte
+for (i in 1:length(p$fit)) {
+  mu[i, ] <- exp(rnorm(n = nsim, mean = p$fit[i], sd = p$se.fit[i]))
+}
+
+# Dispersionsparameter theta aus dem Modell
+theta <- fit.nb$theta
+
+# Matrix zur Speicherung der simulierten Beobachtungen
+beob <- matrix(nrow = length(p$fit), ncol = nsim)
+
+# Simulation der Beobachtungen
+for (i in 1:length(p$fit)) {
+  beob[i, ] <- rnegbin(n = nsim, mu = mu[i, ], theta = theta)
+}
+
+# Dataframe zur Speicherung der Ergebnisse
+sharing_na.p <- sharing_na.p |> 
+  mutate(
+    user = exp(p$fit),
+    lower_PI = apply(beob, 1, quantile, probs = 0.025, type = 1),
+    upper_PI = apply(beob, 1, quantile, probs = 0.975, type = 1)
+)
+
 
 ```
+
+```{r}
+# # Vorhersagen berechnen
+# sharing.p <- sharing
+# sharing.t$predicted_user_nb <- predict(fit.nb, newdata = sharing.t, type = "response")
+# 
+# 
+# # Streudiagramm: Beobachtete vs. Vorhergesagte Werte
+# ggplot(sharing.t, aes(x = predicted_user_nb, y = user)) +
+#   geom_point(alpha = 0.3) +
+#   geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
+#   labs(x = "Vorhergesagte Werte nb", y = "Beobachtete Werte", title = "Vorhergesagte vs. Beobachtete Werte nb")
+
+```
+
+```{r}
+# # Residuen berechnen
+# sharing.t$residuals.nb <- residuals(fit.nb, type = "pearson")
+# 
+# # Residuenplot gegen die Vorhersagen
+# ggplot(sharing.t, aes(x = predicted_user_nb, y = residuals.nb)) +
+#   geom_point(alpha = 0.3) +
+#   geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+#   labs(x = "Vorhergesagte Werte", y = "Residuen", title = "Residuen vs. Vorhergesagte Werte")
+
+```
+
 
