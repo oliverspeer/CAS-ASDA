@@ -16,6 +16,8 @@ format:
 ```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(GGally)
+library(flextable)
+library("skimr")
 load("sharing_2024.rda") #C:\\ZHAW CAS datascience\\CAS-ASDA\\
 
 # sort rows with NA into a new dataframe
@@ -24,20 +26,64 @@ sharing.t <- sharing[complete.cases(sharing),]
 
 ```
 
-# Einführung {.justify}
+# Einführung: Prognose von Nutzerzahlen eines Sharing-Angebots {.justify}
 
-# Problemstellung und Lösungsansatz {.justify}
+
+### **Hintergrund und Problemstellung**
+Ein Sharing-Dienst erfasst die stündlichen Nutzerzahlen (`user`) über einen Zeitraum von 163 Tagen. Die zugehörigen Daten bestehen aus 3.912 Beobachtungen, die Informationen zu Tages- und Stundenangaben (`tag`, `stunde`), dem Wochentag (`wochentag`), Feiertagen (`feiertag`), der Temperatur (`temp`) sowie der Regenmenge (`regen`) umfassen.   
+Ziel ist es, die Nutzerzahlen zu modellieren, unter Berücksichtigung von Tageszeiten, Wochentagen und Wetterbedingungen. Mit einem resultierenden Modell sollen Vorhersagen für Tage mit fehlenden Nutzerzahlen erstellt.
+
+### **Datenstruktur**
+Die Variablen im Datensatz haben folgende Eigenschaften:
+- **Nutzerzahlen (`user`)**: Stündliche Zähldaten, teilweise fehlend.
+- **Tages- und Stundenangaben (`tag`, `stunde`)**: Numerische Variablen, die die zeitliche Struktur der Daten abbilden.
+- **Wochentag (`wochentag`)**: Kategorische Variable (z. B. Montag, Dienstag), die wöchentliche Muster sichtbar macht.
+- **Feiertag (`feiertag`)**: Kategorische Variable (TRUE/FALSE), um Feiertagseffekte zu analysieren.
+- **Temperatur (`temp`) & Regenmenge (`regen`)**: Numerische Variablen, die wetterbedingte Einflüsse widerspiegeln.
+ 
+
+### **Methodisches Vorgehen**
+1. **Deskriptive Analyse**:
+   - Die stündlichen Nutzerzahlen wurden auf tageszeitliche und wöchentliche Schwankungen, sowie Einflüsse von Wetterbedingungen untersucht.
+
+2. **Modellierung**:
+   - Aufgrund der Zähldaten wurden Poisson- und Negative-Binomial-Modelle angewandt. Letzteres erwies sich als geeigneter, da die Nutzerzahlen Überdispersion zeigen (die Streuung ist größer als bei einer Poisson-Verteilung erwartet).
+   - Die Modelle integrieren zeitliche Effekte (Tageszeit, Wochentag) sowie wetterbezogene Variablen (Temperatur, Regen).
+
+3. **Prognose fehlender Werte**:
+   - Für Tage ohne Nutzerzahlen wurden mit dem Negativ-Binomial-Modell Vorhersagen erstellt. Zur Quantifizierung der Unsicherheiten wurden 95%-Prognoseintervalle berechnet.
+
+4. **Visualisierung**:
+   - Die Ergebnisse wurden als Zeitreihen dargestellt, wobei die beobachteten Nutzerzahlen, die prognostizierten Werte und die Prognoseintervalle klar differenziert wurden. 
+
 
 # Explorative Datenanalyse {.justify}
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-glimpse(sharing)
+#g <- glimpse(sharing)
+ft <- flextable(skim(sharing)) |> 
+  set_header_labels(skim_type = "Datentyp",
+                    skim_variable = "Variable",
+                    n_missing = "Fehlende Werte",
+                    n = "Anzahl",
+                    mean = "Mittelwert",
+                    sd = "Standardabweichung",
+                    p0.25 = "25%-Quantil",
+                    p0.5 = "50%-Quantil",
+                    p0.75 = "75%-Quantil",
+                    p0 = "Minimum",
+                    p100 = "Maximum",
+                    hist = "Histogramm") |> 
+  autofit() |>
+  bold(part = "header") |>
+  align(align = "center", part = "all")
+ft
 ```
 
 Folgenden Spalten enthalten fehlende Werte:
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-df <- sharing |> summarise(across(everything(), ~sum(is.na(.))))
+df <- sharing |> summarise(across(everything(), ~sum(is.na(.)))) |> flextable() |> autofit() |> align(align = "center", part = "all")
 df
 ```
 
