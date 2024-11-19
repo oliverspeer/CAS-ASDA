@@ -16,7 +16,7 @@ format:
 ```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(GGally)
-load("sharing_2024.rda")
+load("sharing_2024.rda") #C:\\ZHAW CAS datascience\\CAS-ASDA\\
 
 # sort rows with NA into a new dataframe
 sharing_na <- sharing[!complete.cases(sharing),]
@@ -41,7 +41,7 @@ df <- sharing |> summarise(across(everything(), ~sum(is.na(.))))
 df
 ```
 
-Ausser den 456 fehlenden Nutzerzahlen, die nach der Modellierung vorhergesagt werden, sind keine weiteren fehlenden Werte vorhanden
+Ausser den 456 fehlenden Nutzerzahlen, die nach der Modellierung prognostiziert werden sollen, sind keine weiteren fehlenden Werte vorhanden.
 
 In der Variable `user` sind `r sum(sharing$user == 0, na.rm = TRUE)` Nullen und `r sum(sharing$user == !floor(sharing$user), na.rm = TRUE)` Kommazahlen enthalten. D.h. die Zielgrösse `user` ist eine Zähldatenvariable und könnte als Poisson- oder Negativ-Binomial-Verteilung modelliert werden. Da der Anteil der Nullen sehr gering ist, ist ein zero-inflated Modell nicht notwendig.
 
@@ -159,7 +159,7 @@ sharing |>
 
 ```
 
-Es zeigt isch ein gewisser gewisser Trend, dass die Nutzerzahlen mit steigender Temperatur zunehmen.
+Es zeigt sich ein gewisser Trend, dass die Nutzerzahlen mit steigender Temperatur zunehmen.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 sharing |> 
@@ -349,7 +349,7 @@ Und der AIC-Vergleich zeigt:
 df <- AIC(fit, fit.rb, fit.pois, fit.nb)
 df
 ```
-## Punktvorhersagen berechnen
+## Punktvorhersagen mit 95% Prognoseintervallen
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Vorhersagen berechnen
 
@@ -365,7 +365,7 @@ sharing.p$user.pred <- NA
 sharing.p$user.pred[na.index] <- predict(fit.nb, newdata = sharing.p[na.index,], type = "response")
 ```
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # vorhersage und 95% Konfidenzintervall
 sharing_na.p <- sharing_na |>
   mutate(regen.bin = as.factor(ifelse(regen == 0, 0, 1)))
@@ -401,17 +401,19 @@ for (i in 1:length(p$fit)) {
   beob[i, ] <- rnegbin(n = nsim, mu = mu[i, ], theta = theta)
 }
 
-# Dataframe zur Speicherung der Ergebnisse
-sharing_na.p <- sharing_na.p |> 
-  mutate(
-    user = exp(p$fit),
-    unterer_PI = apply(beob, 1, quantile, probs = 0.025, type = 1),
-    oberer_PI = apply(beob, 1, quantile, probs = 0.975, type = 1)
-)
+# eintragen der Prognosen und der Prognose-Intervalle
+
+# sharing_na.p <- sharing_na.p |> 
+#   mutate(
+#     user = exp(p$fit),
+#     unterer_PI = apply(beob, 1, quantile, probs = 0.025, type = 1),
+#     oberer_PI = apply(beob, 1, quantile, probs = 0.975, type = 1)
+# )
+
 sharing.p$unterer_PI <- NA
 sharing.p$oberer_PI <- NA
 sharing.p <- sharing.p |> 
-  mutate(na.user = ifelse(is.na(user), "prog", "beob"))
+  mutate(na.user = ifelse(is.na(user), "Prognose", "Beobachtung"))
 
 sharing.p[na.index,] <- sharing.p[na.index,] |> 
   mutate(
@@ -439,7 +441,9 @@ sharing.p.p <- sharing.p  |>
     ID = row_number(),
     unterer_PI = if_else(is.na(unterer_PI), user, unterer_PI),
     oberer_PI = if_else(is.na(oberer_PI), user, oberer_PI)
-  )
+                           
+    )
+  
 
 
 ggplot(data = sharing.p.p, aes(x = ID)) +
@@ -448,13 +452,13 @@ ggplot(data = sharing.p.p, aes(x = ID)) +
   geom_line(aes(y = user, color = na.user, group = 1, linetype = "user")) +
   geom_line(aes(y = unterer_PI, 
                 #color = na.user, group = 1, 
-                linetype = "PI"), color = "grey", alpha=0.5) +
+                linetype = "PI"), color = "#555555", alpha=0.8) +
   geom_line(aes(y = oberer_PI, 
                 #color = na.user, group = 1, 
-                linetype = "PI"), color = "grey", alpha=0.5) +
-  scale_color_manual(values = c("beob" = "darkgrey", "prog" = "blue")) +
+                linetype = "PI"), color = "#555555", alpha=0.8) +
+  scale_color_manual(values = c("Beobachtung" = "#555555", "Prognose" = "blue")) +
   scale_linetype_manual(
-    values = c("user" = "solid", "PI" = "dashed"),
+    values = c("user" = "solid", "PI" = "dotted"),
     name = "Linientyp",
     labels = c("user" = "Nutzerzahlen", "PI" = "Prognoseintervall")
   ) +
@@ -470,43 +474,43 @@ ggplot(data = sharing.p.p, aes(x = ID)) +
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-sharing.p |> 
-  mutate(ID = row_number()) |>
-  pivot_longer(cols = c(user, user.pred), names_to = "Type", values_to = "Count") |> 
-  ggplot(aes(x = ID, y = Count, color = Type)) +
-  geom_line() +
-  scale_y_continuous(limits = c(0, 620)) +
-  labs(
-    title = "Nutzerzahlen über die Zeit mit negativ-binomial-Modell",
-    x = "Zeit [h]",
-    y = "Anzahl Nutzer"
-  ) +
-  scale_color_manual(
-    values = c("user" = "lightblue", "user.pred" = "navy"),
-    labels = c("Beobachtete Nutzerzahlen", "Vorhergesagte Nutzerzahlen"),
-    name = "Datenquelle"
-  ) +
-  theme_minimal()
+# sharing.p |> 
+#   mutate(ID = row_number()) |>
+#   pivot_longer(cols = c(user, user.pred), names_to = "Type", values_to = "Count") |> 
+#   ggplot(aes(x = ID, y = Count, color = Type)) +
+#   geom_line() +
+#   scale_y_continuous(limits = c(0, 620)) +
+#   labs(
+#     title = "Nutzerzahlen über die Zeit mit negativ-binomial-Modell",
+#     x = "Zeit [h]",
+#     y = "Anzahl Nutzer"
+#   ) +
+#   scale_color_manual(
+#     values = c("user" = "lightblue", "user.pred" = "navy"),
+#     labels = c("Beobachtete Nutzerzahlen", "Vorhergesagte Nutzerzahlen"),
+#     name = "Datenquelle"
+#   ) +
+#   theme_minimal()
   
 
 ```
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-sharing.p$predicted_user_nb <- predict(fit.nb, newdata = sharing.p, type = "response")
-sharing.p |> 
-  mutate(ID = row_number()) |>
-  ggplot(aes(x = ID, y = predicted_user_nb)) +
-  #geom_point() +
-  #geom_line() +
-  geom_line(color = "navy") +
-  #geom_line(aes(y = predicted_user), color = "orange") +
-  #geom_line(aes(y = user), color = "red") +
-  scale_y_continuous(limits = c(0, 620))+
-  labs(title = "modellierte Nutzerzahlen über die Zeit mit negativ-binomial-Modell",
-       x = "Zeit [h]",
-       y = "Anzahl Nutzer")+
-  theme_minimal()
+# sharing.p$predicted_user_nb <- predict(fit.nb, newdata = sharing.p, type = "response")
+# sharing.p |> 
+#   mutate(ID = row_number()) |>
+#   ggplot(aes(x = ID, y = predicted_user_nb)) +
+#   #geom_point() +
+#   #geom_line() +
+#   geom_line(color = "navy") +
+#   #geom_line(aes(y = predicted_user), color = "orange") +
+#   #geom_line(aes(y = user), color = "red") +
+#   scale_y_continuous(limits = c(0, 620))+
+#   labs(title = "modellierte Nutzerzahlen über die Zeit mit negativ-binomial-Modell",
+#        x = "Zeit [h]",
+#        y = "Anzahl Nutzer")+
+#   theme_minimal()
 
 ```
 
