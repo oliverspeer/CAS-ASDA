@@ -508,7 +508,7 @@ ggplot(data = sharing.p.p, aes(x = ID)) +
     name = "Linientyp",
     labels = c("user" = "Nutzerzahlen", "PI" = "Prognoseintervall")
   ) +
-  labs(title = "Nutzerzahl-Prognosen mit 95% Prognoseintervall, ",
+  labs(title = "Nutzerzahl-Prognosen mit 95% Prognoseintervall ",
        x = "Zeit [h]",
        y = "Nutzerzahlen",
        fill = "na.user",
