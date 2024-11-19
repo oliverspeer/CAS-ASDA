@@ -45,7 +45,7 @@ sharing.t <- sharing[complete.cases(sharing),]
 
 ### **Hintergrund und Problemstellung** {.justify}
 Ein Sharing-Dienst erfasst die stündlichen Nutzerzahlen (`user`) über einen Zeitraum von 163 Tagen. Die zugehörigen Daten bestehen aus 3.912 Beobachtungen, die Informationen zu Tages- und Stundenangaben (`tag`, `stunde`), dem Wochentag (`wochentag`), Feiertagen (`feiertag`), der Temperatur (`temp`) sowie der Regenmenge (`regen`) umfassen.   
-Ziel ist es, die Nutzerzahlen zu modellieren, unter Berücksichtigung von Tageszeiten, Wochentagen und Wetterbedingungen. Mit einem resultierenden Modell sollen Vorhersagen für Tage mit fehlenden Nutzerzahlen erstellt.
+Ziel ist es, die Nutzerzahlen zu modellieren, unter Berücksichtigung von Tageszeiten, Wochentagen und Wetterbedingungen. Mit einem resultierenden Modell sollen Vorhersagen für Tage mit fehlenden Nutzerzahlen erstellt werden.
 
 ### **Datenstruktur** {.justify}
 Die Variablen im Datensatz haben folgende Eigenschaften:  
@@ -438,7 +438,9 @@ Und der AIC-Vergleich zeigt:
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 df <- AIC(fit, fit.rb, fit.pois, fit.nb)
 df$model <- c("fit", "fit.rb", "fit.pois", "fit.nb")
-ft <- flextable::flextable(df[,c(3, 1, 2)])
+ft <- flextable::flextable(df[,c(3, 1, 2)]) |> 
+  flextable::set_table_properties(width = .5) |> 
+  flextable::set_header_labels("Model", "AIC", "Deviance")
 ft
 ```
 
