@@ -10,7 +10,7 @@ language:
 date: "`r Sys.Date()`"
 format:
   html:
-    embeded-resources: true
+    embed-resources: true
     theme: cosmo
     toc: true
     toc-depth: 3
@@ -44,11 +44,11 @@ sharing.t <- sharing[complete.cases(sharing),]
 # Prognose von Nutzerzahlen eines Sharing-Angebots {.justify}
 
 
-### **Hintergrund und Problemstellung** {.justify}
+### Hintergrund und Problemstellung {.justify}
 Ein Sharing-Dienst erfasst die stündlichen Nutzerzahlen (`user`) über einen Zeitraum von 163 Tagen. Die zugehörigen Daten bestehen aus 3.912 Beobachtungen, die Informationen zu Tages- und Stundenangaben (`tag`, `stunde`), dem Wochentag (`wochentag`), Feiertagen (`feiertag`), der Temperatur (`temp`) sowie der Regenmenge (`regen`) umfassen.   
 Ziel ist es, die Nutzerzahlen zu modellieren, unter Berücksichtigung von Tageszeiten, Wochentagen und Wetterbedingungen. Mit einem resultierenden Modell sollen Vorhersagen für Tage mit fehlenden Nutzerzahlen erstellt werden.
 
-### **Datenstruktur** {.justify}
+### Datenstruktur {.justify}
 Die Variablen im Datensatz haben folgende Eigenschaften:  
 - **Nutzerzahlen (`user`)**: Stündliche Zähldaten, teilweise fehlend.  
 - **Tages- und Stundenangaben (`tag`, `stunde`)**: Numerische Variablen, die die zeitliche Struktur der Daten abbilden.  
@@ -57,7 +57,7 @@ Die Variablen im Datensatz haben folgende Eigenschaften:
 - **Temperatur (`temp`) & Regenmenge (`regen`)**: Numerische Variablen, die wetterbedingte Einflüsse widerspiegeln.  
  
 
-### **Methodisches Vorgehen** {.justify}
+### Methodisches Vorgehen {.justify}
 1. **Deskriptive Analyse**:
    - Die stündlichen Nutzerzahlen wurden auf tageszeitliche und wöchentliche Schwankungen, sowie Einflüsse von Wetterbedingungen untersucht.
 
@@ -96,12 +96,6 @@ ft <- flextable(skim(sharing)) |>
 ft
 ```
 
-<!-- Folgenden Spalten enthalten fehlende Werte: -->
-
-<!-- ```{r echo=FALSE, message=FALSE, warning=FALSE} -->
-<!-- df <- sharing |> summarise(across(everything(), ~sum(is.na(.)))) |> flextable() |> autofit() |> align(align = "center", part = "all") -->
-<!-- df -->
-<!-- ``` -->
 
 Ausser den 456 fehlenden Nutzerzahlen, die nach der Modellierung prognostiziert werden sollen, sind keine weiteren fehlenden Werte vorhanden.
 
@@ -187,6 +181,8 @@ sharing |>
 
 Wie zu erwarten variieren die Nutzerzahlen in Abhängigkeit von der Tageszeit, als auch in Abhängigkeit vom Wochentag. Beide Prädiktoren sollten also bei den Modellen als Interaktion berücksichtigt werden. Beide Prädiktoren scheinen eine nicht-lineare Beziehung zu den Nutzerzahlen zu haben. Die Schwingung bestätigt sich auch, wenn die Nutzerzahlen über die Zeit aufgetragen werden. Im STL Plot unten zeigt sich eine Schwingung (saisonaler Anteil), der hier als harmonisch interpretiert wird.
 
+::: {.panel-tabset}
+## Nutzerzahlen über die Zeit
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 sharing |> 
   mutate(ID = row_number()) |>
@@ -194,11 +190,13 @@ sharing |>
   #geom_point() +
   geom_line() +
   #geom_line(aes(y = predicted_user), color = "blue") +
-  labs(title = "Nutzerzahlen über die Zeit",
+  labs(title = " ",
        x = "Zeit [h]",
        y = "Nutzer pro Stunde")+
   theme_minimal()
 ```
+
+## STL Plot
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE} 
 ts <- ts(sharing.t$user, frequency = 24)
@@ -209,6 +207,7 @@ u.trend <- decomp$trend
 u.sais <- decomp$seasonal
 ```
 
+:::
 
 ### Zusammenhang zwischen Nutzerzahlen, Temperatur und Regen {.justify}
 
@@ -232,16 +231,33 @@ sharing |>
 
 Nicht überraschend hat die Temperatur einen Einfluss auf die Nutzerzahlen. Die Nutzerzahlen steigen mit zunehmender Temperatur. 
 
+::: {.panel-tabset}
+## Temperatur über die Zeit
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 sharing |> 
   mutate(ID = row_number()) |>
   ggplot(aes(x = ID, y = temp)) +
   geom_line() +
-  labs(title = "Temperatur über die Zeit",
+  labs(title = " ",
        x = "Zeit [h]",
        y = "Temperatur [°C]")+
   theme_minimal()
 ```
+
+## STL Plot
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+temp.ts <- ts(sharing.t$temp, frequency = 24)
+# acf(temp.ts, lag.max = 24*7, main = "Autokorrelation der Temperatur")
+stl_temp <- stl(temp.ts, s.window = "periodic")
+plot(stl_temp)
+#decomp <- decompose(temp.ts)
+#plot(decomp)
+#t.trend <- decomp$trend
+```
+
+:::
+
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 sharing |> 
@@ -254,15 +270,7 @@ sharing |>
   theme_minimal()
 ```
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-temp.ts <- ts(sharing.t$temp, frequency = 24)
-# acf(temp.ts, lag.max = 24*7, main = "Autokorrelation der Temperatur")
-stl_temp <- stl(temp.ts, s.window = "periodic")
-plot(stl_temp)
-#decomp <- decompose(temp.ts)
-#plot(decomp)
-#t.trend <- decomp$trend
-```
+
 
 Die Temperatur ist wie zu erwarten deutlich abhängig von der Tageszeit (saisonaler Anteil im STL Plot oben), vermutlich eine harmonische Schwingung über den Tagesverlauf.. Die Temperatur zeigt zusätzlich einen Trend-Anteil, das Wetter.  
 
@@ -326,13 +334,27 @@ fit <- glm(user ~ temp + regen + feiertag + wochentag + stunde + tag, data = sha
 fit.rb <- glm(user ~ temp + regen.bin + feiertag + wochentag + stunde + tag, data = sharing.t, family = poisson)
 ```
 
+::: {.panel-tabset}
+## Modell
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+fit$formula
+```
+
+## summary
+
 ```{r, echo=F, message=F, warning=F}
 summary(fit)
 ```
 
+## drop1
+
 ```{r, echo=F, message=F, warning=F}
 drop1(fit, test = "F")
 ```
+
+:::
+
+
 In diesem ersten rudimentären Model tragen alle Prädiktoren signifikant zur Erklärung der Zielgrösse `user` bei. Die Überdispersion ist deutlich. 
 ```{r, echo=F, message=F, warning=F}
 par(mfrow=c(2,2))
@@ -352,14 +374,25 @@ sharing.t <-sharing.t |>
   mutate(regen.bin = as.factor(ifelse(regen == 0, 0, 1)))
 ```
 
+::: {.panel-tabset}
+## Modell
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+fit.rb$formula
+```
+
+## summary
 
 ```{r, echo=F, message=F, warning=F}
 summary(fit.rb)
 ```
 
+## drop1
+
 ```{r, echo=F, message=F, warning=F}
 drop1(fit.rb, test = "F")
 ```
+
+:::
 
 ```{r, echo=F, message=F, warning=F}
 par(mfrow=c(2,2))
@@ -370,14 +403,12 @@ plot(fit.rb)
 Durch die Modellierung von `regen` als binäre kategorische Variable konnte die Devianz etwas reduziert werden. Vor allem ist die Verbesserung im Leverage Plot sichtbar. Der Hebel des Datenpunkts #1512 (mit fast 25mm/h) wurde durch die Modellierung von `regen` als binäre Faktorvariable reduziert.  
 Ansonsten passt das Modell immer noch nicht gut zu den Daten.
 
-### Modell mit Interaktionen und Schwingungen der Tageszeiten, Wochentage und Tage {.justify}
+### Poisson-Modell mit Interaktionen und Schwingungen der Tageszeiten, Wochentage und Tage {.justify}
 
 Im folgenden werden Interaktionen und Schwingungen in das Modell integriert.
 
 
 ```{r, echo=F, message=F, warning=F}
-
-
 fit.pois <- glm(user ~ temp * (sin(2 * pi * stunde / 24) + cos(2 * pi * stunde / 24)) + 
                feiertag * cos(2 * pi * stunde / 24) + 
                wochentag * cos(2 * pi * stunde / 24) + 
@@ -385,17 +416,29 @@ fit.pois <- glm(user ~ temp * (sin(2 * pi * stunde / 24) + cos(2 * pi * stunde /
                tag*cos(2*pi*tag/3912),
                data = sharing.t, 
              family = poisson)
+```
 
+::: {.panel-tabset}
+## Modell
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+fit.pois$formula
+```
 
+## summary
+```{r, echo=F, message=F, warning=F}
 s1 <- summary(fit.pois)
 #fit.1$formula
 s1
 
 ```
-                   *   *   *   *   *   *   *
+
+## drop1
+
 ```{r, echo=F, message=F, warning=F}
 drop1(fit.pois, test = "Chisq")
 ```
+
+:::
 
 ```{r, echo=F, message=F, warning=F}
 par(mfrow=c(2,2))
@@ -407,6 +450,8 @@ plot(fit.pois)
 Das Poisson-Model `fit.pois` erklärt `r round(1-s1$deviance/s1$null.deviance, 2)*100`% der Devianz. Die Devianz konnte im Vergleich zum einfachen Modell deutlich reduziert werden. Die als Schwingungen modellierten Interaktionen zwischen Temperatur und Tageszeiten, als auch zwischen Wochen- & Feiertage und Stunden haben einen signifikanten Einfluss auf die Nutzerzahlen.  
 Da die Überdispersion immer noch deutlich ist, und die Verteilung der Nutzer, wie oben beschrieben, rechtsschief ist, wird im folgenden ein Modell mit negativer Binomialverteilung modelliert.
 
+### Negativ-Binomial-Modell {.justify}
+
 ```{r, echo=F, message=F, warning=F}
 #negbin
 library(MASS)
@@ -415,17 +460,31 @@ fit.nb <- glm.nb(user ~ temp * (sin(2 * pi * stunde / 24) + cos(2 * pi * stunde 
                wochentag * cos(2 * pi * stunde / 24) + 
                regen.bin + 
                tag*cos(2*pi*tag/3912), data = sharing.t)
+```
 
+::: {.panel-tabset}
+## Modell
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+fit.nb[["call"]][["formula"]]
+```
 
+## summary
+```{r, echo=F, message=F, warning=F}
 s.nb <- summary(fit.nb)
 #s.nb
 #1-s.nb$deviance/s.nb$null.deviance
 s.nb
 ```
 
-                   *   *   *   *   *   *   *
+## drop1
+
 ```{r, echo=F, message=F, warning=F}
 drop1(fit.nb, test = "Chisq")
+```
+
+:::
+
+```{r, echo=F, message=F, warning=F}
 par(mfrow=c(2,2))
 plot(fit.nb)
 
@@ -518,9 +577,6 @@ sharing.p[na.index,] <- sharing.p[na.index,] |>
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-
-  
-
 sharing.p.p <- sharing.p  |> 
   mutate(
     ID = row_number(),
@@ -528,9 +584,13 @@ sharing.p.p <- sharing.p  |>
     oberer_PI = if_else(is.na(oberer_PI), user, oberer_PI)
                            
     )
-  
+```
 
-library(plotly)
+::: {.panel-tabset}
+## Prognose (graphisch)
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
 ggplot(data = sharing.p.p, aes(x = ID)) +
   # geom_ribbon(aes(ymin = unterer_PI, ymax = oberer_PI#, fill = na.user
   #                 ),  alpha = 0.5, fill = "red") +
@@ -554,11 +614,18 @@ ggplot(data = sharing.p.p, aes(x = ID)) +
        color = NULL) +
   theme_minimal()+
   theme(legend.position = "bottom")
-
-
-
-
 ```
+
+## Prognose (Tabellenansicht Tag 9)
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+shrng_speeroli <- sharing.p[,-c(8,11)]
+ft <- flextable(shrng_speeroli[190:220,])
+ft
+```
+
+:::
+
 # Fazit{.justify}
 Nach der Grafik oben, die die Vorhersagen und die 95% Prognoseintervalle zeigt, können wir sehen, dass die Vorhersagen für die Nutzerzahlen in den Zeiträumen, in denen keine Daten vorliegen, relativ gut bzw. plausibel sind. Die Prognoseintervalle erscheinen jedoch relativ breit.  
 Besonders geringe Nutzerzahlen, wie etwas an den Tagen 141 bis 143, sind schwer vorherzusagen, ohne weitere Angaben, wie etwa technische Probleme beim Verleiher, oder mögliche besondere Ereignisse, die die Nutzung beeinflussen könnten. Dies gilt auch für besonders hohe Nutzerzahlen, wie etwa an den Tagen 67 bis 68. 
@@ -588,14 +655,15 @@ ft <- flextable(skim(shrng_speeroli)) |>
                     skim_variable = "Variable",
                     n_missing = "Fehlende Werte",
                     n = "Anzahl",
-                    mean = "Mittelwert",
-                    sd = "Standardabweichung",
-                    p0.25 = "25%-Quantil",
-                    p0.5 = "50%-Quantil",
-                    p0.75 = "75%-Quantil",
-                    p0 = "Minimum",
-                    p100 = "Maximum",
-                    hist = "Histogramm") |> 
+                    numeric.mean = "Mittelwert",
+                    numeric.sd = "Standardabweichung",
+                    numeric.p25 = "25%-Quantil",
+                    numeric.p50 = "50%-Quantil",
+                    numeric.p75 = "75%-Quantil",
+                    numeric.p0 = "Minimum",
+                    numeric.p100 = "Maximum",
+                    numeric.hist = "Histogramm",
+                    factor.n_unique =" Anzahl Faktoren") |> 
   autofit() |>
   bold(part = "header") |>
   align(align = "center", part = "all")
