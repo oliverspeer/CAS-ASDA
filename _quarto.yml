@@ -34,6 +34,8 @@ book:
         - Uebungsblatt04.qmd
         - Uebungsblatt05.qmd
         - Uebungsblatt06.qmd
+        - Uebungsblatt07.qmd
+        - sharing24_speeroli.qmd
          
         
         
@@ -41,7 +43,8 @@ book:
         
         
     - part: ModulD.qmd
-      # chapters:
+      chapters:
+        - Exercise1.qmd
          
     
     
@@ -57,6 +60,7 @@ format:
   html:
     theme: cosmo
     css: cas.css
+    embed-resources: true
     
 
     
