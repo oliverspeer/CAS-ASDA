@@ -18,7 +18,7 @@ format:
     toc-location: right
     code-fold: true
     code-tools: true
-    css: styles.css
+    css: cas.css
 ---
 
 
@@ -427,6 +427,7 @@ fit.pois$formula
 ## summary
 ```{r, echo=F, message=F, warning=F}
 s1 <- summary(fit.pois)
+1-s1$deviance/s1$null.deviance
 #fit.1$formula
 s1
 
@@ -448,7 +449,9 @@ plot(fit.pois)
 ```
 
 Das Poisson-Model `fit.pois` erklärt `r round(1-s1$deviance/s1$null.deviance, 2)*100`% der Devianz. Die Devianz konnte im Vergleich zum einfachen Modell deutlich reduziert werden. Die als Schwingungen modellierten Interaktionen zwischen Temperatur und Tageszeiten, als auch zwischen Wochen- & Feiertage und Stunden haben einen signifikanten Einfluss auf die Nutzerzahlen.  
-Da die Überdispersion immer noch deutlich ist, und die Verteilung der Nutzer, wie oben beschrieben, rechtsschief ist, wird im folgenden ein Modell mit negativer Binomialverteilung modelliert.
+Da die Überdispersion immer noch deutlich ist, und die Verteilung der Nutzer, wie oben beschrieben, rechtsschief ist, wird im folgenden ein Modell mit negativer Binomialverteilung modelliert. 
+
+[WICHTIG: da ein Prognoseintervall berechnet werden soll, wird dies nur mit dem negativ-Binomial-Modell vernünftig funktionieren.]{style="color:#000000; font-weight:bold"}
 
 ### Negativ-Binomial-Modell {.justify}
 
@@ -472,7 +475,7 @@ fit.nb[["call"]][["formula"]]
 ```{r, echo=F, message=F, warning=F}
 s.nb <- summary(fit.nb)
 #s.nb
-#1-s.nb$deviance/s.nb$null.deviance
+1-s.nb$deviance/s.nb$null.deviance
 s.nb
 ```
 
@@ -495,10 +498,28 @@ plot(fit.nb)
 Das negativ-binomial-Model `fit.nb` erklärt `r round(1-s.nb$deviance/s.nb$null.deviance,1)*100`% der Devianz der Nutzerzahlen. Die Devianz konnte im Vergleich zum Poisson Modell weiter reduziert werden. 
 Der Scale-Location-Plot und der Residuenplot zeigen beide eine Stabilisierung gegenüber dem Poisson-Modell.
 Und der AIC-Vergleich zeigt:
-.
+
+```{r, echo=F, message=F, warning=F}
+# negative binomial model with splines
+library(mgcv)
+
+fit.nb.s <- gam(
+  user ~ te(temp, stunde) + # Tensorprodukt für Temperatur und Stunde
+         s(stunde, by = feiertag) +  # Spline für Stunde, abhängig von Feiertagen
+         s(stunde, by = wochentag) +  # Spline für Stunde, abhängig vom Wochentag
+         regen.bin +  # Regen als Binärvariable
+         s(tag),  # Spline für den Tag
+    family = nb(),  # Negative-Binomial-Verteilung
+    data = sharing.t
+)
+
+s.gam <- summary(fit.nb.s)
+s.gam
+```
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-df <- AIC(fit, fit.rb, fit.pois, fit.nb)
-df$model <- c("fit", "fit.rb", "fit.pois", "fit.nb")
+df <- AIC(fit, fit.rb, fit.pois, fit.nb, fit.nb.s)
+df$model <- c("fit", "fit.rb", "fit.pois", "fit.nb", "fit.nb.s")
 ft <- flextable::flextable(df[,c(3, 1, 2)]) |> 
   flextable::set_table_properties(width = .5)
 ft
@@ -520,7 +541,7 @@ sharing.p <- sharing |>
 
 na.index <- which(is.na(sharing.p$user))
 sharing.p$user.pred <- NA
-sharing.p$user.pred[na.index] <- predict(fit.nb, newdata = sharing.p[na.index,], type = "response")
+sharing.p$user.pred[na.index] <- predict(fit.nb.s, newdata = sharing.p[na.index,], type = "response")
 ```
 
 
@@ -537,7 +558,7 @@ na.index <- which(is.na(sharing.p$user))
 ```{r echo=T, message=FALSE, warning=FALSE}
 # Prognose mit negativ-Binomial-Model (fit.nb) und 95% Konfidenzintervall
 # Prognose
-p <- predict(fit.nb, newdata = sharing_na.p, type = "link", se.fit = TRUE)
+p <- predict(fit.nb.s, newdata = sharing_na.p, type = "link", se.fit = TRUE)
 
 # Anzahl der Simulationen pro Vorhersage
 nsim <- 10000
@@ -584,6 +605,11 @@ sharing.p.p <- sharing.p  |>
     oberer_PI = if_else(is.na(oberer_PI), user, oberer_PI)
                            
     )
+
+sharing.b.p <- sharing |> 
+  mutate(ID = row_number(),
+         regen.bin = as.factor(ifelse(regen == 0, 0, 1)))
+sharing.b.p$user.pred <- predict(fit.nb.s, newdata = sharing.b.p, type = "response")
 ```
 
 ::: {.panel-tabset}
@@ -616,6 +642,22 @@ ggplot(data = sharing.p.p, aes(x = ID)) +
   theme(legend.position = "bottom")
 ```
 
+
+
+## Beobachtung über Prognose
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(data = sharing.b.p, aes(x = user, y = user.pred)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
+  labs(title = "Beobachtung vs. Prognose",
+       x = "Beobachtung",
+       y = "Prognose") +
+  theme_minimal()
+```
+
+
+
 ## Prognose (Tabellenansicht Tag 9)
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -625,6 +667,22 @@ ft
 ```
 
 :::
+
+## MAPE
+```{r}
+## Out-of-Sample-Daten laden> load("../Data/sharing_oos_2024.rda")> sharing$user.observed <- #sharing.oos$user.observed> > ## MAPE für Poisson-Modell> #round(100*mean(abs(sharing$user.observed-sharing$user.predicted)/sharing$user.predicted, na.rm=TRUE),3)
+load("sharing_oos_2024.rda")
+sharing.p$user.observed <- sharing.oos$user.observed
+round(100*mean(abs(sharing.p$user.observed-sharing.p$user.pred)/sharing.p$user.pred, na.rm=TRUE),3)
+```
+## Level
+```{r}
+sharing.p$pi.low.nb <- sharing.p$unterer_PI
+## Level Prognoseintervall für NegBin-Modell> 
+round(100*mean(sharing.p$user.observed>sharing.p$unterer_PI & sharing$user.observed<sharing.p$oberer_PI, na.rm=TRUE),3)
+
+```
+
 
 # Fazit{.justify}
 Nach der Grafik oben, die die Vorhersagen und die 95% Prognoseintervalle zeigt, können wir sehen, dass die Vorhersagen für die Nutzerzahlen in den Zeiträumen, in denen keine Daten vorliegen, relativ gut bzw. plausibel sind. Die Prognoseintervalle erscheinen jedoch relativ breit.  
