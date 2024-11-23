@@ -45,6 +45,7 @@ book:
     - part: ModulD.qmd
       chapters:
         - Exercise1.qmd
+        - DAG_IDA.qmd
          
     
     
