@@ -1,5 +1,5 @@
 ---
-title:  "DAG_IDA"
+title:  "D(A)G_IDA"
 author: "Oliver Speer"
 date:   "`r Sys.Date()`"
 editor: source
@@ -31,7 +31,41 @@ format:
 
 ```{r}
 library(dagitty)
+library(ggdag)
 # Erstellen des DAG
+iron_dag_c <- dagitty("dag {
+    Nahrung_L -> Eisen
+    Eisen <- Ferroportin_L
+    Ferritin -> Eisen
+    Eisen -> IREs_L
+    IREs_L -> Ferritin
+    Eisen -> Transferrinsaettigung
+    Transferrinsaettigung -> Erythropoiese_L
+    Eisenbedarf_L -> sTfR
+    Eisenbedarf_L <- Erythropoiese_L
+    Erythropoiese_L -> Erythrozyten
+    Erythropoiese_L -> Haemoglobin
+    Haemoglobin -> Erythrozyten
+    Transferrin -> Transferrinsaettigung
+    Haemoglobin -> MCV
+    IL6 -> Ferritin
+    IL6 -> CRP
+    IL6-> Transferrin
+    IL6 -> Hepcidin_L
+    Hepcidin_L -> Ferroportin_L
+    sex -> Estradiol
+    Estradiol -> Ferritin
+    Estradiol -> Ferroportin_L
+    Ferritin -> Makrophagen_L
+    Makrophagen_L -> Ferroportin_L
+    Haemoglobin -> EPO
+    Eisenbedarf_L -> Hepcidin_L
+    EPO -> Hepcidin_L
+    EPO -> Ferroportin_L
+    
+    
+}")
+
 iron_dag <- dagitty("dag {
     Eisen -> Ferritin
     Eisen -> Transferrinsaettigung
@@ -47,12 +81,12 @@ iron_dag <- dagitty("dag {
     IL6 -> CRP
     IL6-> Transferrin
     Estradiol -> Ferritin
-    Ferritin -> Makrophagen
-    Makrophagen -> Transferrinsaettigung
+    Ferritin -> Makrophagen_L
+    Makrophagen_L -> Transferrinsaettigung
     Anemia -> EPO
     Eisen -> Anemia
     Eisenbedarf_L -> Hepcidin_L
-    Hepcidin_L -> Makrophagen
+    Hepcidin_L -> Makrophagen_L
     EPO -> Hepcidin_L
     IL6 -> Anemia
     
@@ -60,7 +94,18 @@ iron_dag <- dagitty("dag {
 
 
 # Visualisierung des DAG
-plot(iron_dag)
+
+#plot(iron_dag_c)
+#plot(iron_dag)
+
+ggdag(iron_dag_c, layout = "nicely", text_col = "black", label_col = "blue", node = F, stylized = T) +
+  geom_dag_point(color = "blue", alpha = 0.2) +
+  theme_dag_blank()
+
+ggdag(iron_dag, layout = "auto", text_col = "black", label_col = "blue", node = F, stylized = T) +
+  geom_dag_point(color = "blue", alpha = 0.2) +
+  theme_dag_blank()
+  
 ```
 
 
@@ -71,4 +116,7 @@ adjustmentSets(iron_dag, exposure = "Eisen", outcome = "sTfR")
 ```{r}
 adjustmentSets(iron_dag, exposure = "Anemia", outcome = "sTfR")
 ```
-
+```{r}
+adjustmentSets(iron_dag_c, exposure = "Haemoglobin", outcome = "sTfR")
+adjustmentSets(iron_dag_c, exposure = "Eisen", outcome = "sTfR")
+```
