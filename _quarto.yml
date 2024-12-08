@@ -35,6 +35,8 @@ book:
         - Uebungsblatt05.qmd
         - Uebungsblatt06.qmd
         - Uebungsblatt07.qmd
+        - Uebungsblatt08.qmd
+        - Uebungsblatt09.qmd
         - sharing24_speeroli.qmd
          
         
@@ -46,6 +48,11 @@ book:
       chapters:
         - Exercise1.qmd
         - DAG_IDA.qmd
+        - Exercise2.qmd
+        - Exercise3.qmd
+        - Exercise4.qmd
+        - ArbeitsblattHT5_6.qmd
+        - CustomerProductNet.qmd
          
     
     
@@ -62,6 +69,8 @@ format:
     theme: cosmo
     css: cas.css
     embed-resources: true
+    code-fold: true
+    code-tools: true
     
 
     

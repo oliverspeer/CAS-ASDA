@@ -1,0 +1,74 @@
+# Übungsblatt 09 {.unnumbered}
+
+---
+title:  "Übungsblatt 09"
+author: "Marcel Dettling"
+date:   "`r Sys.Date()`"
+editor: source
+lang: de
+language: 
+  title-block-author-single: "Autor:"
+  title-block-published: "Version vom:"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    theme: sandstone
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+## Aufgabe 1 {.justify}
+
+In der Datei `synthetisch.rda` ist ein Datensatz mit der Zielgrösse $y$ und den beiden Prädiktoren $x_1$ und $x_2$ zur Verfügung gestellt. Sie sollen eine multiple lineare Regression anpassen. Wir können davon ausgehen, dass die Fehler $E_i$ unabhängig sind, sowie für die Mehrheit der Beobachtungen eine $N(0,\sigma_{E}^{2})$ -Verteilung gilt.
+
+```{r}
+## Datensatz laden
+load("synthethisch.rda")
+```
+
+*Hinweis: Teile dieser Aufgabe wurden bereits auf dem Aufgabenblatt 10 im CAS Datenanalyse gelöst. Die Idee besteht darin, die damalige Aufgabe zu wiederholen und zu studieren, wie sich robuste Verfahren in diesem Fall verhalten, wo die üblichen Diagnosetechniken zur OLS-Regression versagen.*
+
+### Teilaufgabe a)
+
+Passen sie dieses Modell mit dem Regressions-MM-Schätzer an. Machen sie eine Residuenanalyse und identifizieren sie allfällige Probleme. Notieren sie sich auch die geschätzten Koeffizienten, sowie die geschätzte Standardabweichung des Fehlers.
+
+### Teilaufgabe b)
+
+Wiederholen sie nun die Anpassung durch Verwenden der KQ-Methode. Erzeugen sie erneut die Residuenplots und identifizieren sie allfällige Probleme. Vergleichen sie die Resultate sowie die Schätzresultate gegenüber dem Output von a).
+
+### Teilaufgabe c)
+
+Erzeugen sie einen 3d-Plot dieses Regressionsproblems und stellen sie auch die angepasste KQ-Hyperebene dar. Verwenden sie dazu die Funktion `scatter3d()` aus dem R-Package `car`. Ebenfalls ist dazu das Package `rgl` nötig. Wie korrespondieren die Erkenntnisse aus dem 3d-Plot mit den Ergebnissen von zuvor?
+
+## Aufgabe 2 {.justify}
+
+Mit einer kleinen Simulationsstudie soll hier die Performance von verschiedenen Regressions-Schätzern untersucht werden. Verwenden sie als Prädiktor jeweils die folgende Variable:
+
+```{r}
+## Prädiktorwerte definieren
+xx <- (1:50)/10
+```
+
+Es werden nun 4 verschiedene Zielgrössen simuliert:
+
+```{r}
+## Zielgrösse simulieren
+yy1 <- 3 + 2*xx + rnorm(50)
+yy2 <- 3 + 2*xx + rt(50, df=2)
+```
+
+Bei der dritten Zielgrösse `yy3` wird der letzte Datenpunkt aus dem Sample `yy1` mit $(8,2)$ ersetzt. Bei der Zielgrösse `yy4` ersetzen sie die letzten drei Datenpunkte aus `yy1` mit $(8,2)$.
+
+Erzeugen sie nun 100 Replikate von jedem Regressionsproblem und schätzen sie die Koeffizienten mit OLS, LAD, dem Huber-Schätzer und dem Regressions-MM-Schätzer. Sammeln sie die Resultate, und stellen sie diese in Boxplots dar.

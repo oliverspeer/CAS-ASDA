@@ -1,0 +1,229 @@
+---
+title:  "Instrumental variable regression"
+author: "Beate Sick"
+date:   "`r Sys.Date()`"
+editor: source
+lang: de
+language: 
+  title-block-author-single: "Autor:"
+  title-block-published: "Version vom:"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+## Problem 1  {.justify}
+
+In this task you should simulate some data where you know the true causal effect of X on Y and where you
+can use instrumental variable regression to identify this causal effect. Assume that you have a instrumental
+variable (IV) Z that has an (unconfounded) impact on X, and that X has an causal impact on Y , which is
+confounded by H.
+
+### Teilaufgabe a {.justify}
+Draw a DAG that visualizes the described causal relationships between Z, X, H, and Y.
+
+```{r, message=FALSE, warning=FALSE}
+library(dagitty)
+library(tidyverse)
+library(ggdag)
+g <- dagitty('dag {
+             Z -> X
+             X -> Y 
+             H -> {X Y}
+             
+             
+            
+}')
+set.seed(8173)
+ggdag(g, 
+      layout = "nicely", 
+      text_col = "black", 
+      #label_col = "blue", 
+      node = F, 
+      stylized = T) +
+  geom_dag_point(color = "blue", alpha = 0.3) +
+  theme_dag_blank()
+```
+
+### Teilaufgabe b
+Invent a linear SCM which is consistent with the described causal relationship and simulate 5000
+observations from this SCM with set.seed(0815). Check visually that the instrument Z is correlated
+with X.
+```{r}
+set.seed(0815)
+n <- 5000
+Ex <- rnorm(n, mean = 0, sd = 1)
+Ey <- rnorm(n, mean = 0, sd = 1)
+Ez <- rnorm(n, mean = 0, sd = 1)
+Eh <- rnorm(n, mean = 0, sd = 1)
+Z <- Ez
+H <- Eh
+X <- 3*Z + 4*H + Ex
+Y <- 5*X + 2*H + Ey
+
+dat <-  data.frame(Ex = Ex, Ey = Ey, Ez = Ez, Eh = Eh, X = X, Y = Y, Z = Z, H = H)
+
+```
+
+```{r}
+pairs(dat[,5:8])
+```
+
+### Teilaufgabe c
+Assume that the confounder H was not observed and use the “ivreg” function from the “ivreg” R
+package to check if you can identify the simulated causal effect from X on Y . Compare the known
+causal effect with the estimated effect from “ivreg” and with the one from a naive linear regression.
+Note the special syntax of “ivreg”, which extends the formula of lm by a list of instruments after a
+pipe, here $“y ~ x|z”$.
+
+```{r}
+library(ivreg)
+iv <- ivreg(Y ~ X | Z, data = dat)
+summary(iv)
+```
+
+
+```{r}
+lm <- lm(Y ~ X, data = dat)
+summary(lm)
+
+
+```
+
+
+
+## Problem 2 {.justify}
+In this tasks, we will work with instrumental variable regression to estimate via the 2-step least-square
+(2SLS) a causal effect with observational Data.
+As real world application we will try to estimate the causal effect of the “length of the education” (X) on
+the “salary” (Y). We assume that an unobserved (hidden) confounder H, such as motivation, exists that
+has an causal impact on education and wage. Moreover, we assume that the neighborhood to schools is an
+instrument Z for X.  
+
+### Teilaufgabe a {.justify}
+Draw a DAG that visualizes the assumed causal relationships between X, Y, H, and Z. Give reasons
+why the neighborhood to schools and universities might be an appropriate instrument for education.
+
+```{r}
+g <- dagitty('dag {
+             Z -> X
+             X -> Y 
+             H -> {X Y}
+             
+             
+            
+}')
+
+ggdag(g, 
+      layout = "nicely", 
+      text_col = "black", 
+      #label_col = "blue", 
+      node = F, 
+      stylized = T) +
+  geom_dag_point(color = "blue", alpha = 0.3) +
+  theme_dag_blank()
+
+```
+
+### Teilaufgabe b {.justify}
+Read in the data “SchoolingReturns” from the “ivreg” package, that holds observational data from a
+U.S. National Longitudinal Survey of Young Men conducted in 1976. Check out the description of the
+contained variables “wage”, “education”, and “nearcollege”. Use an appropriate visualization and test,
+to confirm that “nearcollege” and “education” are associated.
+
+ 
+```{r}
+library(ivreg)
+data("SchoolingReturns")
+str(SchoolingReturns)
+head(SchoolingReturns)
+```
+
+
+```{r}
+# boxplot of wage by education colored by nearcollege
+boxplot(education ~ nearcollege, data = SchoolingReturns)
+```
+
+
+```{r}
+
+t.test(education ~ nearcollege, data = SchoolingReturns)
+
+
+```
+### Teilaufgabe c {.justify}
+For all following models use the log-wage “lwage” as outcome Y of interest.  
+`dat$lwage = log(dat$wage)`  
+
+Fit an unadjusted linear regression model. Determine the estimated effect of education on wage and
+explain why this effect might not correspond to the causal effect of education on lwage.
+```{r}
+dat <- SchoolingReturns
+dat$lwage = log(dat$wage)
+fit <- lm(lwage ~ education, data = dat)
+summary(fit)
+
+```
+### Teilaufgabe d {.justify}
+Use the function “ivreg” to fit an IV-regression model with “education” as potential causal predictor
+and “nearcollege” as instrumet for “education”. Compare and discuss the estimated effect of education
+on wage resulting from “ivreg” and “lm”.  
+```{r}
+iv <- ivreg(lwage ~ education | nearcollege, data = dat)
+summary(iv)
+
+```
+
+### Teilaufgabe e {.justify}
+Reproduce the result from ivreg on via 2-step-least-square (SLS)
+
+```{r}
+fit1 <- lm(education ~ nearcollege, data = dat)
+dat$education.hat <- predict(fit1)
+fit2 <- lm(lwage ~ education.hat, data = dat)
+summary(fit2)
+
+
+```
+```{r}
+coef(iv)
+```
+
+
+```{r}
+coef(fit2)
+```
+
+
+### Teilaufgabe f {.justify}
+Now add “experience” as additional explanatory variable. Compare the resulting estimated education
+effect between a normal linear model and an iv-rgression. Since “experience” has no instrument, you
+need to use “experience” itself as instrument in the “ivreg” function.
+```{r}
+iv <- ivreg(lwage ~ education + experience | nearcollege + experience, data = dat)
+summary(iv)
+```
+
+
+```{r}
+fit3 <- lm(lwage ~ education + experience, data = dat)
+summary(fit3)
+```
+
+[Adjusting for experience yields a larger estimate for the effect of education on wage. Again the estimated effect of education on wage is much higher in the IV-regression model than in the naive linear model. ]{style="color:#00008B; font-weight:bold"}

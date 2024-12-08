@@ -1,4 +1,4 @@
-# Übungsblatt 2 {.unnumbered}
+# Übungsblatt 02 {.unnumbered}
 
 ---
 title:  "Übungsblatt 2"

@@ -1,5 +1,16 @@
 # Modul D - Network Analysis and Causality {.unnumbered}
 
+**Prof. Beate Sick**\
 
+**Dr. Thoralf Mildenberger**\
+Institute for Data Analysis and Process Design\
+Zurich University of Applied Sciences\
+CH-8401 Winterthur<br><br>
 
+[**Skript:**]{.underline}
 
+/home/olli/ZHAW/24 Modul d/Skript
+
+[Link zum Skript](https://moodle.zhaw.ch/pluginfile.php/1993208/mod_resource/content/1/network_skript/index.html)
+
+https://moodle.zhaw.ch/pluginfile.php/1993208/mod_resource/content/1/network_skript/index.html

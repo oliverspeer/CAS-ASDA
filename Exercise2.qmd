@@ -1,0 +1,156 @@
+---
+title:  "To adjust or not to adjust?"
+author: "Beate Sick"
+date:   "`r Sys.Date()`"
+editor: source
+lang: de
+language: 
+  title-block-author-single: "Autor:"
+  title-block-published: "Version vom:"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+In these tasks, the DAG and the SCM for the data-generating process involving three variables X, Y, Z are
+given. The goal of the tasks is to check for different DAGs, if the total causal effect of X on Y can be
+estimated by the unadjusted (y x) or the adjusted (y x + z) regression model.
+
+## Exercise 1
+
+**Pipe x -> z -> y**
+
+Structural equation model:  
+$X = \epsilon_X$  
+$Z = 2 · X + \epsilon_Z$  
+$Y = 0.5 · Z + \epsilon_Y$  
+
+with $\epsilon_X ∼ N (0, 1)$, $\epsilon_Z ∼ N (0, 1)$ and $\epsilon_Y ∼ N (0, 1)$ being independent of each other.
+
+### Teilaufgabe a
+What is the total cause of X on Y
+
+$Y = 0.5 · 2 = 1$ 
+
+### Teilaufgabe b
+Simulate n = 1000 data points. Then fit   
+(1) a simple regression with X as the only predictor and   
+(2) a multiple linear regression with both X and Z as predictors.   
+In which of the fitted regression models is the true causal effect within the confidence interval of the effect of X on Y ? Set your seed to 123.
+
+```{r, message=FALSE, warning=FALSE}
+set.seed(123)
+n <-  1000
+Ex <- rnorm(n, mean = 0, sd = 1)
+Ey <- rnorm(n, mean = 0, sd = 1)
+Ez <- rnorm(n, mean = 0, sd = 1)
+X = Ex
+Z = 2 * X + Ez
+Y = 0.5 * Z + Ey
+
+library(dagitty)
+d <- dagitty('dag {
+             X -> Z
+             Z -> Y
+}')
+plot(d)
+
+dat <-  data.frame(Ex = Ex, Ey = Ey, Ez = Ez, X = X, Y = Y, Z = Z)
+
+fit1 <- lm(Y ~ X, data = dat)
+summary(fit1)
+confint(fit1)
+```
+```{r, message=FALSE, warning=FALSE}
+fit2 <- lm(Y ~ X + Z, data = dat)
+summary(fit2)
+confint(fit2)
+```
+```{r}
+mean(dat$Y)
+```
+
+
+```{r}
+t <-  t.test(dat$Y,conf.level = 0.95)
+t
+```
+
+```{r, message=FALSE, warning=FALSE}
+adjustmentSets(d, exposure = "X", outcome = "Y")
+
+```
+[The unadjusted regression model is sufficient to estimate the total causal effect of X on Y. In a pipe we should not adjust for the mediator. Note: there is no direct causal effect of X on Y.]{style="color:#00008B; font-weight:bold"}
+
+
+## Exercise 2 Collider
+
+Structural equation model:    
+$X = \epsilon_X$  
+$Y = 0.7 · X + \epsilon_Z$  
+$Z = 0.8 · X + 0.5 · Y + \epsilon_Y$  
+
+with $\epsilon_X ∼ N (0, 1)$, $\epsilon_Z ∼ N (0, 1)$ and $\epsilon_Y ∼ N (0, 1)$ being independent of each other.
+
+
+```{r}
+d <- dagitty('dag {
+             X -> Z
+             Y -> Z
+             X -> Y
+}')
+plot(d)
+
+```
+### Teilaufgabe a
+
+What is the total cause of X on Y?
+0.7
+
+### Teilaufgabe b
+
+```{r}
+set.seed(124)
+n <-  1000
+Ex <- rnorm(n, mean = 0, sd = 1)
+Ey <- rnorm(n, mean = 0, sd = 1)
+Ez <- rnorm(n, mean = 0, sd = 1)
+
+X = Ex
+
+Y = 0.7 * X + Ey
+
+Z = 0.8 * X + 0.5*Y + Ez
+
+
+
+dat <-  data.frame(Ex = Ex, Ey = Ey, Ez = Ez, X = X, Y = Y, Z = Z)
+
+fit3 <- lm(Y ~ X, data = dat)
+
+
+
+confint(fit3)
+```
+
+```{r}
+adjustmentSets(d, exposure = "X", outcome = "Y")
+```
+
+
+[The unadjusted regression model is sufficient to estimate the total causal effect of X on Y. In a collider we should not adjust for the collider.]{style="color:#00008B; font-weight:bold"}

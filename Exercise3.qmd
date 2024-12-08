@@ -1,0 +1,171 @@
+---
+title:  "Pearl’s backdoor criterion"
+author: "Beate Sick"
+date:   "`r Sys.Date()`"
+editor: source
+lang: de
+language: 
+  title-block-author-single: "Autor:"
+  title-block-published: "Version vom:"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+## Exercise 1  {.justify}
+
+The shown causal DAG corresponds to a known data generating process (linear SCM) which has been used
+to simulate observational data for the involved variable X1, X2, X3, X4, X5.
+```{r, message=FALSE, warning=FALSE}
+library(dagitty)
+library(tidyverse)
+library(ggdag)
+g <- dagitty('dag {
+             X3 -> {X2 X1 X5}
+             X1 -> X4 
+             X2 -> X5
+             X4 -> X5
+             
+            
+}')
+set.seed(8173)
+ggdag(g, 
+      layout = "nicely", 
+      text_col = "black", 
+      #label_col = "blue", 
+      node = F, 
+      stylized = T) +
+  geom_dag_point(color = "blue", alpha = 0.3) +
+  theme_dag_blank()
+```
+
+### Teilaufgabe a
+a) Has X1 (“treatment”) potentially a causal effect on   
+(i) X5 (“outcome 1”)?  [yes, there is a direct causality between X1 and X5]{style="color:#00008B; font-weight:bold"}
+(ii) X2 (“outcome 2”)?  [No, there is no direct causality between X1 and X2]{style="color:#00008B; font-weight:bold"}
+
+```{r}
+adjustmentSets(g, exposure = "X1", outcome = "X2")
+```
+```{r}
+adjustmentSets(g, exposure = "X1", outcome = "X5")
+```
+
+### Teilaufgabe b
+se Pearl’s backdoor (BD) criterion to assess in which of the following regression models the coefficient
+of X1 gives an unbiased estimate of the total causal effect (=intervention effect) of X1 on X5.  
+$(i) X5 ∼ X1$     
+$(ii) X5 ∼ X1 + X2$  
+$(iii) X5 ∼ X1 + X3$  
+$(iv) X5 ∼ X1 + X2 + X4$  
+$(v) X5 ∼ X1 + X2 + X3$  
+
+```{r}
+adjustmentSets(g, exposure = "X1", outcome = "X5", effect = "total", type = "all")
+
+```
+[Thus the correct model is $(iii) X5 ∼ X1 + X3$, $(i)$ & $(ii)$ & $(iv)$ would give a biased estimate of the total causal effect of X1 on X5. $(v) X5 ∼ X1 + X2 + X3$ would give an unbiased estimate of the total causal effect of X1 on X5, but it is not the minimal adjustment set.]{style="color:#00008B; font-weight:bold"}
+
+
+### Teilaufgabe c
+Use the provided simulated data (sim.csv) to fit the 5 proposed regressions with linear regression and
+determine a 95% CI for the estimated coefficient of X1.  
+$(i) X5 ∼ X1$  
+$(ii) X5 ∼ X1 + X2$  
+$(iii) X5 ∼ X1 + X3$  
+$(iv) X5 ∼ X1 + X2 + X4$  
+$(v) X5 ∼ X1 + X2 + X3$  
+
+```{r}
+library(readr)
+sim <- read_delim("sim.csv", delim = ";", 
+    escape_double = FALSE, trim_ws = TRUE)
+sim <- as.data.frame(sim)
+```
+
+$(i) X5 ∼ X1$ 
+```{r}
+fit.i <- lm(x5 ~ x1, data = sim)
+(confint(fit.i))
+
+
+```
+$(ii) X5 ∼ X1 + X2$ 
+```{r}
+fit.ii <- lm(x5 ~ x1 + x2, data = sim)
+(confint(fit.ii))
+```
+
+$(iii) X5 ∼ X1 + X3$  
+```{r}
+fit.iii <- lm(x5 ~ x1 + x3, data = sim)
+(confint(fit.iii))
+```
+
+$(iv) X5 ∼ X1 + X2 + X4$  
+```{r}
+fit.iv <- lm(x5 ~ x1 + x2 + x4, data = sim)
+(confint(fit.iv))
+```
+$(v) X5 ∼ X1 + X2 + X3$  
+```{r}
+fit.v <- lm(x5 ~ x1 + x2 + x3, data = sim)
+(confint(fit.v))
+```
+
+### Teilaufgabe d
+Look at the given SCM defining the data generating Process. Draw the corresponding DAG and
+indicate the linear coefficients at the edges.  
+$\epsilon_i ∼ N (0, 1)$  
+$X3 ← \epsilon_3$  
+$X1 ← 5 × X3 + \epsilon_1$  
+$X2 ← 9 × X3 + \epsilon_2$  
+$X4 ← 7 × X1 + \epsilon_4$  
+$X5 ← 5 × X2 + 8 × X3 − 9 × X4 + \epsilon_5$  
+
+```{r, message=FALSE, warning=FALSE}
+g <- dagitty('dag {
+             X1 [pos="0,1"]
+             X2 [pos="2,2"]
+             X3 [pos="0,2"]
+             X4 [pos="1,0"]
+             X5 [pos="2,1"]
+            
+             X1 -> X4 [beta = 7] 
+             X2 -> X5 [beta = 5]
+             X3 -> X1 [beta = 5]
+             X3 -> X2 [beta = 9]
+             X3 -> X5 [beta = 8]
+             X4 -> X5 [beta = -9]
+             
+            
+}')
+set.seed(8173)
+plot(g, show.coefficients = TRUE)
+
+ggdag(g, 
+      layout = "nicely", 
+      text_col = "black", 
+      label_col = "blue", 
+      node = F, 
+      stylized = T,
+      use_labels = NULL,
+      text = T) +
+  geom_dag_point(color = "blue", alpha = 0.3) +
+  theme_dag_blank()
+```

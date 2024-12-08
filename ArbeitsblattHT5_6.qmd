@@ -1,0 +1,370 @@
+---
+title:  "Netzwerkanalyse"
+author: "Thoralf Mildenberger"
+date:   "`r Sys.Date()`"
+editor: source
+lang: de
+language: 
+  title-block-author-single: "Autor:"
+  title-block-published: "Version vom:"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+    code-fold: true
+    code-tools: true
+    css: cas.css
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+# Aufgabe 1
+## Teilaufgabe a
+```{r}
+library(igraph)
+
+edgelist <- rbind(c("Carol","Andre"),
+                  c("Carol","Fernando"),
+                  c("Carol","Diane"),
+                  c("Andre","Diane"),
+                  c("Andre", "Fernando"), 
+                  c("Andre", "Beverly"),
+                  c("Fernando", "Diane"), 
+                  c("Fernando", "Heather"),
+                  c("Diane", "Beverly"),
+                  c("Diane", "Garth"), 
+                  c("Diane", "Ed"),
+                  c("Beverly", "Garth"), 
+                  c("Beverly", "Ed"),
+                  c("Garth", "Ed"), 
+                  c("Garth", "Heather"),
+                  c("Garth", "Fernando"),
+                  c("Heather", "Ike"),
+                  c("Ike", "Jane"))                  
+
+
+g <- graph_from_edgelist(edgelist, directed = FALSE)
+g
+
+```
+
+## Teilaufgabe b
+Erstellen Sie einen Plot, wobei Sie die Männer in Blau und die Frauen in Rot darstellen. Die
+Grösse der Knoten soll proportional zum Grad sein.
+```{r}
+V(g)$color <- ifelse(V(g)$name %in% c("Andre", "Fernando", "Garth", "Ike", "Ed"), "blue", "red")
+V(g)$size <- degree(g) * 5
+set.seed(8173)
+plot(g)
+```
+
+
+# Aufgabe 2
+## Teilaufgabe a
+Betrachten Sie noch einmal den Graphen aus der ersten Aufgabe. Berechnen Sie in R:
+• die Dichte
+• die Transitivität
+• die Distanzmatrix
+• den Durchmesser
+• den durchschnittliche Länge der kürzesten Wege
+```{r}
+mean(degree(g))
+
+# Dichte
+edge_density(g)
+
+# Transitivität
+transitivity(g)
+
+# Distanzmatrix
+distances(g)
+
+# Durchmesser
+diameter(g)
+
+# Durchschnittliche Länge der kürzesten Wege
+mean_distance(g)
+
+```
+
+## Teilaufgabe b
+Lassen Sie sich alle kürzesten Wege von Ed zu Fernando ausgeben.
+```{r}
+all_shortest_paths(g, "Ed", "Fernando")
+
+```
+
+
+# Aufgabe 3
+## Teilaufgabe a
+Betrachten Sie noch einmal das Netzwerk aus der ersten Aufgabe und berechnen Sie
+• die Degree-Centrality
+• die Closeness-Centrality
+• die Betweenness-Centrality
+Welche Person(en) haben jeweils den höchsten Wert?
+
+```{r}
+# Degree-Centrality
+degree(g, normalized = TRUE)
+
+# Closeness-Centrality
+closeness(g, weights = NA, normalized = TRUE)
+
+# Betweenness-Centrality
+betweenness(g, weights = NA, normalized = TRUE)
+
+```
+
+## Teilaufgabe b
+Erstellen Sie einen Plot, bei dem die Grössen der Knoten proportional zu einem der Zentrali-
+tätsmasse (ausser Degree!) sind.
+```{r}
+V(g)$size <- closeness(g, weights = NA, normalized = TRUE) * 100
+set.seed(8173)
+plot(g)
+```
+
+mit Betweenness
+```{r}
+V(g)$size <- betweenness(g, weights = NA, normalized = TRUE) * 100
+set.seed(8173)
+plot(g)
+```
+
+# Aufgabe 5
+## Teilaufgabe a
+Berechnen Sie die PageRanks der 8 Websites und erstellen Sie einen Plot, in dem die Grösse
+der Knoten proportional zum PageRank ist.
+```{r}
+kanten <- rbind(c(1, 2), c(1, 3), c(1, 6), c(3, 6), c(3, 7),
+c(4, 3), c(5, 6), c(5, 7), c(7, 2), c(7, 4),
+c(8, 7))
+
+g <- graph_from_edgelist(kanten, directed = TRUE)
+
+V(g)$size <- page_rank(g)$vector * 100
+
+set.seed(123)
+plot(g)
+page_rank(g)$vector
+```
+
+## Teilaufgabe b
+Stellen Sie Sich vor, Sie sind der Betreiber von Website 5 und haben die Möglichkeit, dem
+Betreiber einer der anderen Websites Geld dafür zu zahlen, dass er auf Ihre Seite verlinkt.
+Von wem würden Sie den Link kaufen? Denken Sie erst darüber nach und probieren Sie dann
+alle Varianten aus.
+```{r}
+page_rank(g)$vector
+kanten1 <- rbind(c(1, 2), c(1, 3), c(1, 6), c(3, 6), c(3, 7),
+c(4, 3), c(5, 6), c(5, 7), c(7, 2), c(7, 4),
+c(8, 7), c(3, 5))
+
+g1 <- graph_from_edgelist(kanten1, directed = TRUE)
+
+V(g1)$size <- page_rank(g1)$vector * 100
+
+set.seed(123)
+plot(g1)
+page_rank(g1)$vector
+```
+
+```{r}
+
+kanten1 <- rbind(c(1, 2), c(1, 3), c(1, 6), c(3, 6), c(3, 7),
+c(4, 3), c(5, 6), c(5, 7), c(7, 2), c(7, 4),
+c(8, 7), c(6, 5))
+
+g1 <- graph_from_edgelist(kanten1, directed = TRUE)
+
+V(g1)$size <- page_rank(g1)$vector * 100
+
+set.seed(123)
+plot(g1)
+page_rank(g1)$vector
+```
+
+```{r}
+
+kanten1 <- rbind(c(1, 2), c(1, 3), c(1, 6), c(3, 6), c(3, 7),
+c(4, 3), c(5, 6), c(5, 7), c(7, 2), c(7, 4),
+c(8, 7), c(2, 5))
+
+g1 <- graph_from_edgelist(kanten1, directed = TRUE)
+
+V(g1)$size <- page_rank(g1)$vector * 100
+
+set.seed(123)
+plot(g1)
+page_rank(g1)$vector
+
+
+```
+
+```{r}
+
+kanten1 <- rbind(c(1, 2), c(1, 3), c(1, 6), c(3, 6), c(3, 7),
+c(4, 3), c(5, 6), c(5, 7), c(7, 2), c(7, 4),
+c(8, 7), c(4, 5))
+
+g1 <- graph_from_edgelist(kanten1, directed = TRUE)
+
+V(g1)$size <- page_rank(g1)$vector * 100
+
+set.seed(123)
+plot(g1)
+page_rank(g1)$vector
+
+```
+
+```{r}
+
+kanten1 <- rbind(c(1, 2), c(1, 3), c(1, 6), c(3, 6), c(3, 7),
+c(4, 3), c(5, 6), c(5, 7), c(7, 2), c(7, 4),
+c(8, 7), c(7, 5))
+
+g1 <- graph_from_edgelist(kanten1, directed = TRUE)
+
+V(g1)$size <- page_rank(g1)$vector * 100
+
+set.seed(123)
+plot(g1)
+page_rank(g1)$vector
+```
+```{r}
+for (i in c(1:4, 6:8)) {
+  #pr.new <- page_rank(add_edges(g, c(i, 5)))$vector
+  #print(c(i, pr.new[5]))
+  print(c(i, page_rank(add_edges(g, c(i, 5)))$vector[5]))
+}
+```
+
+# Aufgabe 6
+Die Datei dolphins.RData enthält ein Netzwerk von 62 Delfinen (tursiops, bottlenose dolphins),
+die in der Nähe von Doubtful Sound (Neuseeland) leben. Zwei Delfine sind durch eine Kante
+verbunden, wenn sie sich besonders häufig zusammen aufhalten.
+## Teilaufgabe a
+Laden Sie die Daten, berechnen Sie einige Masszahlen wie Transitivität und erstellen Sie
+einen Plot.
+```{r}
+load("dolphins.RData")
+dolphins
+
+mean(degree(dolphins))
+
+# Dichte
+edge_density(dolphins)
+
+components(dolphins)
+
+# Transitivität
+transitivity(dolphins)
+
+# Distanzmatrix
+distances(dolphins)
+
+# Durchmesser
+diameter(dolphins)
+
+# Durchschnittliche Länge der kürzesten Wege
+mean_distance(dolphins)
+plot(dolphins)
+```
+
+```{r}
+V(dolphins)$size <- closeness(dolphins, weights = NA, normalized = TRUE)*30
+set.seed(8173)
+plot(dolphins)
+```
+
+## Teilaufgabe b
+Wie viele Knoten bzw. Kanten müssen Sie entfernen, damit das Netzwerk in zwei Teile
+zerfällt? Markieren Sie die Cutpoints in rot.
+```{r}
+a <- articulation_points(dolphins)
+V(dolphins)$color <- ifelse(V(dolphins)$name %in% c("Ripplefluke", "Scabs",       "Patchback",   "SN63",        "Trigger",     "Web",         "Jet"), "red", "lightblue")
+set.seed(8173)
+plot(dolphins)
+```
+
+
+```{r}
+bridges(dolphins)
+```
+
+```{r}
+sort(degree(dolphins, normalized = TRUE), decreasing = TRUE)
+
+sort(closeness(dolphins, normalized = TRUE), decreasing = TRUE)
+
+sort(betweenness(dolphins, normalized = TRUE), decreasing = TRUE)
+```
+
+```{r}
+cl_fg <- cluster_fast_greedy(dolphins)
+cl_fg
+set.seed(8173)
+plot(cl_fg, dolphins)
+```
+
+```{r}
+cl_fg <- cluster_optimal(dolphins)
+cl_fg
+set.seed(8173)
+plot(cl_fg, dolphins)
+```
+
+
+# Aufgabe 7
+Im File hwd.RData finden Sie ein bipartites Netzwerk mit Schauspielern und Filmen. Ein Schauspie-
+ler und ein Film sind durch eine Kante verbunden, wenn der Schauspieler in dem Film mitgespielt
+hat.
+```{r}
+load("hwd.RData")
+
+```
+
+## Teilaufgabe a
+Wie viele Schauspieler und wie viele Filme sind vorhanden?
+```{r}
+hwd
+summary(vertex_attr(hwd))
+table(vertex_attr(hwd)$type)
+
+
+```
+1205 Schauspieler
+160 Filme
+
+```{r}
+pr.hwd <- bipartite_projection(hwd)
+pr.hwd
+```
+
+
+## Teilaufgabe b
+Erstellen Sie das Netzwerk der Filme. Ist der Graph zusammenhängend? Wenn nein, dann
+entfernen Sie alle Komponenten ausser der grössten.
+```{r}
+pr.hwd <- bipartite_projection(hwd)
+pr.hwd
+```
+
+
+```{r}
+
+# components(pr.hwd)
+
+```

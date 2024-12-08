@@ -1,0 +1,122 @@
+# Übungsblatt 07 {.unnumbered}
+
+---
+title:  "Übungsblatt 07"
+author: "Marcel Dettling"
+date:   "`r Sys.Date()`"
+editor: source
+lang: de
+language: 
+  title-block-author-single: "Autor:"
+  title-block-published: "Version vom:"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    theme: sandstone
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+## Aufgabe 1 {.justify}
+
+In dieser Aufgabe sollen sie ein 95%-Prognoseintervall für ein Poisson Regressionsmodell erzeugen. Dazu muss einerseits die Unsicherheit im asymptotisch normalverteilten Erwartungswert berücksichtigt werden, andererseits kommt die poissonverteilte Streuung der Beobachtungen. Die beiden Verteilungen lassen sich in der Theorie nicht in geschlossener Form mixen. Daher ist ein empirisches Verfahren nötig.
+
+![](../Uebungen/Pictures/Uebung07_Poisson_Prognoseintervall.png)
+
+Bilden sie ein solches, empirisches 95%-Prognoseintervall für die abgebildete Unfallzeitreihe. Der Vektor mit der Unfallzahl ist `c(4, 3, 11, 5, 6, 4, 9, 7, 6)`, im Jahr 2016 gab es 16 Unfälle. Das Vorgehen ist wie folgt.
+
+### Teilaufgabe a)
+
+Poisson-Regressionsmodell mit linearen Trend anpassen $log(\lambda_i)=\beta_0+\beta_1 \cdot t$
+
+### Teilaufgabe b)
+
+Nun müssen sie die empirische Verteilung für die vorhergesagten Beobachtungen im Jahr 2016 erzeugen. Dazu muss die Unsicherheit im Erwartungswert mit jener von den Beobachtungen kombiniert werden. Führen sie mind. 1000 Wiederholungen durch von:
+
+i)  Ziehen sie einen Erwartungswert $\hat{\lambda}^*_{2016}$ für das Jahr 2016, indem sie von der Normalverteilung $\mathcal{N}(\hat{\eta}_{2016}, se(\hat{\eta}_{2016}))$ einen linearen Prädiktorwert $\hat{\eta}^*_{2016}$ erzeugen und diesen dann via $\hat{\lambda}^*_{2016} = exp(\hat{\eta}^*_{2016})$ umwandeln
+
+ii) Mit diesem zufällig gezogenen Erwartungswert erzeugen sie eine Beobachtung durch Ziehen aus der Poissonverteilung $Pois(\lambda^*_{2016})$
+
+### Teilaufgabe c)
+
+Die Quantile (2.5%, 97.5%) der empirischen Verteilung ergeben dann das 95%-Prognoseintervall für eine neue Beobachtung im Jahr 2016.
+
+## Aufgabe 2 {.justify}
+
+Führen sie dieselbe Aufgabe wie oben nun auch noch für das Negativ-Binomial-Modell aus. Möglicherweise hilft ihnen die Funktion `simulate()` bei dieser Aufgabe, alternativ können sie auch mit der R-Funktion `rnbinom()` arbeiten.
+
+## Aufgabe 3 {.justify}
+
+Gegeben ist die folgende Tabelle mit der Anzahl ZUB-Fälle, aufgelöst nach Tageszeit des Einsatzes und ob sie vor oder nach der obligatorischen Dienstpause registriert wurden:
+
+|                | Frühdienst | Tagdienst | Spätdienst | Total |
+|----------------|------------|-----------|------------|-------|
+| Vor der Pause  | 52         | 177       | 31         | 260   |
+| Nach der Pause | 38         | 213       | 98         | 349   |
+| Total          | 90         | 390       | 129        | 609   |
+
+Die typische Fragestellung in dieser Situation ist, welche Konstellation besonders risikoreich für ZUB-Fälle ist. Wir wollen uns ihr schrittweise nähern.
+
+### Teilaufgabe a)
+
+Geben sie die Daten in R ein, erzeugen sie ein Data Frame und eine Kreuztabelle. Hinweise dazu sind auf Folie 226 zu finden.
+
+### Teilaufgabe b)
+
+Fitten sie ein Poisson-Modell mit den Haupteffekten, d.h. der Information zur Schicht und ob sich der Lokführer vor oder nach der Pause im Einsatz befindet.
+
+### Teilaufgabe c)
+
+Führen sie den globalen Test aus. Was besagt das Resultat aus praktischer Sicht?
+
+### Teilaufgabe d)
+
+Nun ist der Goodness-of-Fit Test angesagt. Welche Folgerung können wir aus dem erzielten Resultat für die Praxis ziehen?
+
+### Teilaufgabe e)
+
+Welche Aussagen können wir zum Modell bzw. zur Abhängigkeit zwischen Dienst und vor/nach Pause machen? Lässt sich etwas Zuverlässiges über besonders risikoreiche Konstellationen aussagen?
+
+## Aufgabe 4 {.justify}
+
+In dieser Aufgabe gilt es eine Risikoinstellationsanalyse zum Unfallgeschehen auf den Schweizer Strassen durchzuführen. Im File `strassenunfaelle.rda` finden sie das Data Frame `sunf`. Es beinhaltet eine Selektion von Unfällen bei welchen Personen verletzt wurden. Jede Zeile beschreibt genau einen (1) Unfall mit der Strassenart, dem Geschwindigkeitslimit und den Lichtverhältnissen.
+
+```{r, echo=T, eval=T}
+load("strassenunfaelle.rda")
+```
+
+### Teilaufgabe a)
+
+Um die Daten für eine Analyse nutzen zu können, müssen sie zuerst aggregiert werden. D.h. es muss gezählt werden, wie viele Unfälle es in jeder Merkmalskombination gab. Es gibt nur schon in R unzählige Möglichkeiten, dies zu tun (z.B. mit der Funktion `aggregate()`).
+
+### Teilaufgabe b)
+
+Passen sie dann ein Poisson-Regressionsmodell auf den aggregierten Daten, d.h. der 3-dimensionalen Kreuztabelle an. Wenn sie möchten, können sie zusätzlich mit der robusten Methode aus `library(robustbase)` fitten und die Resultate danach gegen den herkömmlichen Fit vergleichen.
+
+### Teilaufgabe c)
+
+Wenn man rein nach den Koeffizienten des Modells geht, welches ist die unfallträchtigste, bzw. die gutmütigste Konstellation der Variablen?
+
+### Teilaufgabe d)
+
+Erzeugen sie dann ein Data Frame, wo die Variablenkonfiguration mit der Anzahl Unfälle, dem Fitted Value und dem Pearson-Residuum nach Grösse absteigend geordnet sind.
+
+### Teilaufgabe e)
+
+Vergleichen sie die so identifizierten Risikokonstellationen (d.h. diejenigen, wo viel mehr Unfälle als erwartet auftreten) gegen die in Teilaufgabe c) identifizierten Konstellationen.
+
+### Teilaufgabe f)
+
+Versuchen sie eine fachliche Interpretation der in Teilaufgabe e) idenitifzierten Risikokonstellationen. Woran könnte es liegen, dass gerade diese Konfigurationen so besonders risikobehaftet sind?

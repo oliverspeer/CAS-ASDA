@@ -1,4 +1,4 @@
-# Übungsblatt 4 – Logistische Regression {.unnumbered}
+# Übungsblatt 04 – Logistische Regression {.unnumbered}
 
 ---
 title:  "Übungsblatt 4 – Logistische Regression "
@@ -46,18 +46,21 @@ par(mfrow = c(1, 2))
 mosaicplot( ~ duration + age, data = mobility, col = rainbow(5, s = 0.5))
 mosaicplot(~age + duration, data = mobility, col = rainbow(8, s = 0.5))
 ```
+
 [bis zum Alter von 60 scheint die Dauer zu steigen, also kolinear. man könnte beim model auf eine von beiden verzichten.]{style="color=#0000B8, font-weight=bold"}
 
 ### Teilaufgabe b)
 
 Passen sie nun ein logistisches Regressionsmodell mit allen Prädiktoren an. Führen sie eine Residuenanalyse aus. Gibt es Auffälligkeiten bei diesem Modell?
+
 ```{r}
 fit <- glm(churn ~ ., data = mobility, family = binomial)
 summary(fit)
 par(mfrow =  c(2,2))
 plot(fit, pch = 20)
 ```
-[technisch ok, insgesamt schwierig zu interpretieren, Tuskey-Anscombe (oben links): keine Beanstandung,]{style="color:#0000B8, font-weight:bold"} [normal QQ-Plot (oben rechts): eh nicht aussagekräftig bei logit-Regressionen,]{style="color:#0000B8, font-weight:bold"} [Scale-Location (unten links): ]{style="color:#0000B8, font-weight:bold"}
+
+[technisch ok, insgesamt schwierig zu interpretieren, Tuskey-Anscombe (oben links): keine Beanstandung,]{style="color:#0000B8, font-weight:bold"} [normal QQ-Plot (oben rechts): eh nicht aussagekräftig bei logit-Regressionen,]{style="color:#0000B8, font-weight:bold"} [Scale-Location (unten links):]{style="color:#0000B8, font-weight:bold"}
 
 ### Teilaufgabe c)
 
@@ -66,11 +69,13 @@ Führen sie den globalen Test durch. Fällt er signifikant aus? Welche Möglichk
 ```{r}
 pchisq(fit$null.deviance - fit$deviance, df = 2, lower.tail = FALSE)
 ```
+
 [der fit mit allen Prädiktoren ist im Vergleich zum fit ohne Prädiktoren deutlich signifikant.]{style="color:#0000B8, font-weight:bold"}
 
 ```{r}
 summary(fit)
 ```
+
 ```{r}
 pred <- factor(predict(fit, type = "response") > 0.5, levels = c("FALSE", "TRUE"))
 table(mobility$churn, pred)
@@ -87,6 +92,7 @@ fit.red <- step(fit, trace = 0)
 coef(fit.red)
 fit.red$anova
 ```
+
 ```{r}
 fit.min <- formula(churn ~ 1)
 fit.max <- formula(churn ~ (duration + liability + gender + age + payment + n.loc.1k + n.r.11 + n.loc.u)^2 )
@@ -95,6 +101,7 @@ fit.red.i <- step(fit, scope = scope.i, trace = 0)
 fit.red.i$anova
 drop1(fit.red.i, test = "Chisq" )
 ```
+
 [alle 4 selektierten Prädiktoren sind signifikant]{style="colour:#0000B8, font-weight:bold"}
 
 ### Teilaufgabe e)
@@ -105,6 +112,7 @@ Erzeugen sie eine Vorhersage für die Churn-W'keit für einen männlichen Kunden
 dat <- data.frame(liability = "yes", gender = "M", age = "<60J", n.r.11 = "3-5")
 predict(fit.red.i, newdata = dat, type = "response")
 ```
+
 [Der Kunde wird mit einer Wahrscheinlichkeit von 1.24% seinen Vertrag kündigen]{style="colour:#0000B8, font-weight:bold"}
 
 ### Teilaufgabe f)

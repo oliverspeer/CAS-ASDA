@@ -1,0 +1,267 @@
+---
+title:  "Dagitty"
+author: "Beate Sick"
+date:   "`r Sys.Date()`"
+editor: source
+lang: de
+language: 
+  title-block-author-single: "Autor:"
+  title-block-published: "Version vom:"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+## Exercise 1  {.justify}
+
+In this tasks, the Structural Causal Models (SCM) for the data generating process are given. The goal of
+the tasks is to draw the corresponding causal graph and perform a simulation study.
+Excercise 1
+Consider the following SCM:
+U1 ∼ N (0, 1)
+U2 ∼ N (0, 1)
+U3 ∼ N (0, 1)
+X3 = U3
+X1 = 0.7 · X3 + U1
+X2 = 1 · X1 + 0.5 · X3 + U2
+
+### Teilaufgabe a
+
+Use Daggity to plot the corresponding DAG.
+```{r}
+library(dagitty)
+g <- dagitty('dag {
+             X3 -> {X2 X1}
+             X1 -> X2
+            
+}')
+
+plot(g)
+```
+
+
+### Teilaufgabe b
+Simulate n = 1000 observations according to this SCM (set.seed(1)) and save the observed variables in a data.frame called “dat” and visualize the data. Generate a histogram of the observed variable x2 and determine its mean and median. Compute a 95% confidence interval for the expected value of X2.
+
+```{r}
+set.seed(1)
+n <-  1000
+u1 <- rnorm(n, mean = 0, sd = 1)
+u2 <- rnorm(n, mean = 0, sd = 1)
+u3 <- rnorm(n, mean = 0, sd = 1)
+
+X3 <- u3
+X1 <- 0.7 * X3 + u1
+X2  <- X1 + 0.5 * X3 + u2
+
+dat <- data.frame(u1 = u1, u2 = u2, u3 = u3, X1 = X1, X2 = X2, X3 = X3)
+head(dat, 3)
+```
+```{r, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(GGally)
+ggpairs(dat)
+
+```
+
+```{r}
+hist(dat$X2)
+```
+
+
+```{r}
+mean(dat$X2)
+median(dat$X2)
+t <- t.test(dat$X2,conf.level =  0.95)
+t
+```
+
+
+```{r}
+t$conf.int
+```
+
+### Teilaufgabe c
+Assume that X3 is increased by one unit. Write down the updated SCM (replace in all equations X3
+by (X3+1)) and simulate again n=1000 observations from the update SCM and save the simulated
+data into a data.frame called dat1. Determine the mean of x2 and the 95% CI for E(X2) and compare
+it with the corresponding results that you have received with the original SCM. Compute difference of
+the two point estimates for E(X2).
+
+
+```{r}
+set.seed(1)
+n <-  1000
+u1 <- rnorm(n, mean = 0, sd = 1)
+u2 <- rnorm(n, mean = 0, sd = 1)
+u3 <- rnorm(n, mean = 0, sd = 1)
+
+X3 <- u3
+X1 <- 0.7 * (X3 + 1) + u1
+X2  <- X1 + 0.5 * (X3 + 1) + u2
+
+dat1 <- data.frame(u1 = u1, u2 = u2, u3 = u3, X1 = X1, X2 = X2, X3 = X3)
+head(dat1, 3)
+```
+```{r, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(GGally)
+ggpairs(dat1)
+
+```
+
+```{r}
+hist(dat1$X2)
+```
+
+
+```{r}
+mean(dat1$X2)
+median(dat1$X2)
+t <- t.test(dat1$X2,conf.level =  0.95)
+t
+```
+
+
+```{r}
+t$conf.int
+```
+
+### Teilaufgabe d
+How large is the direct causal effect of X3 on X2 according to the SCM? 
+How large is the total causal effect of X3 on X2 according to the SCM? 
+Tipp: Recall the path rule for linear SCMs.
+
+X3 <- u3
+X1 <- 0.7 * (X3 + 1) + u1
+X2  <- X1 + 0.5 * (X3 + 1) + u2
+
+direct causal effect of X3 on X2: 0.5 x (X3 + +) = 0.5 x 1 = 0.5
+total causal effect X3 on X2: X1 + 0.5 x (X3 + 1) = 0.7 x (X3 + 1) + 0.5 x (X3 + 1) = 0.7 + 0.5 = 1.2
+
+### Teilaufgabe e
+Use the simulated data from the original SCM and fit two different linear regression models, both with
+X2 as target: 1) X2~X3 , 2) X2~X3+X1. Determine the CIs for the estimated coefficients and discuss
+the results.
+```{r}
+fit1 <- lm(X2 ~ X3, data = dat)
+summary(fit1)
+confint(fit1)
+```
+[In this unajusted model we get the coefficient $\beta_3$ that corresponds to the total causal effect of X3 on X2. The confidence interval for $\beta_3$ is $(1.18, 1.36)$.]{style="color:#00008B; font-weight:bold"}
+
+```{r}
+fit2 <- lm(X2 ~ X3 + X1, data = dat)
+summary(fit2)
+confint(fit2)
+```
+[In this model, where we adjusted for X1,  we get the coefficient $\beta_3$ that corresponds to the direct causal effect of X3 on X2. The confidence interval for $\beta_3$ is $(0.44, 0.59)$.]{style="color:#00008B; font-weight:bold"}
+
+### Teilaufgabe f
+Use daggity to ask for the correct adjustment set to get the total or direct causal effect of X3 on X2.
+```{r}
+adjustmentSets(g, exposure = "X3", outcome = "X2", effect = "total")
+```
+[dagitty returns the empty set, which means that there is no adjustment set that can be used to estimate the total causal effect of X3 on X2.]{style="color:#00008B; font-weight:bold"}
+
+```{r}
+adjustmentSets(g, exposure = "X3", outcome = "X2", effect = "direct")
+```
+[dagitty returns the set {X1}, which means that X1 is the correct adjustment set to estimate the direct causal effects of X3 on X2.]{style="color:#00008B; font-weight:bold"}
+
+
+# Exercise 2
+## Teilaufgabe a
+What is the total cause of X on Y
+
+1
+
+## Teilaufgabe b
+Simulate n = 1000 data points. Then fit (1) a simple regression with X as the only predictor and (2)
+a multiple linear regression with both X and Z as predictors. In which of the fitted regression models
+is the true causal effect within the confidence interval of the effect of X on Y ? Set your seed to 123.
+```{r}
+set.seed(123)
+n <-  1000
+Ex <- rnorm(n, mean = 0, sd = 1)
+Ey <- rnorm(n, mean = 0, sd = 1)
+Ez <- rnorm(n, mean = 0, sd = 1)
+X = Ex
+Z = 2 * X + Ey
+Y = 0.5 * Z + Ez
+
+library(dagitty)
+d <- dagitty('dag {
+             X -> Z
+             Z -> Y
+}')
+plot(d)
+
+dat <-  data.frame(Ex = Ex, Ey = Ey, Ez = Ez, X = X, Y = Y, Z = Z)
+
+fit1 <- lm(Y ~ X, data = dat)
+summary(fit1)
+confint(fit1)
+```
+```{r}
+fit2 <- lm(Y ~ X + Z, data = dat)
+summary(fit2)
+confint(fit2)
+```
+```{r}
+mean(dat$Y)
+```
+
+
+```{r}
+t <-  t.test(dat$Y,conf.level = 0.95)
+t
+```
+# Exercise 3
+```{r}
+d <- dagitty('dag {
+             X -> Z
+             Y -> Z
+             X -> Y
+}')
+plot(d)
+
+```
+```{r}
+set.seed(124)
+n <-  1000
+Ex <- rnorm(n, mean = 0, sd = 1)
+Ey <- rnorm(n, mean = 0, sd = 1)
+Ez <- rnorm(n, mean = 0, sd = 1)
+
+X = Ex
+
+Y = 0.7 * X + Ey
+
+Z = 0.8 * X + 0.5*Y + Ez
+
+
+
+dat <-  data.frame(Ex = Ex, Ey = Ey, Ez = Ez, X = X, Y = Y, Z = Z)
+
+fit3 <- lm(Y ~ X, data = dat)
+
+
+
+confint(fit3)
+```

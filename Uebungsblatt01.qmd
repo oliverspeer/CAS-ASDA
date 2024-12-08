@@ -1,4 +1,4 @@
-# Übungsblatt 1 {.unnumbered}
+# Übungsblatt 01 {.unnumbered}
 
 ---
 title:  "Übungsblatt 1"
@@ -59,6 +59,7 @@ ggplot(autodistanz, aes(alter, log(distanz))) +
 ### Teilaufgabe b)
 
 Verwenden sie nun anstelle des Loess-Glätters ein geeignetes Polynom, welches ihnen den Zusammenhang zwischen den beiden Grössen schätzt.
+
 ```{r}
 library(tidyverse)
 ggplot(autodistanz, aes(alter, distanz)) +
@@ -87,7 +88,6 @@ ggplot(autodistanz, aes(alter, log(distanz))) +
   geom_point() +
   geom_smooth(method = "gam", formula = y ~ s(x))
 ```
-
 
 ### Teilaufgabe c)
 
@@ -123,7 +123,8 @@ plot(fit.gam, residuals = TRUE, col = "blue", shade = TRUE, pch = 20 )
 par(mfrow = c(2, 2))
 gam.check(fit.gam, rep = 100, pch = 20)
 ```
-[In den Diagnose-Plots zeigt sich, dass die Varianz nicht konstant ist, daher zeigt sich im qq-plot eine Abweichung. auch werden die Residuen mit zunehmendem fitted value grösser. Eine log-Transformation ist angezeigt.]{style="color:#00008B; font-weight:bold"} 
+
+[In den Diagnose-Plots zeigt sich, dass die Varianz nicht konstant ist, daher zeigt sich im qq-plot eine Abweichung. auch werden die Residuen mit zunehmendem fitted value grösser. Eine log-Transformation ist angezeigt.]{style="color:#00008B; font-weight:bold"}
 
 ```{r, echo=F,eval=TRUE,message=FALSE, warning=FALSE}
 fit.gam.log <- gam(log(distanz) ~ s(alter), data = autodistanz)
@@ -141,7 +142,6 @@ legend("topright", c("norm", "log-Trans"), col = c("blue", "red"), cex = 0.8, lt
 ```
 
 [Nach log-Transformation sieht der Fit und die Residuen vernünftig aus]{style="color:#00008B; font-weight:bold"}
-
 
 ### Teilaufgabe d)
 
@@ -165,12 +165,12 @@ plot(spt, type = "o",pch=20, main = "Phosphatwerte Suhre")
 ### Teilaufgabe a)
 
 Passen sie mit der Funktion `gam()` einen Smoothing-Spline-Fit an, welcher die zeitliche Entwicklung der Phosphatwerte aufzeigt.
+
 ```{r, echo=F, eval=T, message=FALSE, warning=FALSE}
 fit.gam <- gam(spt ~ s(time(spt)), data = spt)
 summary(fit.gam)
 plot(fit.gam, residuals = TRUE, col = "blue", shade = TRUE, pch = 20 )
 ```
-
 
 ### Teilaufgabe b)
 

@@ -1,0 +1,57 @@
+# Übungsblatt 08 {.unnumbered}
+
+---
+title:  "Übungsblatt 08"
+author: "Marcel Dettling"
+date:   "`r Sys.Date()`"
+editor: source
+lang: de
+language: 
+  title-block-author-single: "Autor:"
+  title-block-published: "Version vom:"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    theme: sandstone
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+## Aufgabe 1 {.justify}
+
+Der Datensatz `motorins.rda` enthält ein Data Frame mit Informationen zu Zahlungen, welche im Zusammenhang mit Motorfahrzeugversicherungen gemacht wurden. Als Prädiktoren stehen die Anzahl gefahrener Kilometer, die Automarke und die Bonusstufe zur Verfügung. Beachten sie, dass die Daten gruppiert sind! Mit Claims ist nämlich die Anzahl Schadenfälle in der entsprechenden Konfiguration angegeben. Wir laden den Datensatz.
+
+```{r}
+## Datensatz laden
+load("motorins.rda")
+```
+
+
+### Teilaufgabe a)
+
+Finden sie ein geeignetes Gamma-Regressionsmodell, welches die Schadenhöhe in Abhängigkeit der Kilometer, der Automarke, der Bonusstufe und der Anzahl Schadenfälle geeignet modelliert.
+
+### Teilaufgabe b)
+
+Passen sie nun ein äquivalentes, multiples lineares Regressionsmodell mit einer geeigneten Transformation der Zielgrösse an.
+
+### Teilaufgabe c)
+
+Prüfen sie die Signifikanz der einzelnen Prädiktoren mit jeweils beiden Modellen mit Hilfe von für diese Aufgabe geeigneten Tests.
+
+### Teilaufgabe d)
+
+Welches Modell liefert die genaueren Vorhersagen? Urteilen sie erst via den Anteil der erklärten Devianz. Führen sie dann auch einen Out-of-Sample Test durch, um dieselbe Frage zu klären.
+
