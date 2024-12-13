@@ -201,6 +201,7 @@ load("lhds.RData")
 lhds
 g.er <- sample_gnp(n = vcount(lhds), p = edge_density(lhds))
 g.er
+
 ```
 
 ## Teilaufgabe b
@@ -208,6 +209,7 @@ Einen Watts-Strogatz-Graphen mit genauso vielen Knoten wie das lhds-Netzwerk. WÃ
 die Anzahl Nachbarn auf jeder Seite gleich 2 (warum?) und die Rewiring-Wahrscheinlichkeit
 0.25
 ```{r}
+mean(degree(lhds))
 g.ws <- sample_smallworld(dim = 1, size = vcount(lhds), nei = 2, p = 0.25)
 ```
 
@@ -254,3 +256,26 @@ sum(components(g.ws)$csize == 1)
 sum(components(g.ba)$csize == 1)
 
 ```
+
+
+# Zusatz Ringgrid
+
+```{r}
+g_ring <- make_ring(16)
+plot(g_ring, 
+     layout = layout_in_circle, 
+     vertex.size  = 0.7, 
+     vertex.label = NA)
+mean_distance(g_ring)
+diameter(g_ring)
+```
+
+# Zusatz Lattice
+```{r}
+gr_lattice <- make_lattice(c(4,4))
+plot(gr_lattice, 
+     layout = layout_on_grid, 
+     vertex.size  = 3, 
+     vertex.label = NA)
+mean_distance(gr_lattice)
+diameter(gr_lattice)
