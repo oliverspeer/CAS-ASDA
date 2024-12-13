@@ -1,0 +1,256 @@
+---
+title:  "Netzwerkanalyse 2"
+author: "Thoralf Mildenberger"
+date:   "`r Sys.Date()`"
+editor: source
+lang: de
+language: 
+  title-block-author-single: "Autor:"
+  title-block-published: "Version vom:"
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+    fig-width: 8
+    fig-height: 6
+    fig-align: "center"
+    fig-caption: true
+    df-print: kable
+    highlight: "monochrome"
+    code-fold: true
+    code-tools: true
+    css: cas.css
+---
+
+```{css, echo = FALSE}
+.justify {
+  text-align: justify
+}
+```
+
+# Aufgabe 1 Politische Blogs in Frankreich
+Der Datensatz fblog im Paket sand enthält ein Netzwerk Politischer Blogs in Frankreich, das an
+einem Tag im Oktober 2006 beobachtet worden ist. Laden Sie den Datensatz wie folgt:
+```{r}
+library(igraph)
+library(sand)
+data(fblog)
+fblog
+```
+
+## Teilaufgabe a
+Berechnen Sie Dichte, Transitivität, Durchmesser, mittleren Abstand und den mittleren Grad
+der Knoten.
+```{r}
+g <- fblog
+# Dichte von g
+edge_density(g)
+
+# Transitivität von g
+transitivity(g)
+
+# Durchmesser von g
+diameter(g)
+
+# mittlerer Abstand von g
+mean_distance(g)
+
+# mittlerer Grad der Knoten von g
+mean(degree(g))
+
+# Anzahl Komponenten
+components(g)
+
+
+
+
+```
+
+## Teilaufgabe b
+Führen Sie eine Community-Detection durch. Wie viele Cluster erhalten Sie, wie ist die
+Modularität?  
+Hinweis: Vorsicht, für cluster_optimal() ist der Graph zu gross.
+
+```{r}
+cl_fg <- cluster_fast_greedy(g)
+cl_fg
+set.seed(8173)
+plot(cl_fg, g, vertex.size = 4, vertex.label = NA)
+
+```
+
+```{r}
+# cluster mit louvain
+cl_louvain <- cluster_louvain(g)
+cl_louvain
+
+table(cl_louvain$membership, V(g)$PolParty)
+```
+
+### Teilaufgabe c
+Das Knotenattribut PolParty enthält eine Zuordnung des jeweiligen Blogs zu einer Partei.
+Ist das Clustering aus b) damit konsistent? Welche Modularität erhalten Sie, wenn Sie das
+Netzwerk direkt nach Parteien unterteilen?
+Für cluster_optimal() ist der Graph zu gross.
+```{r}
+modularity(g, as.integer(as.factor(V(g)$PolParty)))
+
+
+```
+
+### Teilaufgabe d
+Fassen Sie nun die Blogs zu “Meta-Knoten” zusammen, d.h. machen Sie aus allen Knoten
+mit der selben Parteienpräferenz einen neuen Knoten. Erzeugen Sie Kantengewichte, die den
+Anzahlen Verbindungen zwischen den jeweiligen parteinahen Blogs entsprechen, und plotten
+sie das neue Netzwerk. Die Grösse der Knoten soll dabei proportional zur Anzahl der Blogs
+sein.
+```{r}
+V(g)$cnt <- 1
+E(g)$weight <- 1
+V(g)$clasnr <- as.numeric(factor(V(g)$PolParty, exclude = NULL))
+g_cont <- contract(g, 
+                   mapping = V(g)$clasnr,
+                   vertex.attr.comb = list(cnt = "sum",
+                                           PolParty = "first",
+                                           clasnr = "first"))
+g_cont
+
+V(g_cont)$name <- V(g_cont)$PolParty
+g_cont
+
+g_contr2 <- g_cont
+g_contr2 <- simplify(g_contr2, remove.loops = FALSE, edge.attr.comb = list(weight = "sum",
+                                                     "ignore"))
+plot(g_contr2, vertex.size = V(g_contr2)$cnt, 
+     edge.width = 0.1*E(g_contr2)$weight,
+     vertex.size = 0.3*V(g_contr2)$count)
+```
+
+
+# Aufgabe 2
+Wir betrachten ein Netzwerk mit E-Mail-Verkehr von 112 Tagen, das an der Uni Kiel erhoben wurde.
+Die Daten stammen von der Website zum Buch von Barabasi, http://networksciencebook.com/ und
+sind als Textfile email.edgelist.txt mit einer edgelist gegeben. Die Kanten sind gerichtet (Kante
+von A zu B bedeutet, dass A an B eine E-Mail gesendet hat) und können mehrfach vorhanden sein.
+Die Knoten sind durchnummeriert, weitere Attribute sind nicht vorhanden.  
+
+## Teilaufgabe a
+Erzeugen Sie aus dem File ein igraph-Objekt. Verwenden Sie zum Einlesen direkt
+read_graph()
+```{r}
+g <- read_graph("email.edgelist.txt", format = "edgelist", directed = TRUE)
+g
+```
+
+## Teilaufgabe b
+Mit simplify() können Sie doppelte Kanten entfernen. Wie viele Knoten und Kanten gibt
+es nun?
+```{r}
+g.simp <- simplify(g)
+g.simp
+
+edge_density(g.simp)
+
+mean_distance(g.simp)
+
+diameter(g.simp)
+
+log(57194)/log(mean(degree(g.simp)))
+
+transitivity(g.simp)
+
+components(g.simp)
+
+
+```
+
+
+### Teilaufgabe c
+Wie viele Zusammenhangskomponenten gibt es? Behalten Sie nur die grösste.
+```{r}
+components(g.simp)
+g.sub <- induced_subgraph(g.simp, vids = which(components(g.simp)$membership == 1))
+g.sub
+```
+
+### Teilaufgabe e
+Erstellen Sie Plots der Gradverteilungen (In- und Out-Degree, jeweils auf Original- und
+Log-Log-Skala). Liegt ein Potenzgesetz vor?
+```{r}
+deg <- degree(g.simp, mode = "in")
+deg.out <- degree(g.simp, mode = "out")
+deg.dis <- degree_distribution(g.simp, mode = "in")
+
+plot(deg.dis ~ deg, log = "xy", xlab = "In-Degree", ylab = "P(k)")
+```
+
+
+## Aufgabe 3 Vergleich realer Netzwerke mit stochastischen Modellen  
+
+Das File lhds.RData enthält ein (ungerichtetes) Netzwerk von Gesundheitsbehörden in den USA.
+Die Kanten beschreiben Zusammenarbeiten. Wir wollen diese Daten mit simulierten Netzwerken
+gleicher Grösse vergleichen. Simulieren Sie dazu:  
+
+### Teilaufgabe a
+Einen Erdős-Rényi-Graphen mit genauso vielen Knoten und Kanten wie das lhds-Netzwerk
+
+```{r}
+load("lhds.RData")
+lhds
+g.er <- sample_gnp(n = vcount(lhds), p = edge_density(lhds))
+g.er
+```
+
+## Teilaufgabe b
+Einen Watts-Strogatz-Graphen mit genauso vielen Knoten wie das lhds-Netzwerk. Wählen Sie
+die Anzahl Nachbarn auf jeder Seite gleich 2 (warum?) und die Rewiring-Wahrscheinlichkeit
+0.25
+```{r}
+g.ws <- sample_smallworld(dim = 1, size = vcount(lhds), nei = 2, p = 0.25)
+```
+
+## Teilaufgabe c
+Einen Barabási-Albert-Graphen mit genauso vielen Knoten wie das lhds-Netzwerk. Jeder
+neu hinzukommende Knoten soll mit Wahrscheinlichkeiten 0.15, 0.6 und 0.25 mit 0, 1 bzw. 2
+bestehenden Knoten verbunden werden. Setzen Sie den Zero-Appeal auf 2 und erzeugen Sie
+einen ungerichteten Graphen.
+
+```{r}
+g.ba <- sample_pa(n = vcount(lhds), out.dist = c(0.15, 0.6, 0.25), zero.appeal = 2, directed = FALSE)
+g.ba
+```
+## Teilaufgabe d
+Vergleichen Sie Dichte, Durchschnittsgrad, Transitivität und die Anzahl isolierter Punkte.
+```{r}
+edge_density(lhds)
+edge_density(g.er)
+edge_density(g.ws)
+edge_density(g.ba)
+```
+
+
+```{r}
+mean(degree(lhds))
+mean(degree(g.er))
+mean(degree(g.ws))
+mean(degree(g.ba))
+```
+
+
+```{r}
+transitivity(lhds)
+transitivity(g.er)
+transitivity(g.ws)
+transitivity(g.ba)
+```
+
+
+```{r}
+sum(components(lhds)$csize == 1)
+sum(components(g.er)$csize == 1)
+sum(components(g.ws)$csize == 1)
+sum(components(g.ba)$csize == 1)
+
+```

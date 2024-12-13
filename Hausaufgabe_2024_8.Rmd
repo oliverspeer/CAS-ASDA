@@ -1,0 +1,148 @@
+---
+title: 'Hausaufgabe Modul D Teil 2: Netzwerkanalyse'
+author: "Oliver Speer"
+subtitle: CAS ASDA 2024.8
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Hausaufgabe
+
+In der Hausaufgabe soll ein Netzwerk analysiert werden, das zu einem bestimmten Zeitpunkt die Verlinkungen verschiedener Unterseiten von Google untereinander abbildet. Die Knoten entsprechen Unterseiten, eine *gerichtete* Kante $(u,v)$ existiert, wenn Seite $u$ auf Seite $v$ verlinkt.
+
+Es existieren folgende Knotenattribute:
+
+-   `name`: Die URL
+-   `domain`: Der erste Teil nach `http://www.google.com/` bis zum nächsten Schrägstrich bzw. `top-level` für `http://www.google.com`.
+-   `domain_number`: Äquivalent zu `domain` aber als Nummer
+-   `depth`: Verschachtelungstiefe, `0` für `http://www.google.com`, `1` für `http://www.google.com/advanced_search` usw.
+
+## Netzwerk einlesen
+
+-   Lesen Sie die Daten ein:
+
+```{r, echo = TRUE, eval = TRUE, message = FALSE, warning = FALSE}
+library(igraph)
+load("google.RData")
+```
+
+## Erster Blick aufs Netzwerk
+
+(1 Punkt)
+
+-   Wie viele Knoten und Kanten gibt es?
+
+```{r, echo = TRUE, eval = TRUE}
+google
+```
+
+## Einfacher Graph?
+
+(2 Punkte)
+
+-   Besitzt das Netzwerk mehrfache Kanten oder Self-Loops? Wenn ja, wie viele? Was würden diese bedeuten? Machen Sie aus dem Graphen einen *einfachen* Graphen. Lesen Sie die Hilfeseite `?simplify`.
+
+```{r, echo = TRUE, eval = TRUE}
+```
+
+## Zusammenhangskomponenten
+
+(3 Punkte)
+
+Wie viele Zusammenhangskomponenten gibt es (schwach, also ohne Berücksichtigung der Richtung)? Falls es mehrere sind, behalten Sie nur die grösste, und entfernen Sie alle anderen.
+
+```{r, echo = TRUE, eval = TRUE}
+```
+
+In dem nun in jedem Fall zusammenhängenden Netzwerk: Genügt die Entfernung einer einzigen Seite, um das Netzwerk in mehrere Komponenten zerfallen zu lassen? Wenn ja, gibt es dafür mehr als eine Möglichkeit?
+
+```{r, echo = TRUE, eval = TRUE}
+```
+
+## Kennzahlen
+
+(3 Punkte)
+
+-   Berechnen Sie die Kantendichte und die Transitivität (ungerichtet). Sind die Ergebnisse für diese Art Netzwerk plausibel?
+
+```{r, echo = TRUE, eval = TRUE}
+```
+
+-   Eine Kennzahl, die wir bisher nicht behandelt haben und die nur für gerichtete Graphen definiert ist, ist die *Reziprozität*. Sie kann mit `reciprocity()` berechnet werden. Lesen Sie die Hilfeseite zu dieser Funktion und führen Sie die Berechnung durch. Was ist das Ergebnis, und was bedeutet das? Ist das Ergebnis plausibel?
+
+```{r, echo = TRUE, eval = TRUE}
+```
+
+-   Was sind der durchschnittliche Ein- und Ausgangsgrad?
+
+```{r, echo = TRUE, eval = TRUE}
+```
+
+## Small World?
+
+(2 Punkte)
+
+-   Was gross sind der mittlere Abstand und der Durchmesser?
+
+```{r, echo = TRUE, eval = TRUE}
+```
+
+-   Kann man das Netzwerk (grob) als ein *Small-World-Netzwerk* bezeichnen?
+
+```{r, echo = TRUE, eval = TRUE}
+```
+
+## Grad vs. Tiefe
+
+(1 Punkt)
+
+Erstellen Sie Plots des Ein- bzw. Ausgangsgrads gegen die Verschachtelungstiefe (welche Art Plot ist hier sinnvoll?). Ist das Ergebnis plausibel?
+
+```{r, echo = TRUE, eval = TRUE}
+```
+
+## Gradverteilung
+
+(2 Punkte)
+
+Plotten Sie Ein- und Ausgangsgradverteilung auf einer Log-Log-Skala. Handelt es sich um Power-Law-Distributions?
+
+```{r, echo = TRUE, eval = TRUE}
+```
+
+## Domains
+
+(3 Punkte)
+
+Für diesen und den nächsten Aufgabenteil müssen wir den Graphen in einen ungerichteten Graphen umwandeln. Dabei soll es jeweils eine ungerichtete Kante geben, wenn es im gerichteten Graphen eine Kante in eine der beiden Richtungen oder Kanten in beide Richtungen gibt:
+
+```{r, echo = TRUE, eval = FALSE}
+# Achtung, hier eval = TRUE setzen!
+google_undir <- as.undirected(google, mode = "collapse")
+is_simple(google_undir)
+```
+
+Führen Sie ein Clustering auf Basis der Modularität durch; für das optimale Clustering ist das Netzwerk aber sicher zu gross. Wie viele Cluster erhalten Sie und wie hoch ist die Modularität?
+
+Vergleichen Sie mit der Modularität, die Sie bei direkten Aufteilung nach Domains erhalten.
+
+```{r, echo = TRUE, eval = TRUE}
+```
+
+## Kontraktion
+
+(3 Punkte)
+
+Kontrahieren Sie den Graphen, d.h. fügen Sie alle Webseiten, die zur selben Unter-Domain (Knotenattribut `domain` bzw. `domain_number`) gehören, zu einem "Meta-Knoten" zusammen.
+
+-   Die Kanten des kontrahierten Graphen sollen den Links zwischen den Unter-Domains entsprechen, das Gewicht der Kanten der Anzahl Links.
+-   Speichern Sie ausserdem die Anzahl Webseiten pro Meta-Knoten. Die Namen der Meta-Knoten sollen jeweils die Domains sein.
+-   Achten Sie darauf, dass der entstehende Graph einfach ist, also keine multiplen Kanten und keine Schleifen enthält.
+
+```{r, echo = TRUE, eval = TRUE}
+```
